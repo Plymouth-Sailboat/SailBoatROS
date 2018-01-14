@@ -4,6 +4,7 @@
 #include "ros/ros.h"
 
 #include <gps_common/GPSFix.h>
+#include <geometry_msgs/Vector3.h>
 #include <string>
 
 namespace Sailboat{
@@ -22,15 +23,15 @@ namespace Sailboat{
 	protected:
         ros::NodeHandle n;
         
-        ros::Subscriber gps;
-        ros::Subscriber imu;
-        ros::Subscriber wind;
+        ros::Subscriber gpsSub;
+        ros::Subscriber imuSub;
+        ros::Subscriber windSub;
         
         ros::Publisher pub;
         
         std::string name;
     private:
-        void gpsCallback(const gps_common::GPSFix::ConstPtr& msg){gps(const gps_common::GPSFix::ConstPtr& msg);}
+        void gpsCallback(const gps_common::GPSFix::ConstPtr& msg){gps(msg);}
         void imuCallback(){imu();}
         void windCallback(){wind();}
         

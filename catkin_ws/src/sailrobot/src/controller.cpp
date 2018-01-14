@@ -9,26 +9,26 @@ Controller::Controller(std::string name, int looprate) : name(name), looprate(lo
 void Controller::init(int argc, char **argv){
     ros::init(argc, argv, "controller");
     
-    gpu = n.subscribe("gpu", 100, &Controller::gpsCallback, this);
-    //imu = n.subscribe("imu", 100, chatterCallback);
-    //wind = n.subscribe("wind", 100, chatterCallback);
+    gpsSub = n.subscribe("gpu", 100, &Controller::gpsCallback, this);
+    //imuSub = n.subscribe("imu", 100, chatterCallback);
+    //windSub = n.subscribe("wind", 100, chatterCallback);
     
-    pub = n.advertise("control", 100);
+    pub = n.advertise<geometry_msgs::Vector3>("control", 100);
 }
 
 
-virtual void Controller::control(){
+void Controller::control(){
     
 }
 
-virtual void Controller::gps(const gps_common::GPSFix::ConstPtr& msg){
+void Controller::gps(const gps_common::GPSFix::ConstPtr& msg){
     
 }
 
-virtual void Controller::imu(){
+void Controller::imu(){
     
 }
 
-virtual void Controller::wind(){
+void Controller::wind(){
     
 }
