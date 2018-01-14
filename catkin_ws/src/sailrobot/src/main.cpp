@@ -1,10 +1,12 @@
-#include "controller.hpp"
+#include "potentialfield.hpp"
 
 /**
  * This tutorial demonstrates simple sending of messages over the ROS system.
  */
 int main(int argc, char **argv)
 {
+    Sailboat::PotentialField controller("Controller", 10);
+    controller.init(argc, argv);
     
     ros::Rate loop_rate(10);
     
