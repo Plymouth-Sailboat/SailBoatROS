@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  gps_common
 )
 
 ## System dependencies are found with CMake's conventions
@@ -135,7 +136,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/sailrobot_node.cpp)
 
-add_executable(controller src/controller.cpp)
+add_executable(controller src/controller.cpp src/main.cpp)
 target_link_libraries(controller ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
