@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/plymouthsailboat/git/SailBoatROS/catkin_ws/devel/setup.sh
