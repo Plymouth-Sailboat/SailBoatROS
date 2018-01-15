@@ -1,8 +1,10 @@
 #include "controller.hpp"
+#include <sstream>
+
 
 using namespace Sailboat;
 
-Controller::Controller(std::string name, int looprate) : name(name), looprate(looprate){
+Controller::Controller(std::string name, int looprate, int controller) : name(name), looprate(looprate), controller(controller){
     
 }
 
@@ -17,6 +19,13 @@ void Controller::init(int argc, char **argv){
     windSub = n->subscribe("Wind", 100, &Controller::windCallback, this);
     
     pub = n->advertise<geometry_msgs::Vector3>("control", 100);
+    pubMsg = n->advertise<std_msgs::String>("controller", 1);
+
+    std::stringstream os;
+    os << controller;
+    std_msgs::String msg;
+    msg.data = os.str();
+    pubMsg.publish(msg);
 }
 
 void Controller::loop(){

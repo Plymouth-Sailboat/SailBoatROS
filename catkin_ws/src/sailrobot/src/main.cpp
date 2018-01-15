@@ -9,7 +9,7 @@ void chatterCallback(const std_msgs::String::ConstPtr& msg){
  */
 int main(int argc, char **argv)
 {
-    Sailboat::PotentialField controller("Controller", 10);
+    Sailboat::PotentialField controller("Controller", 10, 0);
     controller.init(argc, argv);
     
 //	ros::init(argc, argv, "Controller");

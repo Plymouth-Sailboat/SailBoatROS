@@ -7,12 +7,13 @@
 #include <geometry_msgs/Pose2D.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
+#include <std_msgs/String.h>
 #include <string>
 
 namespace Sailboat{
 	class Controller{
 	public:
-        	Controller(std::string name, int looprate);
+        	Controller(std::string name, int looprate, int controller);
         	~Controller(){}
         
         	void init(int argc, char **argv);
@@ -33,6 +34,8 @@ namespace Sailboat{
         	ros::Subscriber windSub;
         
         	ros::Publisher pub;
+                ros::Publisher pubMsg;
+
         
         	std::string name;
 
@@ -46,6 +49,7 @@ namespace Sailboat{
         	void windCallback(const geometry_msgs::Pose2D::ConstPtr& msg){wind(msg);}
         
         	int looprate;
+		int controller;
 	};
 }
 

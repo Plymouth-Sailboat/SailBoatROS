@@ -6,7 +6,7 @@
 namespace Sailboat{
     class PotentialField : public Controller{
 	public:
-        PotentialField(std::string name, int looprate) : Controller(name,looprate){}
+        PotentialField(std::string name, int looprate, int controller) : Controller(name,looprate, controller){}
         ~PotentialField(){}
 
 		virtual void control();
