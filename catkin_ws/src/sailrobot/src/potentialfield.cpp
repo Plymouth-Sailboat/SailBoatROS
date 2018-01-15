@@ -2,6 +2,6 @@
 
 using namespace Sailboat;
 
-void potentialfield::control(){
+void PotentialField::control(){
     
 }
