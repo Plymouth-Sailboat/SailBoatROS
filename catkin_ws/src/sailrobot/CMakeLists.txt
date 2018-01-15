@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   gps_common
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -136,8 +137,8 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/sailrobot_node.cpp)
 
-add_executable(controller src/controller.cpp src/main.cpp src/potentialfield.cpp)
-target_link_libraries(controller ${catkin_LIBRARIES})
+add_executable(potential_field src/controller.cpp src/potential_field_node/potentialFieldMain.cpp src/potential_field_node/potentialfield.cpp)
+target_link_libraries(potential_field ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

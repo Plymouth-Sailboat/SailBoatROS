@@ -8,6 +8,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <std_msgs/String.h>
+#include <geometry_msgs/Twist.h>
 #include <string>
 
 namespace Sailboat{
@@ -20,8 +21,13 @@ namespace Sailboat{
 
 		virtual void loop();
 
-		virtual void control() = 0;
+		void controlPublished();
+		virtual void setup(ros::NodeHandle* n) = 0;
+		virtual geometry_msgs::Twist control() = 0;
         
+		template <class T>
+		T getParam(std::string name){T tmp; if(ros::param::get(name,tmp)) return tmp; return T();}
+
         	virtual void gps(const sensor_msgs::NavSatFix::ConstPtr& msg);
         	virtual void imu(const sensor_msgs::Imu::ConstPtr& msg);
         	virtual void wind(const geometry_msgs::Pose2D::ConstPtr& msg);
@@ -33,9 +39,8 @@ namespace Sailboat{
         	ros::Subscriber imuSub;
         	ros::Subscriber windSub;
         
-        	ros::Publisher pub;
+        	ros::Publisher pubCmd;
                 ros::Publisher pubMsg;
-
         
         	std::string name;
 
@@ -43,6 +48,8 @@ namespace Sailboat{
                 sensor_msgs::Imu* imuMsg;
                 geometry_msgs::Pose2D* windMsg;
 
+		void publishCMD(geometry_msgs::Twist cmd);
+                void publishMSG(std_msgs::String msg);
     	private:
         	void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg){gps(msg);}
         	void imuCallback(const sensor_msgs::Imu::ConstPtr& msg){imu(msg);}

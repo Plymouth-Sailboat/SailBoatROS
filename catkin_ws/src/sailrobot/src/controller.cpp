@@ -18,27 +18,29 @@ void Controller::init(int argc, char **argv){
     imuSub = n->subscribe("IMU", 100, &Controller::imuCallback, this);
     windSub = n->subscribe("Wind", 100, &Controller::windCallback, this);
     
-    pub = n->advertise<geometry_msgs::Vector3>("control", 100);
-    pubMsg = n->advertise<std_msgs::String>("controller", 1);
-
-    std::stringstream os;
-    os << controller;
-    std_msgs::String msg;
-    msg.data = os.str();
-    pubMsg.publish(msg);
+    pubCmd = n->advertise<geometry_msgs::Twist>("sailboat_cmd", 100);
+    pubMsg = n->advertise<std_msgs::String>("sailboat_msg", 10);
 }
 
 void Controller::loop(){
-    control();
+    controlPublished();
 
     ros::spinOnce();
     loop_rate->sleep();
 }
 
-
-void Controller::control(){
-    
+void Controller::controlPublished(){
+	publishCMD(control());
 }
+
+void Controller::publishCMD(geometry_msgs::Twist msg){
+	pubCmd.publish(msg);
+}
+
+void Controller::publishMSG(std_msgs::String msg){
+        pubMsg.publish(msg);
+}
+
 
 void Controller::gps(const sensor_msgs::NavSatFix::ConstPtr& msg){
     *gpsMsg = *msg;
