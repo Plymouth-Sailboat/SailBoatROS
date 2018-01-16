@@ -14,12 +14,12 @@ void Controller::init(int argc, char **argv){
     n = new ros::NodeHandle();   
     loop_rate = new ros::Rate(looprate);
  
-    gpsSub = n->subscribe("GPS", 100, &Controller::gpsCallback, this);
-    imuSub = n->subscribe("IMU", 100, &Controller::imuCallback, this);
-    windSub = n->subscribe("Wind", 100, &Controller::windCallback, this);
+    gpsSub = n->subscribe("sailboat/GPS", 100, &Controller::gpsCallback, this);
+    imuSub = n->subscribe("sailboat/IMU", 100, &Controller::imuCallback, this);
+    windSub = n->subscribe("sailboat/wind", 100, &Controller::windCallback, this);
     
-    pubCmd = n->advertise<geometry_msgs::Twist>("sailboat_cmd", 100);
-    pubMsg = n->advertise<std_msgs::String>("sailboat_msg", 10);
+    pubCmd = n->advertise<geometry_msgs::Twist>("sailboat/sailboat_cmd", 100);
+    pubMsg = n->advertise<std_msgs::String>("sailboat/sailboat_msg", 10);
 }
 
 void Controller::loop(){

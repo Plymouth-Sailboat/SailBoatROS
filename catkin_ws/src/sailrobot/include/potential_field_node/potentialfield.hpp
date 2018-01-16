@@ -25,7 +25,8 @@ namespace Sailboat{
 		ros::Subscriber subWays;
 		ros::Subscriber subObs;
 
-		tf::Vector3 toXY(tf::Vector3 pos);
+		tf::Vector3 toXYZ(tf::Vector3 pos);
+		tf::Vector3 distanceVector(tf::Vector3 dest, tf::Vector3 pos);
 	};
 }
 
