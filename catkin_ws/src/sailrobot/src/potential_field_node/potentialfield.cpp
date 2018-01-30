@@ -14,7 +14,7 @@ tf::Vector3 PotentialField::toXYZ(tf::Vector3 pos){
 }
 
 tf::Vector3 PotentialField::distanceVector(tf::Vector3 dest, tf::Vector3 pos){
-	int earth_r = 6371000;
+	const long earth_r = 6371000;
 
 	tf::Vector3 res;
 	double longDif = (dest.getY() - pos.getY())*M_PI/180.0;
@@ -37,8 +37,8 @@ tf::Vector3 PotentialField::distanceVector(tf::Vector3 dest, tf::Vector3 pos){
 	double y = sin(long2-long1) * cos(lat2);
 	double bearing = atan2(y,x);
 
-	res.setX(d*sin(bearing));
-	res.setY(d*cos(bearing));
+	res.setX(d*cos(bearing));
+	res.setY(d*sin(bearing));
 
 	return res;
 }
@@ -46,6 +46,7 @@ tf::Vector3 PotentialField::distanceVector(tf::Vector3 dest, tf::Vector3 pos){
 geometry_msgs::Twist PotentialField::control(){
 	if(wpoints.size() < 1)
 		return geometry_msgs::Twist();	
+	std::cout << "controlling" << std::endl;
 	tf::Vector3 current(gpsMsg.latitude, gpsMsg.longitude, 0);
 
 	geometry_msgs::Twist cmd;
