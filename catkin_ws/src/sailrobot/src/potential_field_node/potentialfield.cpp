@@ -44,7 +44,9 @@ tf::Vector3 PotentialField::distanceVector(tf::Vector3 dest, tf::Vector3 pos){
 }
 
 geometry_msgs::Twist PotentialField::control(){
-	tf::Vector3 current(gpsMsg->latitude, gpsMsg->longitude, 0);
+	if(wpoints.size() < 1)
+		return geometry_msgs::Twist();	
+	tf::Vector3 current(gpsMsg.latitude, gpsMsg.longitude, 0);
 
 	geometry_msgs::Twist cmd;
 	tf::Vector3 heading;
