@@ -3,7 +3,7 @@
 ![Python Wrapper](https://img.shields.io/badge/Python-80%25-green.svg)
 
 # SailBoatROS
-Arduino code for [Plymouth's Autonomous Sailboat](http://165.227.238.42/). This contains the libraries, controllers and architecture of our arduino low-level controller for our sailboats. This arduino acquires all the data from the different sensors and send them to the main PC. It has also security features in case the PC shuts down.
+C++ and Python code for [Plymouth's Autonomous Sailboat](http://165.227.238.42/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribes to topics sent by the arduino and publish commands to it. It is comprised of classes in C++ and Python for easy integration.
 
 ## Getting Started
 
@@ -11,15 +11,17 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- Arduino IDE : https://www.arduino.cc/en/Main/Software
-- Arduino Mega 2560 : (tested and working)
-- Arduino Uno : 
+- Ros Kinetic
+- Raspberry Pi connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface)
 
 ### Installing
 
-First copy the folder librarie and put it in Documents/Arduino/.
+Clone the project and catkin_make in the workspace.
 
-You should be able to launch the .ino, compile and upload to the arduino.
+```
+catkin_make
+source devel/setup.bash
+```
 
 ## Authors
 
@@ -32,4 +34,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 ## Look at the Wiki!
-If you want more information about the arduino and the boat, please look at [the wiki](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface/wiki)
+If you want more information about the arduino and the boat, please look at [the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki)
