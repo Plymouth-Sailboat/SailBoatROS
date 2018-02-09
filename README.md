@@ -23,6 +23,20 @@ catkin_make
 source devel/setup.bash
 ```
 
+### Usage
+
+You should know have access to the nodes of the sailboat :
+
+```
+rosrun sailboat potential_field_node
+```
+
+Or you can run prebuilt launch config which will launch the communication with the arduino :
+
+```
+roslaunch sailboat start.launch
+```
+
 ## Authors
 
 * **Ulysse VAUTIER** - *Initial work* - [UlysseVautier](https://github.com/UlysseVautier)
