@@ -16,7 +16,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
-Clone the project and catkin_make in the workspace.
+Clone the project and catkin_make in the workspace. Source the catkin workspace to have access to the nodes.
 
 ```
 catkin_make
@@ -25,13 +25,13 @@ source devel/setup.bash
 
 ### Usage
 
-You should know have access to the nodes of the sailboat :
+You should now have access to the nodes of the sailboat :
 
 ```
 rosrun sailboat potential_field_node
 ```
 
-Or you can run prebuilt launch config which will launch the communication with the arduino :
+Or you can run the prebuilt launch config file which will launch the communication with the arduino :
 
 ```
 roslaunch sailboat start.launch
@@ -40,6 +40,8 @@ roslaunch sailboat start.launch
 ## Authors
 
 * **Ulysse VAUTIER** - *Initial work* - [UlysseVautier](https://github.com/UlysseVautier)
+* **Jian WAN** - [Jian Wan](https://www.plymouth.ac.uk/staff/jian-wan)
+* **Christophe Viel** - [Christophe Viel](https://www.researchgate.net/profile/Christophe_Viel)
 
 ## License
 
@@ -48,4 +50,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 ## Look at the Wiki!
-If you want more information about the arduino and the boat, please look at [the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki)
+If you want more information about the raspberry pi and the boat, please look at [the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki)
