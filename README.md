@@ -3,7 +3,7 @@
 ![Python Wrapper](https://img.shields.io/badge/Python-80%25-green.svg)
 
 # SailBoatROS
-C++ and Python code for [Plymouth's Autonomous Sailboat](http://165.227.238.42/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribes to topics sent by the arduino and publish commands to it. It is comprised of classes in C++ and Python for easy integration.
+C++ and Python code for [Plymouth's Autonomous Sailboat](http://165.227.238.42/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribe to topics sent by the arduino and publish commands to it. It is comprised of classes in C++ and Python for easy integration.
 
 ## Getting Started
 
@@ -11,7 +11,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- Ros Kinetic
+- ROS Kinetic
 - Raspberry Pi connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface)
 
 ### Installing
