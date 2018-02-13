@@ -1,8 +1,10 @@
 <launch>
+	<arg name="usb_port" default="/dev/ttyACM0" />
+	
 	<group ns="sailboat">
 		<node pkg="rosserial_python" name="serial" type="serial_node.py">
 			<param name="baud" value="115200"/>
-			<param name="port" value="/dev/ttyACM0"/>
+			<param name="port" value="$(arg usb_port)"/>
 		</node>
 	</group>
 </launch>
