@@ -60,6 +60,14 @@ Or you can run the prebuilt launch config file which will launch the communicati
 roslaunch sailrobot start.launch
 ```
 
+or
+
+```
+roslaunch sailrobot start.launch usb_port:=<port>
+```
+
+if you know the port on which the arduino is connected.
+
 ## Authors
 
 * **Ulysse VAUTIER** - *Initial work* - [UlysseVautier](https://github.com/UlysseVautier)
