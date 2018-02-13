@@ -51,13 +51,13 @@ source devel/setup.bash
 You should now have access to the nodes of the sailboat :
 
 ```
-rosrun sailboat potential_field_node
+rosrun sailrobot potential_field_node
 ```
 
 Or you can run the prebuilt launch config file which will launch the communication with the arduino :
 
 ```
-roslaunch sailboat start.launch
+roslaunch sailrobot start.launch
 ```
 
 ## Authors
