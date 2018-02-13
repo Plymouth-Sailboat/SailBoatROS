@@ -13,28 +13,29 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 - ROS Kinetic
-- Raspberry Pi connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface)
+- Raspberry Pi 3 connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface)
 - [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node)
 - [Rosserial-Arduino Node](http://wiki.ros.org/rosserial_arduino)
 
 ### Dependencies
 
-This repo expects to have a working ROS Kinetic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation).
 We use standard messages as much as possible and try to have as less dependencies as possible.
+
+This repo expects to have a working ROS Kinetic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation). If you are on a raspberry pi 3 we suggest installing the [Ubuntu Mate image](https://downloads.ubiquityrobotics.com/) from Ubiquity.
 
 To communicate with the Arduino we use the `rosserial-arduino` [node](http://wiki.ros.org/rosserial_arduino). To install it, execute 
 ```
-sudo apt-get install ros-indigo-rosserial-arduino
-sudo apt-get install ros-indigo-rosserial
+sudo apt-get install ros-kinetic-rosserial-arduino
+sudo apt-get install ros-kinetic-rosserial
 ```
 
-You will need the basic dependency of a ROS package. If you followed the installation instructions or the [ROS Tutorial](http://wiki.ros.org/ROS/Tutorials), you shouldn't have anything else to install. Just to list the ROS dependencies used :
+Because we use the raspberry pi camera, you will need [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node). There are multiple raspicam_node out there, either version should work. While not all controls use the camera, you will need this for the complete sailboat to work.
+
+You will need the basic dependencies of a ROS package. If you followed the installation instructions or the [ROS Tutorial](http://wiki.ros.org/ROS/Tutorials), you shouldn't have anything else to install. Just to list the ROS dependencies used :
 
 ```
 rospy roscpp std_msgs gps_common
 ```
-
-Because we use the raspberry pi camera, you will need [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node). While not all controls use the camera, you will need this for the complete sailboat to work.
 
 ### Installing
 
