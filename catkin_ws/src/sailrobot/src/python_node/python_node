@@ -5,12 +5,14 @@ from controller import Controller
 import rospy
 
 class Potential_Field(Controller):
+	def __init__(self, name, looprate):
+		Controller.__init__(self,name, looprate, 0)
 	def control(self):
 		rospy.loginfo(self.windData.theta)
 
 if __name__ == '__main__':
 	try:
-		pot = Potential_Field('potent', 10, 0)
+		pot = Potential_Field('potent', 10)
 		pot.init()
 		while not rospy.is_shutdown():
 			pot.loop()
