@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   tf
 )
 
+SET(basic_source src/controller.cpp src/utilities.cpp)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -137,7 +139,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/sailrobot_node.cpp)
 
-add_executable(potential_field src/controller.cpp src/potential_field_node/potential_field_node.cpp src/potential_field_node/potentialfield.cpp)
+add_executable(potential_field ${basic_source} src/potential_field_node/potential_field_node.cpp src/potential_field_node/potentialfield.cpp)
 target_link_libraries(potential_field ${catkin_LIBRARIES})
 
 catkin_install_python(PROGRAMS src/python_node/python_node DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

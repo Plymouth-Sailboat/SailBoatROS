@@ -26,9 +26,6 @@ namespace Sailboat{
 		void controlPublished();
 		virtual void setup(ros::NodeHandle* n) = 0;
 		virtual geometry_msgs::Twist control() = 0;
-        
-		template <class T>
-		T getParam(std::string name){T tmp; if(ros::param::get(name,tmp)) return tmp; return T();}
 
         	virtual void gps(const gps_common::GPSFix::ConstPtr& msg);
         	virtual void imu(const sensor_msgs::Imu::ConstPtr& msg);
@@ -55,6 +52,9 @@ namespace Sailboat{
 		void publishCMD(geometry_msgs::Twist cmd);
                 void publishMSG(std_msgs::String msg);
                 void publishMSG(std::string msg);
+
+		template <class T>
+                T getParam(std::string name){T tmp; if(ros::param::get(name,tmp)) return tmp; return T();}
     	private:
         	void gpsCallback(const gps_common::GPSFix::ConstPtr& msg){gps(msg);}
         	void imuCallback(const sensor_msgs::Imu::ConstPtr& msg){imu(msg);}
