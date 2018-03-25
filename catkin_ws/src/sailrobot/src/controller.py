@@ -7,6 +7,12 @@ from sensor_msgs.msg import NavSatFix
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Pose2D
 
+from enum import Enum
+import time
+
+class MODE:
+    STANDBY, RUDDER_SAIL, RETURN_HOME, HEADING, WAYPOINTS = range(5)
+
 class Controller:
 	name = ''
 	looprate = 10
@@ -16,23 +22,32 @@ class Controller:
 	gpsData = NavSatFix()
 	imuData = Imu()
 
-	def __init__(self, name, looprate, index):
+	def __init__(self, name, looprate, mode):
 		self.name = name
 		self.looprate = looprate
-		self.controller = index
+		self.controller = mode
+        
+        rospy.Timer(rospy.Duration(30.0), self.wakeup)
 
-		self.pubCmd = rospy.Publisher('sailboat/sailboat_cmd', Twist, queue_size=100)
-		self.pubMsg = rospy.Publisher('sailboat/sailboat_msg', String, queue_size=10)
-		self.gpsSub = rospy.Subscriber('sailboat/GPS', NavSatFix, self.gps)
-		self.imuSub = rospy.Subscriber('sailboat/IMU', Imu, self.imu)
-		self.windSub = rospy.Subscriber('sailboat/wind', Pose2D, self.wind)
+		self.pubCmd = rospy.Publisher('/sailboat/sailboat_cmd', Twist, queue_size=100)
+		self.pubMsg = rospy.Publisher('/sailboat/sailboat_msg', String, queue_size=10)
+		self.gpsSub = rospy.Subscriber('/sailboat/GPS', NavSatFix, self.gps)
+		self.imuSub = rospy.Subscriber('/sailboat/IMU', Imu, self.imu)
+		self.windSub = rospy.Subscriber('/sailboat/wind', Pose2D, self.wind)
+    
+        time.sleep(1)
+        publishMSG("C" + str(mode))
 
 	def init(self):
 		rospy.init_node(self.name,anonymous=True)
 		self.rate = rospy.Rate(self.looprate)
-
+    
+    def wakeup(self):
+        publishMSG("M")
 	def loop(self):
-		self.control()
+		control = self.control()
+            if(control):
+                publishCMD(control)
 		self.rate.sleep()
 	def gps(self,data):
 		self.gpsData = data
