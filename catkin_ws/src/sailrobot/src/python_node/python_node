@@ -1,19 +1,54 @@
 #!/usr/bin/env python
 import sys
-sys.path.append('../')
+import os.path
+sys.path.append(os.path.join(os.path.dirname(__file__),'..'))
 from controller import Controller
+from controller import MODE
+import utilities
 import rospy
+import tf
+import math
+from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Point
+from geometry_msgs.msg import Vector3
 
 class Potential_Field(Controller):
-	def __init__(self, name, looprate):
-		Controller.__init__(self,name, looprate, 0)
+	waypoints = []
+	obstacles = []
+
+	def __init__(self, name):
+		Controller.__init__(self,name, 10, MODE.HEADING)
+		rospy.Subscriber('waypoints', Point, self.addwaypoint);
+		rospy.Subscriber('obstacles', Point, self.addobstacles);
+	def addwaypoint(self, point):
+		self.waypoints.append(point)
+	def addobstacles(self, obs):
+		self.obstacles.append(obs)
+	def distanceVector(self, pos, dest):
+		d = GPSDist(pos.x, pos.y, dest.x, dest.y)
+		bearing = GPSBearing(pos.x, pos.y, dest.x, dest.y)
+		return Vector3(d*math.cos(bearing), d*math.sin(bearing), 0)
 	def control(self):
-		rospy.loginfo(self.windData.theta)
+		rospy.loginfo('controlling')
+		current = Vector3(self.gpsMsg.latitude, self.gpsMsg.longitude, 0)
+		cmd = Twist()
+		heading = Vector3()
+
+		for i in self.waypoints:
+			heading += self.distanceVector(current, Vector3(i.x,i.y,i.z))
+		for i in self.obstacles:
+			obs = Vector3(i.x,i.y,i.z)
+			res = self.distanceVector(current, obs)
+			dist = res.length2()
+			if(dist < 100):
+				res /= dist*dist
+				heading += res
+		cmd.linear = heading
+		return cmd
 
 if __name__ == '__main__':
 	try:
-		pot = Potential_Field('potent', 10)
-		pot.init()
+		pot = Potential_Field('potent')
 		while not rospy.is_shutdown():
 			pot.loop()
 	except rospy.ROSInterruptException:

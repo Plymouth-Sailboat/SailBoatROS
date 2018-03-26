@@ -10,7 +10,7 @@
 namespace Sailboat{
     class PotentialField : public Controller{
 	public:
-        PotentialField(std::string name, int looprate) : Controller(name,looprate, CONTROLLER::HEADING){}
+        PotentialField(std::string name) : Controller(name,10, MODE::HEADING){}
         ~PotentialField(){}
 		void setup(ros::NodeHandle* n);
 		virtual geometry_msgs::Twist control();
