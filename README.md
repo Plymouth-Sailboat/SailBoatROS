@@ -38,7 +38,7 @@ rospy roscpp std_msgs gps_common
 ```
 
 For python controllers, the only dependencies used is [NumPy](http://www.numpy.org/), so you will need to add it to python dependencies. Don't forget to upgrade pip first :
-```python
+```
 pip install --upgrade pip
 pip install numpy
 ```
