@@ -21,7 +21,9 @@ void Controller::init(int argc, char **argv){
     windSub = n->subscribe("/sailboat/wind", 100, &Controller::windCallback, this);
     sailSub = n->subscribe("/sailboat/sail", 100, &Controller::sailCallback, this);
     rudderSub = n->subscribe("/sailboat/rudder", 100, &Controller::rudderCallback, this);
+    velSub = n->subscribe("/sailboat/IMU_Dv", 100, &Controller::velCallback, this);
     
+    odomMsg = n->advertise<nav_msgs::Odometry>("/sailboat/odom", 100);
     pubCmd = n->advertise<geometry_msgs::Twist>("/sailboat/sailboat_cmd", 100);
     pubMsg = n->advertise<std_msgs::String>("/sailboat/sailboat_msg", 10);
     
@@ -37,6 +39,7 @@ void Controller::wakeup(const ros::TimerEvent& event){
 
 void Controller::loop(){
     controlPublished();
+	publishOdom();
     
     ros::spinOnce();
     loop_rate->sleep();
@@ -44,6 +47,20 @@ void Controller::loop(){
 
 void Controller::controlPublished(){
     publishCMD(control());
+}
+
+
+void Controller::publishOdom(){
+	nav_msgs::Odometry odom_msg;
+	odom_msg.pose.pose.position.x = gpsMsg.latitude;
+	odom_msg.pose.pose.position.y = gpsMsg.longitude;
+	odom_msg.pose.pose.position.z = gpsMsg.altitude;
+	
+	odom_msg.pose.pose.orientation = imuMsg.orientation;
+	
+	odom_msg.twist.twist = velMsg;
+	
+	odomMsg.publish(odom_msg);
 }
 
 void Controller::publishCMD(geometry_msgs::Twist msg){
@@ -79,5 +96,9 @@ void Controller::sail(const std_msgs::Float32::ConstPtr& msg){
 
 void Controller::rudder(const std_msgs::Float32::ConstPtr& msg){
     sail = msg.data;
+}
+
+void Controller::wind(const geometry_msgs::Twist::ConstPtr& msg){
+    velMsg = *msg;
 }
 

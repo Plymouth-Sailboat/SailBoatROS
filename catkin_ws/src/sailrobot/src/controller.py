@@ -6,6 +6,7 @@ from gps_common.msg import GPSFix
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Pose2D
 from std_msgs.msg import Float32
+from nav_msgs.msg import Odometry
 
 from enum import Enum
 import time
@@ -21,6 +22,7 @@ class Controller:
 	windMsg = Pose2D()
 	gpsMsg = GPSFix()
 	imuMsg = Imu()
+	velMsg = Twist()
 	sailAngle = 0.0
 	rudderAngle = 0.0
 
@@ -36,11 +38,13 @@ class Controller:
 
 		self.pubCmd = rospy.Publisher('/sailboat/sailboat_cmd', Twist, queue_size=100)
 		self.pubMsg = rospy.Publisher('/sailboat/sailboat_msg', String, queue_size=10)
+		self.odomMsg = rospy.Publisher('/sailboat/odom', Odometry, queue_size=100)
 		self.gpsSub = rospy.Subscriber('/sailboat/GPS', GPSFix, self.gps)
 		self.imuSub = rospy.Subscriber('/sailboat/IMU', Imu, self.imu)
 		self.windSub = rospy.Subscriber('/sailboat/wind', Pose2D, self.wind)
                 self.sailSub = rospy.Subscriber('/sailboat/sail', Float32, self.sail)
                 self.rudderSub = rospy.Subscriber('/sailboat/rudder', Float32, self.rudder)
+                self.velSub = rospy.Subscriber('/sailboat/IMU_Dv', Twist, self.vel)
     
         	time.sleep(1)
         	self.publishMSG("C" + str(mode))
@@ -51,19 +55,43 @@ class Controller:
 		control = self.control()
             	if(control):
                 	self.publishCMD(control)
+                self.publishOdom()
+                
 		self.rate.sleep()
+		
 	def gps(self,data):
 		self.gpsMsg = data
+		
 	def imu(self,data):
 		self.imuMsg = data
+		
 	def wind(self,data):
 		self.windMsg = data
+		
 	def sail(self,data):
 		self.sailAngle = data.data
+		
 	def rudder(self,data):
 		self.rudderAngle = data.data
+		
+	def vel(self,data):
+		self.velMsg = data
+		
+	def publishOdom(self):
+            odom_msg = Odometry();
+            odom_msg.pose.pose.position.x = gpsMsg.latitude;
+            odom_msg.pose.pose.position.y = gpsMsg.longitude;
+            odom_msg.pose.pose.position.z = gpsMsg.altitude;
+	
+            odom_msg.pose.pose.orientation = imuMsg.orientation;
+	
+            odom_msg.twist.twist = velMsg;
+	
+            self.odomMsg.publish(odom_msg);
+            
 	def publishCMD(self, cmd):
 		self.pubCmd.publish(cmd)
+		
 	def publishMSG(self, msg):
 		self.pubMsg.publish(msg)
 
