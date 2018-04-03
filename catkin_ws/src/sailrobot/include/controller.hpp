@@ -9,6 +9,7 @@
 #include <gps_common/GPSFix.h>
 #include <std_msgs/String.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/Float32.h>
 #include <string>
 
 namespace Sailboat{
@@ -30,6 +31,8 @@ namespace Sailboat{
         virtual void gps(const gps_common::GPSFix::ConstPtr& msg);
         virtual void imu(const sensor_msgs::Imu::ConstPtr& msg);
         virtual void wind(const geometry_msgs::Pose2D::ConstPtr& msg);
+        virtual void sail(const std_msgs::Float32::ConstPtr& msg);
+        virtual void rudder(const std_msgs::Float32::ConstPtr& msg);
     protected:
         ros::NodeHandle* n;
         ros::Rate* loop_rate;
@@ -39,6 +42,8 @@ namespace Sailboat{
         ros::Subscriber gpsSub;
         ros::Subscriber imuSub;
         ros::Subscriber windSub;
+        ros::Subscriber sailSub;
+        ros::Subscriber rudderSub;
         
         ros::Publisher pubCmd;
         ros::Publisher pubMsg;
@@ -48,6 +53,8 @@ namespace Sailboat{
         gps_common::GPSFix gpsMsg;
         sensor_msgs::Imu imuMsg;
         geometry_msgs::Pose2D windMsg;
+		float sailAngle;
+		float rudderAngle;
         
         void publishCMD(geometry_msgs::Twist cmd);
         void publishMSG(std_msgs::String msg);
@@ -59,6 +66,8 @@ namespace Sailboat{
         void gpsCallback(const gps_common::GPSFix::ConstPtr& msg){gps(msg);}
         void imuCallback(const sensor_msgs::Imu::ConstPtr& msg){imu(msg);}
         void windCallback(const geometry_msgs::Pose2D::ConstPtr& msg){wind(msg);}
+        void sailCallback(const std_msgs::Float32::ConstPtr& msg){sail(msg);}
+        void rudderCallback(const std_msgs::Float32::ConstPtr& msg){rudder(msg);}
         
         int looprate;
         int controller;

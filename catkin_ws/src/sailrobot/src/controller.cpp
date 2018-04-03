@@ -19,6 +19,8 @@ void Controller::init(int argc, char **argv){
     gpsSub = n->subscribe("/sailboat/GPS", 100, &Controller::gpsCallback, this);
     imuSub = n->subscribe("/sailboat/IMU", 100, &Controller::imuCallback, this);
     windSub = n->subscribe("/sailboat/wind", 100, &Controller::windCallback, this);
+    sailSub = n->subscribe("/sailboat/sail", 100, &Controller::sailCallback, this);
+    rudderSub = n->subscribe("/sailboat/rudder", 100, &Controller::rudderCallback, this);
     
     pubCmd = n->advertise<geometry_msgs::Twist>("/sailboat/sailboat_cmd", 100);
     pubMsg = n->advertise<std_msgs::String>("/sailboat/sailboat_msg", 10);
@@ -69,5 +71,13 @@ void Controller::imu(const sensor_msgs::Imu::ConstPtr& msg){
 
 void Controller::wind(const geometry_msgs::Pose2D::ConstPtr& msg){
     windMsg = *msg;
+}
+
+void Controller::sail(const std_msgs::Float32::ConstPtr& msg){
+    rudder = msg.data;
+}
+
+void Controller::rudder(const std_msgs::Float32::ConstPtr& msg){
+    sail = msg.data;
 }
 
