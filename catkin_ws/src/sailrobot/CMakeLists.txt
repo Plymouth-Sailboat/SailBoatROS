@@ -142,8 +142,6 @@ include_directories(
 add_executable(potential_field ${basic_source} src/potential_field_node/potential_field_node.cpp src/potential_field_node/potentialfield.cpp)
 target_link_libraries(potential_field ${catkin_LIBRARIES})
 
-catkin_install_python(PROGRAMS src/python_node/python_node DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use

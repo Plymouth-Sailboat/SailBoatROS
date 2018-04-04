@@ -75,7 +75,7 @@ namespace Sailboat{
         void rudderCallback(const std_msgs::Float32::ConstPtr& msg){rudder(msg);}
         void velCallback(const geometry_msgs::Twist::ConstPtr& msg){vel(msg);}
 		
-		void publishOdom();
+	void publishOdom();
         
         int looprate;
         int controller;

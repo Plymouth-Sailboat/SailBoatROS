@@ -91,14 +91,14 @@ void Controller::wind(const geometry_msgs::Pose2D::ConstPtr& msg){
 }
 
 void Controller::sail(const std_msgs::Float32::ConstPtr& msg){
-    rudder = msg.data;
+    rudderAngle = msg->data;
 }
 
 void Controller::rudder(const std_msgs::Float32::ConstPtr& msg){
-    sail = msg.data;
+    sailAngle = msg->data;
 }
 
-void Controller::wind(const geometry_msgs::Twist::ConstPtr& msg){
+void Controller::vel(const geometry_msgs::Twist::ConstPtr& msg){
     velMsg = *msg;
 }
 
