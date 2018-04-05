@@ -23,20 +23,23 @@ We use standard messages as much as possible and try to have as less dependencie
 
 This repo expects to have a working ROS Kinetic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation). If you are on a raspberry pi 3 we suggest installing the [Ubuntu Mate image](https://downloads.ubiquityrobotics.com/) from Ubiquity.
 
-To communicate with the Arduino we use the `rosserial-arduino` [node](http://wiki.ros.org/rosserial_arduino). To install it, execute 
+#### ROS Dependencies
+We use the message [gps_common/GPSFix](http://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html) for our GPS, which you will need to install the dependency.
+To communicate with the Arduino we use the `rosserial-arduino` [node](http://wiki.ros.org/rosserial_arduino). To install them, execute 
 ```
+sudo apt-get install ros-kinetic-gps-common
 sudo apt-get install ros-kinetic-rosserial-arduino
 sudo apt-get install ros-kinetic-rosserial
 ```
 
-Because we use the raspberry pi camera, you will need [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node). There are multiple raspicam_node out there, either version should work. While not all controls use the camera, you will need this for the complete sailboat to work.
+Because we use the raspberry pi camera, you will need [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node). There are multiple raspicam_node out there, either version should work. While not all our controls use the camera, you will need this for the complete sailboat to work.
 
-You will need the basic dependencies of a ROS package. If you followed the installation instructions or the [ROS Tutorial](http://wiki.ros.org/ROS/Tutorials), you shouldn't have anything else to install. Just to list the ROS dependencies used :
+Those are the ROS dependencies used :
 
 ```
 rospy roscpp std_msgs gps_common
 ```
-
+#### Python Dependencies
 For python controllers, the only dependencies used is [NumPy](http://www.numpy.org/), so you will need to add it to python dependencies. Don't forget to upgrade pip first :
 ```
 pip install --upgrade pip
