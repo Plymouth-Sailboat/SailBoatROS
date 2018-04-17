@@ -57,7 +57,13 @@ source devel/setup.bash
 
 ### Usage
 
-You should now have access to the nodes of the sailboat :
+To launch the communication with the Arduino you have to launch the [rosserial_python](http://wiki.ros.org/rosserial_python) node with the proper USB device, /dev/ttyACM0 in our case :
+
+```
+rosrun rosserial_python serial_node.py /dev/ttyACM0
+```
+
+You can then launch any nodes of the sailboat e.g. :
 
 ```
 rosrun sailrobot potential_field_node
@@ -69,13 +75,11 @@ Or you can run the prebuilt launch config file which will launch the communicati
 roslaunch sailrobot start.launch
 ```
 
-or
+or if you know the port on which the arduino is connected :
 
 ```
 roslaunch sailrobot start.launch usb_port:=<port>
 ```
-
-if you know the port on which the arduino is connected.
 
 ## Authors
 
