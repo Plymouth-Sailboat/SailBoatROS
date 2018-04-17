@@ -1,5 +1,5 @@
 [![Current version on ROS](https://img.shields.io/badge/ROS-Kinetic-blue.svg)](http://wiki.ros.org/kinetic)
-![C++ Wrapper](https://img.shields.io/badge/C%2B%2B-100%25-brightgreen.svg)
+![C++ Wrapper](https://img.shields.io/badge/C%2B%2B-100%25-green.svg)
 ![Python Wrapper](https://img.shields.io/badge/Python-100%25-green.svg)
 
 # SailBoatROS
