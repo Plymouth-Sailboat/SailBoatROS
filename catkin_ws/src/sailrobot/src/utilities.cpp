@@ -42,3 +42,45 @@ float Utility::GPStoCartesian(float lat, float gpslong){
 float Utility::CartesiantoGPS(float x, float y){
 
 }
+
+geometry_msgs::Vector3 Utility::QuaternionToEuler(x,y,z,w){
+	geometry_msgs::Vector3 euler;
+	double sinr = +2.0 * (x * y + z * w);
+	double cosr = +1.0 - 2.0 * (y * y + z * z);
+	roll = atan2(sinr, cosr);
+
+	// pitch (y-axis rotation)
+	double sinp = +2.0 * (x * z - w * y);
+	if (fabs(sinp) >= 1)
+		pitch = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+	else
+		pitch = asin(sinp);
+
+	// yaw (z-axis rotation)
+	double siny = +2.0 * (x * w + y * z);
+	double cosy = +1.0 - 2.0 * (z * z + w * w);  
+	yaw = atan2(siny, cosy);
+	
+	euler.x = pitch;
+	euler.y = roll;
+	euler.z = yaw;
+	return euler;
+}
+
+geometry_msgs::Quaternion Utility::EulerToQuaternion(x, y, z){
+	geometry_msgs::Quaternion q;
+	
+	double cy = cos(z * 0.5);
+	double sy = sin(z * 0.5);
+	double cr = cos(y * 0.5);
+	double sr = sin(y * 0.5);
+	double cp = cos(x * 0.5);
+	double sp = sin(x * 0.5);
+
+	q.x = cy * cr * cp + sy * sr * sp;
+	q.y = cy * sr * cp - sy * cr * sp;
+	q.z = cy * cr * sp + sy * sr * cp;
+	q.w = sy * cr * cp - cy * sr * sp;
+	
+	return q;
+}

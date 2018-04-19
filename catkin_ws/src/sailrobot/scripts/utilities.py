@@ -2,53 +2,68 @@
 import math
 
 def GPSDist(lat1, lon1, lat2, lon2):
-	R = 6371000
-	degtorad = math.pi/180.0
-    ksi1 = lat1*degtorad
-	ksi2 = lat2*degtorad
-	dksi = (lat2-lat1)*degtorad
-	dlambda = (lon2-lon1)*degtorad
+        R = 6371000
+        degtorad = math.pi/180.0
+        ksi1 = lat1*degtorad
+        ksi2 = lat2*degtorad
+        dksi = (lat2-lat1)*degtorad
+        dlambda = (lon2-lon1)*degtorad
 
-	a = math.sin(dksi/2.0)*math.sin(dksi/2.0) + math.cos(ksi1)*math.cos(ksi2)*math.sin(dlambda/2.0)*math.sin(dlambda/2.0)
-	c = 2*math.atan2(math.sqrt(a), math.sqrt(1-a))
-	return R*c
+        a = math.sin(dksi/2.0)*math.sin(dksi/2.0) + math.cos(ksi1)*math.cos(ksi2)*math.sin(dlambda/2.0)*math.sin(dlambda/2.0)
+        c = 2*math.atan2(math.sqrt(a), math.sqrt(1-a))
+        return R*c
 
 def GPSDistFast(lat1, lon1, lat2, lon2):
-	degtorad = math.pi/180.0
-	ksi1 = lat1*degtorad
-	ksi2 = lat2*degtorad
-	lam1 = lon1*degtorad
-	lam2 = lon2*degtorad
+        degtorad = math.pi/180.0
+        ksi1 = lat1*degtorad
+        ksi2 = lat2*degtorad
+        lam1 = lon1*degtorad
+        lam2 = lon2*degtorad
 
-	x = (lam2-lam1)*math.cos((ksi1+ksi2)/2.0)
-	y = ksi2-ksi1
-	return math.sqrt(x*x + y*y) * 6371000
+        x = (lam2-lam1)*math.cos((ksi1+ksi2)/2.0)
+        y = ksi2-ksi1
+        return math.sqrt(x*x + y*y) * 6371000
 
 def GPSBearing(lat1, lon1, lat2, lon2):
-	degtorad = math.pi/180.0
-	ksi1 = lat1*degtorad
-	ksi2 = lat2*degtorad
-	lam1 = lon1*degtorad
-	lam2 = lon2*degtorad
+        degtorad = math.pi/180.0
+        ksi1 = lat1*degtorad
+        ksi2 = lat2*degtorad
+        lam1 = lon1*degtorad
+        lam2 = lon2*degtorad
 
-	y = math.sin(lam2-lam1)*math.cos(ksi2)
-	x = math.cos(ksi1)*math.sin(ksi2)-math.sin(ksi1)*math.cos(ksi2)*math.cos(lam2-lam1)
-	return math.atan2(y,x)
+        y = math.sin(lam2-lam1)*math.cos(ksi2)
+        x = math.cos(ksi1)*math.sin(ksi2)-math.sin(ksi1)*math.cos(ksi2)*math.cos(lam2-lam1)
+        return math.atan2(y,x)
 
-def QuaternionToEuler(w, x, y, z):
-	ysqr = y * y
+def QuaternionToEuler(x,y,z,w):
+        zsqr = z * z
 	
-	t0 = +2.0 * (w * x + y * z)
-	t1 = +1.0 - 2.0 * (x * x + ysqr)
-	X = math.degrees(math.atan2(t0, t1))
+        t0 = +2.0 * (x * y + z * w)
+        t1 = +1.0 - 2.0 * (y * y + zsqr)
+        X = math.atan2(t0, t1)
 	
-	t2 = +2.0 * (w * y - z * x)
-	t2 = +1.0 if t2 > +1.0 else t2
-	t2 = -1.0 if t2 < -1.0 else t2
-	Y = math.degrees(math.asin(t2))
+        t2 = +2.0 * (x * z - w * y)
+        t2 = +1.0 if t2 > +1.0 else t2
+        t2 = -1.0 if t2 < -1.0 else t2
+        Y = math.asin(t2)
 	
-	t3 = +2.0 * (w * z + x * y)
-	t4 = +1.0 - 2.0 * (ysqr + z * z)
-	Z = math.degrees(math.atan2(t3, t4))
+        t3 = +2.0 * (x * w + y * z)
+        t4 = +1.0 - 2.0 * (zsqr + w * w)
+        Z = math.atan2(t3, t4)
 	
-	return X, Y, Z
+        return X, Y, Z
+
+def EulerToQuaternion(x, y, z):
+        cy = math.cos(z * 0.5);
+        sy = math.sin(z * 0.5);
+        cr = math.cos(y * 0.5);
+        sr = math.sin(y * 0.5);
+        cp = math.cos(x * 0.5);
+        sp = math.sin(x * 0.5);
+
+        qx = cy * cr * cp + sy * sr * sp;
+        qy = cy * sr * cp - sy * cr * sp;
+        qz = cy * cr * sp + sy * sr * cp;
+        qw = sy * cr * cp - cy * sr * sp;
+	
+        return qx,qy,wz,qw
