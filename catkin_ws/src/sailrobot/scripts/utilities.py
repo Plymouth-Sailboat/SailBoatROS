@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import math
+import numpy as np
+import os
 
 def GPSDist(lat1, lon1, lat2, lon2):
         R = 6371000
@@ -54,16 +56,37 @@ def QuaternionToEuler(x,y,z,w):
         return X, Y, Z
 
 def EulerToQuaternion(x, y, z):
-        cy = math.cos(z * 0.5);
-        sy = math.sin(z * 0.5);
-        cr = math.cos(y * 0.5);
-        sr = math.sin(y * 0.5);
-        cp = math.cos(x * 0.5);
-        sp = math.sin(x * 0.5);
+        cy = math.cos(z * 0.5)
+        sy = math.sin(z * 0.5)
+        cr = math.cos(y * 0.5)
+        sr = math.sin(y * 0.5)
+        cp = math.cos(x * 0.5)
+        sp = math.sin(x * 0.5)
 
-        qx = cy * cr * cp + sy * sr * sp;
-        qy = cy * sr * cp - sy * cr * sp;
-        qz = cy * cr * sp + sy * sr * cp;
-        qw = sy * cr * cp - cy * sr * sp;
+        qx = cy * cr * cp + sy * sr * sp
+        qy = cy * sr * cp - sy * cr * sp
+        qz = cy * cr * sp + sy * sr * cp
+        qw = sy * cr * cp - cy * sr * sp
 	
         return qx,qy,wz,qw
+
+def readGPSCoordinates(filepath):
+        if os.path.exists(filepath):
+                with open(filepath, 'r') as file:
+                        try:
+                                res = []
+                                noproblem = True
+                                for line in file:
+                                        coords = line.split(",")
+                                        try:
+                                                res.append([float(coords[0]),float(coords[1])])
+                                        except:
+                                                noproblem = False
+                                if not noproblem:
+                                        print("Reading GPS : Wrong File Format for some lines")
+                                return res
+                        except:
+                                print("Reading GPS : File not opened")
+        else:
+                print("Reading GPS : File does not exist")
+        return []

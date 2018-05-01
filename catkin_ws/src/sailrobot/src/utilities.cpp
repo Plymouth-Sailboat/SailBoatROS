@@ -1,5 +1,10 @@
 #include <utilities.hpp>
 #include <math.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <iterator>
 
 float Utility::GPSDist(float lat1, float lon1, float lat2, float lon2){
 	float R = 6371000;
@@ -43,7 +48,7 @@ float Utility::CartesiantoGPS(float x, float y){
 
 }
 
-geometry_msgs::Vector3 Utility::QuaternionToEuler(x,y,z,w){
+geometry_msgs::Vector3 Utility::QuaternionToEuler(float x, float y, float z, float w){
 	geometry_msgs::Vector3 euler;
 	double sinr = +2.0 * (x * y + z * w);
 	double cosr = +1.0 - 2.0 * (y * y + z * z);
@@ -67,7 +72,7 @@ geometry_msgs::Vector3 Utility::QuaternionToEuler(x,y,z,w){
 	return euler;
 }
 
-geometry_msgs::Quaternion Utility::EulerToQuaternion(x, y, z){
+geometry_msgs::Quaternion Utility::EulerToQuaternion(float x, float y, float z){
 	geometry_msgs::Quaternion q;
 	
 	double cy = cos(z * 0.5);
@@ -83,4 +88,28 @@ geometry_msgs::Quaternion Utility::EulerToQuaternion(x, y, z){
 	q.w = sy * cr * cp - cy * sr * sp;
 	
 	return q;
+}
+
+void Utility::ReadGPSCoordinates(std::string filepath, float** coordinates){
+	std::fstream file(filepath);
+	if(!file){
+		std::cerr << "GPS Reading : Couldn't open file" << std::endl;
+		return;
+	}
+	std::string line;
+	int nbLines = std::count(std::istreambuf_iterator<char>(file), 
+             std::istreambuf_iterator<char>(), '\n');
+	coordinates = new float*[nbLines];
+	int i = 0;
+	while (std::getline(file, line) {
+		coordinates[i] = new float[2];
+		std::string coords;
+		std::stringstream stream(line);
+		std::getline(stream, coords, ',');
+		coorinates[i][0] = std::atof(coords.c_str());
+		std::getline(stream, coords, ',');
+		coorinates[i][1] = std::atof(coords.c_str());
+		i++;
+	}
+	file.close();
 }
