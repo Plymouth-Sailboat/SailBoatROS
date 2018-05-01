@@ -52,10 +52,11 @@ geometry_msgs::Vector3 Utility::QuaternionToEuler(float x, float y, float z, flo
 	geometry_msgs::Vector3 euler;
 	double sinr = +2.0 * (x * y + z * w);
 	double cosr = +1.0 - 2.0 * (y * y + z * z);
-	roll = atan2(sinr, cosr);
+	double roll = atan2(sinr, cosr);
 
 	// pitch (y-axis rotation)
 	double sinp = +2.0 * (x * z - w * y);
+	double pitch = 0;
 	if (fabs(sinp) >= 1)
 		pitch = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
 	else
@@ -64,7 +65,7 @@ geometry_msgs::Vector3 Utility::QuaternionToEuler(float x, float y, float z, flo
 	// yaw (z-axis rotation)
 	double siny = +2.0 * (x * w + y * z);
 	double cosy = +1.0 - 2.0 * (z * z + w * w);  
-	yaw = atan2(siny, cosy);
+	double yaw = atan2(siny, cosy);
 	
 	euler.x = pitch;
 	euler.y = roll;
@@ -90,26 +91,30 @@ geometry_msgs::Quaternion Utility::EulerToQuaternion(float x, float y, float z){
 	return q;
 }
 
-void Utility::ReadGPSCoordinates(std::string filepath, float** coordinates){
+float** Utility::ReadGPSCoordinates(std::string filepath){
+	float** coordinates = NULL;
 	std::fstream file(filepath);
 	if(!file){
 		std::cerr << "GPS Reading : Couldn't open file" << std::endl;
-		return;
+		return coordinates;
 	}
 	std::string line;
 	int nbLines = std::count(std::istreambuf_iterator<char>(file), 
              std::istreambuf_iterator<char>(), '\n');
 	coordinates = new float*[nbLines];
+	file.clear();
+	file.seekg(0, std::ios::beg);
 	int i = 0;
-	while (std::getline(file, line) {
+	while (std::getline(file, line)) {
 		coordinates[i] = new float[2];
 		std::string coords;
 		std::stringstream stream(line);
 		std::getline(stream, coords, ',');
-		coorinates[i][0] = std::atof(coords.c_str());
+		coordinates[i][0] = std::atof(coords.c_str());
 		std::getline(stream, coords, ',');
-		coorinates[i][1] = std::atof(coords.c_str());
+		coordinates[i][1] = std::atof(coords.c_str());
 		i++;
 	}
 	file.close();
+	return coordinates;
 }

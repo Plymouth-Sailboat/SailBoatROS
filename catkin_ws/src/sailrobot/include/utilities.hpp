@@ -11,5 +11,5 @@ class Utility{
 		static float CartesiantoGPS(float x, float y);
 		static geometry_msgs::Vector3 QuaternionToEuler(float x, float y, float z, float w);
 		static geometry_msgs::Quaternion EulerToQuaternion(float x, float y, float z);
-		static void ReadGPSCoordinates(std::string filepath);
+		static float** ReadGPSCoordinates(std::string filepath);
 };

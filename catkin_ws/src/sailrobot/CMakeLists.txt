@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   gps_common
   tf
+  roslib
 )
 
 SET(basic_source src/controller.cpp src/utilities.cpp)

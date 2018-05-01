@@ -1,6 +1,7 @@
 #include "potential_field_node/potentialfield.hpp"
 #include "math.h"
 #include <utilities.hpp>
+#include <ros/package.h>
 
 using namespace Sailboat;
 

@@ -54,6 +54,7 @@
   <build_depend>std_msgs</build_depend>
   <build_depend>gps_common</build_depend>
   <build_depend>tf</build_depend>
+  <build_depend>roslib</build_depend>
   <build_depend>rosserial-arduino</build_depend>
   <build_depend>rosserial-client</build_depend>
   <build_export_depend>roscpp</build_export_depend>
@@ -61,6 +62,7 @@
   <build_export_depend>std_msgs</build_export_depend>
   <build_export_depend>gps_common</build_export_depend>
   <build_export_depend>tf</build_export_depend>
+  <build_export_depend>roslib</build_export_depend>
   <build_export_depend>rosserial-arduino</build_export_depend>
   <build_export_depend>rosserial-client</build_export_depend>
   <exec_depend>roscpp</exec_depend>
@@ -68,6 +70,7 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>gps_common</exec_depend>
   <exec_depend>tf</exec_depend>
+  <exec_depend>roslib</exec_depend>
   <exec_depend>rosserial-arduino</exec_depend>
   <exec_depend>rosserial-client</exec_depend>
 
