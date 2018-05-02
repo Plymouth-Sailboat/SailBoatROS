@@ -279,7 +279,7 @@ if __name__ == '__main__':
         	urudder = msg1.x
 
 
-		# calcul de la vitesse et de la position
+		# Evaluate speed and position of the sailboat
                 x0 = S1.x
                 y0 = S1.y
         	S1.dynamic_sailboat(usail,urudder)
@@ -317,7 +317,7 @@ if __name__ == '__main__':
 		msg_Vel.linear.x = S1.v
 		msg_Vel.linear.y = S1.u
 
-		# envoyer message
+		# transmit message
         	talker_GPS(msg_GPS)
         	talker_IMU(msg_Imu)
         	talker_Wind(msg_Wind)
@@ -337,7 +337,7 @@ if __name__ == '__main__':
         		print('rudder angle = ', S1.deltar*180/pi,' deg')
 			print(' ')
 
-		# Affichage
+		# Plot sailboat
 		dst = utilities.GPSDist(S1.lat,S1.long,latref,longref)
 		theta00 = utilities.GPSBearing(latref,longref,S1.lat,S1.long)
 		x00 = np.cos(theta00)*dst
