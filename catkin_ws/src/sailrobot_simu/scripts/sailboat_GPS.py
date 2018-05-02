@@ -246,7 +246,7 @@ if __name__ == '__main__':
         print(' -atw : true wind veloctity (current: ',atw,'(m/s))' )
 	print(' -latrf : Latitude reference (for plot. current: ', latref,')')
 	print(' -longrf : Longitude reference (for plot. current: ', longref,')')
-	print(' -v : display informations')
+	print(' -v : display information')
 	print(' ')
 	print('WARNING: value of -head and -tw must be enter in degree')
 	print(' ')
