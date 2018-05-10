@@ -99,7 +99,7 @@ void Controller::rudder(const std_msgs::Float32::ConstPtr& msg){
     rudderAngle = msg->data;
 }
 
-void Controller::rudder(const std_msgs::Float32::ConstPtr& msg){
+void Controller::rudder2(const std_msgs::Float32::ConstPtr& msg){
     rudder2Angle = msg->data;
 }
 
