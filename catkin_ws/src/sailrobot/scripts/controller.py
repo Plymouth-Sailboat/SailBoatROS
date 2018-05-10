@@ -25,6 +25,7 @@ class Controller:
  	velMsg = Twist()
     	sailAngle = 0.0
     	rudderAngle = 0.0
+    	rudder2Angle = 0.0
 
 	def wakeup(self):
             self.publishMSG("M")
@@ -50,6 +51,9 @@ class Controller:
 		
         def rudder(self,data):
             self.rudderAngle = data.data
+		
+        def rudder2(self,data):
+            self.rudder2Angle = data.data
 		
         def vel(self,data):
             self.velMsg = data
@@ -90,6 +94,7 @@ class Controller:
         	self.windSub = rospy.Subscriber('/sailboat/wind', Pose2D, self.wind)
 		self.sailSub = rospy.Subscriber('/sailboat/sail', Float32, self.sail)
         	self.rudderSub = rospy.Subscriber('/sailboat/rudder', Float32, self.rudder)
+        	self.rudder2Sub = rospy.Subscriber('/sailboat/rudder2', Float32, self.rudder2)
         	self.velSub = rospy.Subscriber('/sailboat/IMU_Dv', Twist, self.vel)
 
         	time.sleep(1)
