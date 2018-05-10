@@ -32,7 +32,7 @@ class Running(Controller):
         darret0 = darret0
 
 
-        def __init__(self, name, nObj,looprate,display):
+        def __init__(self, name, nObj,looprate,display,rmax):
 		Controller.__init__(self,name, looprate, MODE.RUDDER_SAIL)
                 self.dt = looprate
                 self.Xobj = LObj[0][0]
@@ -40,7 +40,9 @@ class Running(Controller):
 		self.display = display
 		self.nObj = 0
 		self.MaxnObj = nObj
-
+		self.x0 = LObj[1][0]
+		self.y0 = LObj[1][1]
+		self.rmax = rmax
 
 
         def update_rudder(self,thetab,theta,phi):
@@ -61,20 +63,24 @@ class Running(Controller):
                 return deltar
 
 
-        def desired_orientation(self,thetab0,alpha,psi_tw):   # first desired orientation
+        def desired_orientation(self,thetab0,alpha,psi_tw,x,y):   # first desired orientation
                 thetab = thetab0
-
 
                 # test if desired orientation is upwind: tack strategy
                 if np.cos(psi_tw - thetab) + np.cos(self.delta) < 0 :
+
+	                dst =  utilities.GPSDist(x, y, self.Xobj, self.Yobj)
+        	        alpha1 = utilities.GPSBearing(self.Xobj, self.Yobj, x, y)
+			alpha0 = utilities.GPSBearing(self.Xobj, self.Yobj, self.x0, self.y0)
+			alphai = alpha1 - alpha0
+
+			e = dst*np.abs(np.sin(alphai))
+			if e > self.rmax:
+				self.q = np.sign(np.sin(alphai))
+
                         thetab = psi_tw + pi + self.q*self.delta
 
-                else:   # else, stock sailboat direction
 
-                        if (np.cos(thetab - (psi_tw + pi - self.delta))> np.cos(thetab - (psi_tw  + pi + self.delta))):
-                        	self.q = - 1
-                        else:
-                                self.q = 1
 
 		return thetab
 
@@ -95,7 +101,7 @@ class Running(Controller):
                 # load information of sailboat
                 x,y = self.gpsMsg.latitude,  self.gpsMsg.longitude
                 xi,yi,zi,wi = self.imuMsg.orientation.x, self.imuMsg.orientation.y, self.imuMsg.orientation.z, self.imuMsg.orientation.w
-                theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[2]
+                theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[0]
 
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
@@ -123,17 +129,21 @@ class Running(Controller):
 		if dst < darret0:
 			if self.nObj == self.MaxnObj-1:
 				self.nObj = 0
+                                self.x0 = self.Xobj
+                                self.y0 = self.Yobj
 				self.Xobj = LObj[0][0]
 				self.Yobj = LObj[0][1]
 
 			else :
 				self.nObj = self.nObj+1
+                                self.x0 = self.Xobj
+                                self.y0 = self.Yobj
 				self.Xobj = LObj[self.nObj][0]
 				self.Yobj = LObj[self.nObj][1]
 
 
                 # evaluate the desire orientation
-                thetab = self.desired_orientation(thetab0,alpha,psi_tw)
+                thetab = self.desired_orientation(thetab0,alpha,psi_tw,x,y)
 
                 # evaluate sail opening
                 deltasb = self.sail_opening(theta,psi_tw,psi_aw,thetab)
@@ -149,6 +159,7 @@ class Running(Controller):
                 if self.display == True:
                         print('Current Xobj = ', self.Xobj,'/Yobj = ',self.Yobj)
                         print('dst obj = ', dst)
+			print('theta obj = ', thetab*180/pi)
                         print('alpha = ', alpha*180/pi)
                         print('desired deltas = ', deltasb*180/pi)
                         print('desired deltar = ', deltarb*180/pi)
@@ -166,7 +177,11 @@ if __name__ == '__main__':
 
                 display = False
                 rate = 10
+		rmax = 50
+		fileGPS = '/home/sailboat/git/SailBoatROS/catkin_ws/src/sailrobot/scripts/coord_GPS.txt'
+		LObj = utilities.readGPSCoordinates(fileGPS)
 		nObj = len(LObj)
+		test_GPS_file = False
 
                 for i in range(0,len(sys.argv)):
  			if sys.argv[i] == '-n':
@@ -175,6 +190,10 @@ if __name__ == '__main__':
 				else:
 					nObj = float(sys.argv[i+1])
 
+			if sys.argv[i] == '-gpsfile':
+				test_GPS_file = True
+				LObj = utilities.readGPSCoordinates(sys.argv[i+1])
+				nObj = len(LObj)
 
                         if sys.argv[i] == '-rate':
                                 rate = float(sys.argv[i+1])
@@ -182,13 +201,25 @@ if __name__ == '__main__':
                         if sys.argv[i] == '-v':
                                 display = True
 
+			if sys.argv[i] == '-rm':
+				rmax = float(sys.argv[i+1])
+
+
 		print(' -n : number of objective')
                 print(' -rate : loop rate' )
                 print(' -v : display information')
+		print(' -gpsfile : filepath of GPS coordinate')
+		print(' -rm : cutoff distance')
                 print(' ')
 
 
-                target =  Running('running', nObj,rate,display)
+		if test_GPS_file == False:
+			print('Default GPS coordinate of file coord_GPS.txt used. Enter filepath of an other file with command -gpsfile if desire.')
+			print(' ')
+
+		target =  Running('running', nObj,rate,display,rmax)
+
+
                 while not rospy.is_shutdown():
 			target.loop()
 

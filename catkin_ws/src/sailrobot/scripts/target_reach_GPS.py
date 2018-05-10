@@ -67,6 +67,7 @@ class Target_Reach(Controller):
                 else:
                         psi = theta
 
+
                 # calcul de deltar
                 if np.cos(psi - thetab) >= 0 :
                         deltar = self.deltarmax*(np.sin(psi - thetab))
@@ -144,7 +145,9 @@ class Target_Reach(Controller):
 		# load information of sailboat
                 x,y = self.gpsMsg.latitude,  self.gpsMsg.longitude
                 xi,yi,zi,wi = self.imuMsg.orientation.x, self.imuMsg.orientation.y, self.imuMsg.orientation.z, self.imuMsg.orientation.w
-                theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[2]
+                theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[0]
+
+
 
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
@@ -191,6 +194,7 @@ class Target_Reach(Controller):
 		if self.display == True:
                 	print('Xobj = ', self.Xobj,'/Yobj = ',self.Yobj)
 			print('dst obj = ', dst)
+			print('theta obj = ',thetab*180/pi)
         	        print('alpha = ', alpha*180/pi)
 			print('desired deltas = ', deltasb*180/pi)
 			print('desired deltar = ', deltarb*180/pi)
