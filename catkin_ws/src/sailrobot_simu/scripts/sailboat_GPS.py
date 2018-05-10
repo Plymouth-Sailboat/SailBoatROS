@@ -63,17 +63,18 @@ def talker_velMsg(hello):
 	pub.publish(hello)
 
 
-def plot_sailboat(Lx,Ly,x,y,theta,deltas,deltar,psy_tw,aaw):
+def plot_sailboat(Lx,Ly,x,y,theta,deltas,deltar,psy_tw,aaw,display_obj,LObj):
         cla()
         plot(Lx,Ly,'b')
-	plot(0,0,'*b')
+# 	 plot(0,0,'*b')
 
-#	for i in range(0,len(LObj)):
-#                dst1 = utilities.GPSDist(LObj[i][0],LObj[i][1],latref,longref)
-#                theta10 = utilities.GPSBearing(latref,longref,LObj[i][0],LObj[i][1])
-#                x10 = np.cos(theta10)*dst1
-#                y10 = np.sin(theta10)*dst1
-#		plot(x10,y10,'*b')
+	if display_obj == True:
+		for i in range(0,len(LObj)):
+	                dst1 = utilities.GPSDist(LObj[i][0],LObj[i][1],latref,longref)
+                	theta10 = utilities.GPSBearing(latref,longref,LObj[i][0],LObj[i][1])
+                	x10 = np.cos(theta10)*dst1
+                	y10 = np.sin(theta10)*dst1
+			plot(x10,y10,'*b')
 
 
         x11 = array([x,y,theta])
@@ -140,6 +141,7 @@ class Sailboat:
 
         self.psi_aw = psi_tw
         self.aaw = atw
+
 
 
     def dynamic_sailboat(self,ux,uy):
@@ -212,14 +214,30 @@ if __name__ == '__main__':
         latref = 0.0
         longref = 0.0
 	display = False
+	display_obj = False
+
+        fileGPS = '/home/sailboat/git/SailBoatROS/catkin_ws/src/sailrobot/scripts/coord_GPS.txt'
+	LObj = utilities.readGPSCoordinates(fileGPS)
+
+
+
 
 	# update values
 	for i in range(0,len(sys.argv)):
-		if sys.argv[i] == '-lat':
+
+                if sys.argv[i] == '-latrf':
+                        latref = float(sys.argv[i+1])
+
+		elif sys.argv[i] == '-lat':
 			lat0 = float(sys.argv[i+1])
 
-		if sys.argv[i] == '-long':
+
+                if sys.argv[i] == '-longrf':
+                        longref = float(sys.argv[i+1])
+
+		elif sys.argv[i] == '-long':
 			long0 = float(sys.argv[i+1])
+
 
                 if sys.argv[i] == '-head':
                         theta0 = float(sys.argv[i+1])*pi/180.0
@@ -230,14 +248,21 @@ if __name__ == '__main__':
                 if sys.argv[i] == '-atw':
                         atw = float(sys.argv[i+1])
 
-		if sys.argv[i] == '-v':
-			display = True
 
-		if sys.argv[i] == '-latrf':
-			latref = float(sys.argv[i+1])
+		if sys.argv[i] == '-vobj':
+			display_obj = True
+			if sys.argv[i+1]=='0':
+				print('default path used')
+			else:
+				fileGPS = sys.argv[i+1]
+        			LObj = utilities.readGPSCoordinates(fileGPS)
+				if len(LObj) == 0:
+					print('No GPS data found')
 
-		if sys.argv[i] == '-longrf':
-			longref = float(sys.argv[i+1])
+                elif sys.argv[i] == '-v':
+                        display = True
+
+
 
         print(' -lat : Latitude (current: ',lat0,')' )
         print(' -long : Longitude (current: ',long0,')' )
@@ -247,13 +272,16 @@ if __name__ == '__main__':
 	print(' -latrf : Latitude reference (for plot. current: ', latref,')')
 	print(' -longrf : Longitude reference (for plot. current: ', longref,')')
 	print(' -v : display information')
+	print(' -vobj : display GPS coordinate in defined .txt path')
 	print(' ')
 	print('WARNING: value of -head and -tw must be enter in degree')
 	print(' ')
 
+
 	# Local parameter
 	t = 0
 	dt = 0.01
+
 
 	# intialisation sailboat
     	S1 = Sailboat(lat0,long0,theta0,psi_tw,atw,dt)
@@ -312,6 +340,7 @@ if __name__ == '__main__':
 		msg_Imu.linear_acceleration.x = S1.dv
 		msg_Imu.linear_acceleration.y = S1.du
 
+
 		# msg = 'velMsg'
 		msg_Vel = Twist()
 		msg_Vel.linear.x = S1.v
@@ -347,7 +376,8 @@ if __name__ == '__main__':
 
 		t = t+1
 		if np.mod(t,100):
-     	   		plot_sailboat(Lx,Ly,x00,y00,S1.theta,S1.deltas,S1.deltar,psi_tw,S1.aaw)
+
+     	   		plot_sailboat(Lx,Ly,x00,y00,S1.theta,S1.deltas,S1.deltar,psi_tw,S1.aaw,display_obj,LObj)
 			pause(0.00001)
 
         	rate.sleep()
