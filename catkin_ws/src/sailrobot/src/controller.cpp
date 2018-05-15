@@ -21,6 +21,7 @@ void Controller::init(int argc, char **argv){
     windSub = n->subscribe("/sailboat/wind", 100, &Controller::windCallback, this);
     sailSub = n->subscribe("/sailboat/sail", 100, &Controller::sailCallback, this);
     rudderSub = n->subscribe("/sailboat/rudder", 100, &Controller::rudderCallback, this);
+    rudder2Sub = n->subscribe("/sailboat/rudder2", 100, &Controller::rudder2Callback, this);
     velSub = n->subscribe("/sailboat/IMU_Dv", 100, &Controller::velCallback, this);
     
     odomMsg = n->advertise<nav_msgs::Odometry>("/sailboat/odom", 100);
@@ -91,11 +92,15 @@ void Controller::wind(const geometry_msgs::Pose2D::ConstPtr& msg){
 }
 
 void Controller::sail(const std_msgs::Float32::ConstPtr& msg){
-    rudderAngle = msg->data;
+    sailAngle = msg->data;
 }
 
 void Controller::rudder(const std_msgs::Float32::ConstPtr& msg){
-    sailAngle = msg->data;
+    rudderAngle = msg->data;
+}
+
+void Controller::rudder2(const std_msgs::Float32::ConstPtr& msg){
+    rudder2Angle = msg->data;
 }
 
 void Controller::vel(const geometry_msgs::Twist::ConstPtr& msg){

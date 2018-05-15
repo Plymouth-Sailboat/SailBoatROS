@@ -1,6 +1,7 @@
 [![Current version on ROS](https://img.shields.io/badge/ROS-Kinetic-blue.svg)](http://wiki.ros.org/kinetic)
 ![C++ Wrapper](https://img.shields.io/badge/C%2B%2B-100%25-green.svg)
 ![Python Wrapper](https://img.shields.io/badge/Python-100%25-green.svg)
+[![Current version of release](https://img.shields.io/badge/Release-v1.0-green.svg)](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/tag/v1.0)
 
 # SailBoatROS
 
@@ -92,6 +93,7 @@ roslaunch sailrobot start.launch usb_port:=<port>
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
+* [GLM](https://github.com/g-truc/glm) : Math C++ library compatible with OpenGL, using GLSL shader language syntax.
 
 ## Look at the Wiki!
 If you want more information about the raspberry pi and the boat, please look at [the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki)

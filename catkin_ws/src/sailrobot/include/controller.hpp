@@ -16,7 +16,7 @@
 namespace Sailboat{
     class Controller{
     public:
-        enum MODE{STANDBY = 0, RUDDER_SAIL = 1, RETURN_HOME = 2, HEADING = 3, WAYPOINTS = 4};
+        enum MODE{STANDBY = 0, RUDDER_SAIL = 1, RETURN_HOME = 2, HEADING = 3, RC = 4, SAIL_CAP = 5, RUDDER = 6, WAYPOINTS = 7};
         
         Controller(std::string name, int looprate, int controller);
         ~Controller(){}
@@ -34,6 +34,7 @@ namespace Sailboat{
         virtual void wind(const geometry_msgs::Pose2D::ConstPtr& msg);
         virtual void sail(const std_msgs::Float32::ConstPtr& msg);
         virtual void rudder(const std_msgs::Float32::ConstPtr& msg);
+        virtual void rudder2(const std_msgs::Float32::ConstPtr& msg);
         virtual void vel(const geometry_msgs::Twist::ConstPtr& msg);
     protected:
         ros::NodeHandle* n;
@@ -46,6 +47,7 @@ namespace Sailboat{
         ros::Subscriber windSub;
         ros::Subscriber sailSub;
         ros::Subscriber rudderSub;
+        ros::Subscriber rudder2Sub;
         ros::Subscriber velSub;
         
         ros::Publisher odomMsg;
@@ -60,6 +62,7 @@ namespace Sailboat{
         geometry_msgs::Twist velMsg;
 		float sailAngle;
 		float rudderAngle;
+		float rudder2Angle;
         
         void publishCMD(geometry_msgs::Twist cmd);
         void publishMSG(std_msgs::String msg);
@@ -73,6 +76,7 @@ namespace Sailboat{
         void windCallback(const geometry_msgs::Pose2D::ConstPtr& msg){wind(msg);}
         void sailCallback(const std_msgs::Float32::ConstPtr& msg){sail(msg);}
         void rudderCallback(const std_msgs::Float32::ConstPtr& msg){rudder(msg);}
+        void rudder2Callback(const std_msgs::Float32::ConstPtr& msg){rudder(msg);}
         void velCallback(const geometry_msgs::Twist::ConstPtr& msg){vel(msg);}
 		
 	void publishOdom();
