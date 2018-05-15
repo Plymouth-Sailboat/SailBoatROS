@@ -63,10 +63,22 @@ def talker_velMsg(hello):
 	pub.publish(hello)
 
 
-def plot_sailboat(Lx,Ly,x,y,theta,deltas,deltar,psy_tw,aaw,display_obj,LObj):
+def plot_sailboat(Lx,Ly,x,y,theta,deltas,deltar,psy_tw,aaw,display_obj,LObj,display_obs,LObs):
         cla()
         plot(Lx,Ly,'b')
 # 	 plot(0,0,'*b')
+
+
+        if display_obs == True:
+                for i in arange(0,len(LObs)-1,2):
+			for j in range(0,2):
+				for k in range(0,2):
+                        		dst1 = utilities.GPSDist(LObs[i+j][0],LObs[i+k][1],latref,longref)
+                        		theta10 = utilities.GPSBearing(latref,longref,LObs[i+j][0],LObs[i+k][1])
+                        		x10 = np.cos(theta10)*dst1
+                        		y10 = np.sin(theta10)*dst1
+                        		plot(x10,y10,'*r')
+
 
 	if display_obj == True:
 		for i in range(0,len(LObj)):
@@ -206,8 +218,8 @@ class Sailboat:
 if __name__ == '__main__':
 
 	# default values
-	lat0 = 50.37228  - (50.373) #(50.3759061)
-	long0 = -4.137886200000025  - (-4.138) #(-4.139577700000018)
+	lat0 = 50.37228  - (50.3727) #(50.3759061)
+	long0 = -4.137886200000025  - (-4.13793) #(-4.139577700000018)
         theta0 = 0
 	atw = 10.0
 	psi_tw =  pi/2.0
@@ -215,10 +227,12 @@ if __name__ == '__main__':
         longref = 0.0
 	display = False
 	display_obj = False
+	display_obs = False
 
         fileGPS = '/home/sailboat/git/SailBoatROS/catkin_ws/src/sailrobot/scripts/coord_GPS.txt'
+	fileObs = '/home/sailboat/git/SailBoatROS/catkin_ws/src/sailrobot/scripts/coord_Obstacle.txt'
 	LObj = utilities.readGPSCoordinates(fileGPS)
-
+	LObs = utilities.readGPSCoordinates(fileObs)
 
 
 
@@ -259,6 +273,18 @@ if __name__ == '__main__':
 				if len(LObj) == 0:
 					print('No GPS data found')
 
+                if sys.argv[i] == '-vobs':
+                        display_obs = True
+                        if sys.argv[i+1]=='0':
+                                print('default path used')
+                        else:
+                                fileObs = sys.argv[i+1]
+                                LObs = utilities.readGPSCoordinates(fileObs)
+                                if len(LObs) == 0:
+                                        print('No GPS data found')
+
+
+
                 elif sys.argv[i] == '-v':
                         display = True
 
@@ -273,6 +299,7 @@ if __name__ == '__main__':
 	print(' -longrf : Longitude reference (for plot. current: ', longref,')')
 	print(' -v : display information')
 	print(' -vobj : display GPS coordinate in defined .txt path')
+ 	print(' -vobs : display square obstacles using GPS coordinate in defined .txt path')
 	print(' ')
 	print('WARNING: value of -head and -tw must be enter in degree')
 	print(' ')
@@ -377,7 +404,7 @@ if __name__ == '__main__':
 		t = t+1
 		if np.mod(t,100):
 
-     	   		plot_sailboat(Lx,Ly,x00,y00,S1.theta,S1.deltas,S1.deltar,psi_tw,S1.aaw,display_obj,LObj)
+     	   		plot_sailboat(Lx,Ly,x00,y00,S1.theta,S1.deltas,S1.deltar,psi_tw,S1.aaw,display_obj,LObj,display_obs,LObs)
 			pause(0.00001)
 
         	rate.sleep()

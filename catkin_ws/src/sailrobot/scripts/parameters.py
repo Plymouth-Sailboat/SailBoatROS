@@ -3,6 +3,7 @@
 
 from math import pi
 from numpy import array
+import numpy as np
 
 
 # sailboat parameter
@@ -26,8 +27,9 @@ param = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p100]
 # Keeping position parameters
 
 dsecu2 = 15
-dsecu = 65  # dsecu2 + pi*p3/np.abs(p5*p8*np.sin(2*pi/4))
+dsecu = 30  # dsecu2 + pi*p3/np.abs(p5*p8*np.sin(2*pi/4))
 darret0 = 5
+dsecuObs = 2*p8  + pi*p3/np.abs(p5*p8*np.sin(2*pi/4))
 
 
 # Sail control
@@ -41,18 +43,4 @@ ka = 5
 deltarmax = pi/4
 delta = pi/4
 
-
-# Target list
-
-#LObj = array([ \
-#	[50.37228, -4.1378862],\
-#	[50.373, -4.138],\
-#	[50.3759061, -4.1395777]\
-#	])
-
-LObj = array([ \
-        [0, 0],\
-        [50.373-50.373, -4.138-(-4.1378)],\
-        [50.3759061-50.373, -4.1395777-(-4.1378)]\
-        ])
 
