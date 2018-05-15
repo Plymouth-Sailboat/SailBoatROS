@@ -40,7 +40,7 @@ geometry_msgs::Twist LineFollowing::control(){
 	vec2 waypoint1 = vec2(waypoints[0][0], waypoints[0][1]);
 	vec2 waypoint2 = vec2(waypoints[1][0], waypoints[1][1]);
 	vec2 ba = waypoint2-waypoint1;
-	float normba = length(ba);
+	float normba = length2(ba);
 	
 	vec2 bau = ba/normba;
 	vec2 ca = current-waypoint1;
