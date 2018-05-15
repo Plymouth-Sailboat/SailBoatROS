@@ -2,10 +2,7 @@
 #define POTENTIALFIELD_HPP
 
 #include "controller.hpp"
-
-#include <tf/transform_broadcaster.h>
-#include <geometry_msgs/Point.h>
-#include <vector>
+#include <glm/glm.hpp>
 
 namespace Sailboat{
     class PotentialField : public Controller{
@@ -18,7 +15,7 @@ namespace Sailboat{
 	private:
 		float** waypoints;
 		float** obstacles;
-		tf::Vector3 distanceVector(tf::Vector3 dest, tf::Vector3 pos);
+		glm::vec3 distanceVector(glm::vec3 dest, glm::vec3 pos);
 	};
 }
 

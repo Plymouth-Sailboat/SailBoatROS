@@ -5,9 +5,6 @@
 #include <string>
 #include <sstream>
 #include <iterator>
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 using namespace glm;
 

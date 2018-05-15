@@ -6,6 +6,7 @@
 #include <ros/package.h>
 
 using namespace Sailboat;
+using namespace glm;
 
 void PotentialField::setup(ros::NodeHandle* n){
 	std::string path = ros::package::getPath("sailrobot");
@@ -28,11 +29,11 @@ void PotentialField::setup(ros::NodeHandle* n){
 }
 
 
-tf::Vector3 PotentialField::distanceVector(tf::Vector3 dest, tf::Vector3 pos){
+vec3 PotentialField::distanceVector(vec3 dest, vec3 pos){
 	double d = Utility::GPSDist(pos.getX(), pos.getY(), dest.getX(), dest.getY());
 	double bearing = Utility::GPSBearing(pos.getX(), pos.getY(), dest.getX(), dest.getY());
 
-	return tf::Vector3(d*cos(bearing), d*sin(bearing), 0);
+	return vec3(d*cos(bearing), d*sin(bearing), 0);
 }
 
 geometry_msgs::Twist PotentialField::control(){
@@ -41,27 +42,27 @@ geometry_msgs::Twist PotentialField::control(){
 	
 	if(rowsWaypoints < 1)
 		return geometry_msgs::Twist();
-	tf::Vector3 current(gpsMsg.latitude, gpsMsg.longitude, 0);
+	vec3 current(gpsMsg.latitude, gpsMsg.longitude, 0);
 
 	geometry_msgs::Twist cmd;
-	tf::Vector3 heading;
+	vec3 heading;
 
 	for(int i = 0; i < rowsWaypoints; ++i){
-		heading += distanceVector(current, tf::Vector3(waypoints[i][0], waypoints[i][1], 0));
+		heading += distanceVector(current, vec3(waypoints[i][0], waypoints[i][1], 0));
 	}
-	heading.normalize();
+	heading = normalize(heading);
 
 	for(int i = 0; i < rowsObstacles; ++i){
-		tf::Vector3 res = distanceVector(current,tf::Vector3(obstacles[i][0], obstacles[i][1], 0));
+		vec3 res = distanceVector(current,vec3(obstacles[i][0], obstacles[i][1], 0));
 
-		if(float dist = res.length2() < 100){
+		if(float dist = length(res) < 100){
 			res /= dist*dist;
 			heading += res;
 		}
 	}
 
-	cmd.linear.x = (double)heading.getX();
-	cmd.linear.y = (double)heading.getY();
-	cmd.linear.z = (double)heading.getZ();
+	cmd.linear.x = (double)heading.x;
+	cmd.linear.y = (double)heading.y;
+	cmd.linear.z = (double)heading.z;
 	return cmd;
 }
