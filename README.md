@@ -93,6 +93,7 @@ roslaunch sailrobot start.launch usb_port:=<port>
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
+* [GLM](https://github.com/g-truc/glm) : Math C++ library compatible with OpenGL, using GLSL shader language syntax.
 
 ## Look at the Wiki!
 If you want more information about the raspberry pi and the boat, please look at [the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki)
