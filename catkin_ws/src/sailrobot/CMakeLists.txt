@@ -143,6 +143,9 @@ include_directories(
 add_executable(potential_field ${basic_source} src/potential_field_node/potential_field_node.cpp src/potential_field_node/potentialfield.cpp)
 target_link_libraries(potential_field ${catkin_LIBRARIES})
 
+add_executable(line_following ${basic_source} src/line_following_node/line_following_node.cpp src/line_following_node/line_following.cpp)
+target_link_libraries(line_following ${catkin_LIBRARIES})
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
