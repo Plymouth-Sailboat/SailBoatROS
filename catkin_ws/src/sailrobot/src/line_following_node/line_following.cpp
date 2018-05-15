@@ -12,7 +12,7 @@ using namespace glm;
 void LineFollowing::setup(ros::NodeHandle* n){
 	std::string path = ros::package::getPath("sailrobot");
 	std::ifstream f(path + "/data/line_following.txt");
-    if(f.good())
+	if(f.good())
 		waypoints = Utility::ReadGPSCoordinates(path + "/data/waypoints.txt");
 	else{
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
