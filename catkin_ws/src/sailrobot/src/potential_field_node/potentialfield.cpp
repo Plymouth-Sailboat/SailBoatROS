@@ -9,7 +9,7 @@ using namespace Sailboat;
 
 void PotentialField::setup(ros::NodeHandle* n){
 	std::string path = ros::package::getPath("sailrobot");
-	ifstream f(path + "/data/waypoints.txt");
+	std::ifstream f(path + "/data/waypoints.txt");
     if(f.good())
 		waypoints = Utility::ReadGPSCoordinates(path + "/data/waypoints.txt");
 	else{

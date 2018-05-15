@@ -1,14 +1,17 @@
 #include "line_following_node/line_following.hpp"
 #include "math.h"
+#include <ros/package.h>
 #include <utilities.hpp>
-#include <glm/vec2.hpp>
+#include <glm/glm.hpp>
+#include <iostream>
+#include <fstream>
 
 using namespace Sailboat;
 using namespace glm;
 
 void LineFollowing::setup(ros::NodeHandle* n){
 	std::string path = ros::package::getPath("sailrobot");
-	ifstream f(path + "/data/line_following.txt");
+	std::ifstream f(path + "/data/line_following.txt");
     if(f.good())
 		waypoints = Utility::ReadGPSCoordinates(path + "/data/waypoints.txt");
 	else{
@@ -33,12 +36,15 @@ geometry_msgs::Twist LineFollowing::control(){
 	int q = 0;
 	float r = 50.0;
 	float psi = M_PI/4.0;
+	float ksi = M_PI/3.0;
 	vec2 waypoint1 = vec2(waypoints[0][0], waypoints[0][1]);
 	vec2 waypoint2 = vec2(waypoints[1][0], waypoints[1][1]);
 	vec2 ba = waypoint2-waypoint1;
-	float norm = norm(ba);
+	float normba = length(ba);
 	
-	float e = determinant((waypoint2-waypoint1)/norm, current-waypoint1);
+	vec2 bau = ba/normba;
+	vec2 ca = current-waypoint1;
+	float e = bau.x*ca.y - bau.y*ca.x;
 	if(abs(e) > r/2)
 		q = e>=0?1:-1;
 	float phi = atan2(ba.y,ba.x);
