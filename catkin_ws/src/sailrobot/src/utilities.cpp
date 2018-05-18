@@ -39,7 +39,7 @@ float Utility::GPSBearing(float lat1, float lon1, float lat2, float lon2){
     
     float y = sin(lam2-lam1)*cos(ksi2);
     float x = cos(ksi1)*sin(ksi2)-sin(ksi1)*cos(ksi2)*cos(lam2-lam1);
-    return atan2(y,x);
+    return -atan2(y,x);
 }
 
 float Utility::GPStoCartesian(float lat, float gpslong){
