@@ -27,10 +27,11 @@ class Controller:
     	rudderAngle = 0.0
     	rudder2Angle = 0.0
 
-	def wakeup(self):
+	    def wakeup(self):
             self.publishMSG("M")
         def loop(self):
             control = self.control()
+            self.wakeup()
             if(control):
                 self.publishCMD(control)
             self.publishOdom()
