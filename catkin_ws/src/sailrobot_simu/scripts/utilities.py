@@ -30,7 +30,8 @@ def GPSBearing(lat1, lon1, lat2, lon2):
 
         y = math.sin(lam2-lam1)*math.cos(ksi2)
         x = math.cos(ksi1)*math.sin(ksi2)-math.sin(ksi1)*math.cos(ksi2)*math.cos(lam2-lam1)
-        return -math.atan2(y,x)
+	bearing = np.mod(math.atan2(y,x)+ pi,2*pi)
+        return bearing
 
 def QuaternionToEuler(x, y, z, w):
 	ysqr = y * y
