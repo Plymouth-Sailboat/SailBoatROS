@@ -179,7 +179,8 @@ if __name__ == '__main__':
                 display = False
                 rate = 10
 		rmax = 50
-		fileGPS = '/home/sailboat/git/SailBoatROS/catkin_ws/src/sailrobot/scripts/coord_GPS.txt'
+		current_path = os.path.realpath(__file__)
+		fileGPS = "%f/coord_GPS.txt"%(current_path)
 		LObj = [] 
 		nObj = 0
 		test_GPS_file = False
