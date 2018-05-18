@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <iterator>
+#include <algorithm>
 
 using namespace glm;
 
@@ -58,8 +59,8 @@ quat Utility::EulerToQuaternion(float x, float y, float z){
     return quat(vec3(x,y,z));
 }
 
-float** Utility::ReadGPSCoordinates(std::string filepath){
-    float** coordinates = NULL;
+vec2* Utility::ReadGPSCoordinates(std::string filepath){
+    vec2* coordinates = NULL;
     std::fstream file(filepath);
     if(!file){
         std::cerr << "GPS Reading : Couldn't open file" << std::endl;
@@ -68,18 +69,17 @@ float** Utility::ReadGPSCoordinates(std::string filepath){
     std::string line;
     int nbLines = std::count(std::istreambuf_iterator<char>(file),
                              std::istreambuf_iterator<char>(), '\n');
-    coordinates = new float*[nbLines];
+    coordinates = new vec2[nbLines];
     file.clear();
     file.seekg(0, std::ios::beg);
     int i = 0;
     while (std::getline(file, line)) {
-        coordinates[i] = new float[2];
         std::string coords;
         std::stringstream stream(line);
         std::getline(stream, coords, ',');
-        coordinates[i][0] = std::atof(coords.c_str());
+        coordinates[i].x = std::atof(coords.c_str());
         std::getline(stream, coords, ',');
-        coordinates[i][1] = std::atof(coords.c_str());
+        coordinates[i].y = std::atof(coords.c_str());
         i++;
     }
     file.close();

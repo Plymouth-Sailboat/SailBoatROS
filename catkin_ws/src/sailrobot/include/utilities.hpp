@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <string>
 
 class Utility{
 	public:
@@ -15,6 +16,6 @@ class Utility{
 		static float CartesiantoGPS(float x, float y);
 		static glm::vec3 QuaternionToEuler(float x, float y, float z, float w);
 		static glm::quat EulerToQuaternion(float x, float y, float z);
-		static float** ReadGPSCoordinates(std::string filepath);
+		static glm::vec2* ReadGPSCoordinates(std::string filepath);
 };
 #endif

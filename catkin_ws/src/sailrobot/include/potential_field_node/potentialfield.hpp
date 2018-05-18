@@ -13,9 +13,9 @@ namespace Sailboat{
 		virtual geometry_msgs::Twist control();
 
 	private:
-		float** waypoints;
-		float** obstacles;
-		glm::vec3 distanceVector(glm::vec3 dest, glm::vec3 pos);
+		glm::vec2* waypoints;
+		glm::vec2* obstacles;
+		glm::vec2 distanceVector(glm::vec2 dest, glm::vec2 pos);
 	};
 }
 

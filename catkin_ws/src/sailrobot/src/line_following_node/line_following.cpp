@@ -31,19 +31,17 @@ geometry_msgs::Twist LineFollowing::control(){
 	
 	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
 	float wind = windMsg.theta;
-	geometry_msgs::Vector3 heading = Utility::QuaternionToEuler(imuMsg.orientation.x, imuMsg.orientation.y, imuMsg.orientation.z, imuMsg.orientation.w);
+	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation.x, imuMsg.orientation.y, imuMsg.orientation.z, imuMsg.orientation.w);
 	
 	int q = 0;
 	float r = 50.0;
 	float psi = M_PI/4.0;
 	float ksi = M_PI/3.0;
-	vec2 waypoint1 = vec2(waypoints[0][0], waypoints[0][1]);
-	vec2 waypoint2 = vec2(waypoints[1][0], waypoints[1][1]);
-	vec2 ba = waypoint2-waypoint1;
+	vec2 ba = waypoints[1]-waypoints[0];
 	float normba = length2(ba);
 	
 	vec2 bau = ba/normba;
-	vec2 ca = current-waypoint1;
+	vec2 ca = current-waypoints[0];
 	float e = bau.x*ca.y - bau.y*ca.x;
 	if(abs(e) > r/2)
 		q = e>=0?1:-1;

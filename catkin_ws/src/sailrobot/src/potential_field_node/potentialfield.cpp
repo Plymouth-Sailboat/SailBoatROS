@@ -29,11 +29,11 @@ void PotentialField::setup(ros::NodeHandle* n){
 }
 
 
-vec3 PotentialField::distanceVector(vec3 dest, vec3 pos){
-    double d = Utility::GPSDist(pos.getX(), pos.getY(), dest.getX(), dest.getY());
-    double bearing = Utility::GPSBearing(pos.getX(), pos.getY(), dest.getX(), dest.getY());
+vec2 PotentialField::distanceVector(vec2 dest, vec2 pos){
+    double d = Utility::GPSDist(pos.x, pos.y, dest.x, dest.y);
+    double bearing = Utility::GPSBearing(pos.x, pos.y, dest.x, dest.y);
     
-    return vec3(d*cos(bearing), d*sin(bearing), 0);
+    return vec2(d*cos(bearing), d*sin(bearing));
 }
 
 geometry_msgs::Twist PotentialField::control(){
@@ -42,18 +42,18 @@ geometry_msgs::Twist PotentialField::control(){
     
     if(rowsWaypoints < 1)
         return geometry_msgs::Twist();
-    vec3 current(gpsMsg.latitude, gpsMsg.longitude, 0);
+    vec2 current(gpsMsg.latitude, gpsMsg.longitude);
     
     geometry_msgs::Twist cmd;
-    vec3 heading;
+    vec2 heading;
     
     for(int i = 0; i < rowsWaypoints; ++i){
-        heading += distanceVector(current, vec3(waypoints[i][0], waypoints[i][1], 0));
+        heading += distanceVector(current, waypoints[i]);
     }
     heading = normalize(heading);
     
     for(int i = 0; i < rowsObstacles; ++i){
-        vec3 res = distanceVector(current,vec3(obstacles[i][0], obstacles[i][1], 0));
+        vec2 res = distanceVector(current,obstacles[i]);
         
         if(float dist = length2(res) < 100){
             res /= dist*dist;
@@ -63,7 +63,7 @@ geometry_msgs::Twist PotentialField::control(){
     
     cmd.linear.x = (double)heading.x;
     cmd.linear.y = (double)heading.y;
-    cmd.linear.z = (double)heading.z;
+    cmd.linear.z = 0.0;
     return cmd;
 }
 

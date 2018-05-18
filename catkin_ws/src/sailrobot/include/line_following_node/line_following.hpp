@@ -2,6 +2,7 @@
 #define LINEFOLLOWING_HPP
 
 #include "controller.hpp"
+#include <glm/glm.hpp>
 
 namespace Sailboat{
     class LineFollowing : public Controller{
@@ -12,7 +13,7 @@ namespace Sailboat{
 		virtual geometry_msgs::Twist control();
 
 	private:
-		float** waypoints;
+		glm::vec2* waypoints;
 	};
 }
 
