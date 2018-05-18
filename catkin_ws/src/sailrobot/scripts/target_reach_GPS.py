@@ -145,7 +145,7 @@ class Target_Reach(Controller):
 		# load information of sailboat
                 x,y = self.gpsMsg.latitude,  self.gpsMsg.longitude
                 xi,yi,zi,wi = self.imuMsg.orientation.x, self.imuMsg.orientation.y, self.imuMsg.orientation.z, self.imuMsg.orientation.w
-                theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[0]
+                theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[2]
 
 
 
@@ -229,10 +229,18 @@ if __name__ == '__main__':
 			if sys.argv[i] == '-v':
 				display = True
 
+			if sys.argv[i] == '-gpsfile':
+				LObj = utilities.readGPSCoordinates(sys.argv[i+1])
+				lat0 = LObj[0][0]
+				long0 = LObj[0][1]
+				testlat = 0
+				testlong = 0
+		
 		print('-lat : latitude objective')
 		print('-long : longitude objective')
 		print('-rate : loop rate' )
 		print('-v : display information')
+		print(' -gpsfile : filepath of GPS coordinate')
 		print(' ')
 
 
