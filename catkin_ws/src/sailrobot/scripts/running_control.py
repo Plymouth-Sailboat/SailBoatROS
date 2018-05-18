@@ -101,7 +101,7 @@ class Running(Controller):
                 # load information of sailboat
                 x,y = self.gpsMsg.latitude,  self.gpsMsg.longitude
                 xi,yi,zi,wi = self.imuMsg.orientation.x, self.imuMsg.orientation.y, self.imuMsg.orientation.z, self.imuMsg.orientation.w
-                theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[0]
+                theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[2]
 
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
