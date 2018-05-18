@@ -32,7 +32,7 @@ class Running(Controller):
         darret0 = darret0
 
 
-        def __init__(self, name, nObj,looprate,display,rmax):
+        def __init__(self, name, nObj, LObj, looprate,display,rmax):
 		Controller.__init__(self,name, looprate, MODE.RUDDER_SAIL)
                 self.dt = looprate
                 self.Xobj = LObj[0][0]
@@ -101,7 +101,7 @@ class Running(Controller):
                 # load information of sailboat
                 x,y = self.gpsMsg.latitude,  self.gpsMsg.longitude
                 xi,yi,zi,wi = self.imuMsg.orientation.x, self.imuMsg.orientation.y, self.imuMsg.orientation.z, self.imuMsg.orientation.w
-                theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[0]
+                theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[2]
 
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
@@ -164,6 +164,7 @@ class Running(Controller):
                         print('desired deltas = ', deltasb*180/pi)
                         print('desired deltar = ', deltarb*180/pi)
                         print('evaluate psi_tw = ', psi_tw*180/pi)
+			print('headind received = ',theta*180/pi)
                         print(' ')
 
                 return command
@@ -178,9 +179,10 @@ if __name__ == '__main__':
                 display = False
                 rate = 10
 		rmax = 50
-		fileGPS = '/home/sailboat/git/SailBoatROS/catkin_ws/src/sailrobot/scripts/coord_GPS.txt'
-		LObj = utilities.readGPSCoordinates(fileGPS)
-		nObj = len(LObj)
+		current_path = os.path.realpath(__file__)
+		fileGPS = "%f/coord_GPS.txt"%(current_path)
+		LObj = [] 
+		nObj = 0
 		test_GPS_file = False
 
                 for i in range(0,len(sys.argv)):
@@ -192,8 +194,12 @@ if __name__ == '__main__':
 
 			if sys.argv[i] == '-gpsfile':
 				test_GPS_file = True
-				LObj = utilities.readGPSCoordinates(sys.argv[i+1])
-				nObj = len(LObj)
+				if sys.argv[i+1] == '0':
+					LObj = utilities.readGPSCoordinates(fileGPS)
+					nObj = len(LObj)
+				else:	
+					LObj = utilities.readGPSCoordinates(sys.argv[i+1])
+					nObj = len(LObj)
 
                         if sys.argv[i] == '-rate':
                                 rate = float(sys.argv[i+1])
@@ -217,7 +223,7 @@ if __name__ == '__main__':
 			print('Default GPS coordinate of file coord_GPS.txt used. Enter filepath of an other file with command -gpsfile if desire.')
 			print(' ')
 
-		target =  Running('running', nObj,rate,display,rmax)
+		target =  Running('running', nObj, LObj,rate,display,rmax)
 
 
                 while not rospy.is_shutdown():
