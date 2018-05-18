@@ -33,9 +33,9 @@ def GPSBearing(lat1, lon1, lat2, lon2):
         lam1 = lon1*degtorad
         lam2 = lon2*degtorad
 
-        y = -math.sin(lam2-lam1)*math.cos(ksi2)
+        y = math.sin(lam2-lam1)*math.cos(ksi2)
         x = math.cos(ksi1)*math.sin(ksi2)-math.sin(ksi1)*math.cos(ksi2)*math.cos(lam2-lam1)
-        return math.atan2(y,x)
+        return -math.atan2(y,x)
 
 def QuaternionToEuler(x,y,z,w):
         zsqr = z * z
