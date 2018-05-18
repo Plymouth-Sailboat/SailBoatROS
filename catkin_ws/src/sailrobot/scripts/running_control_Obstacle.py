@@ -10,7 +10,7 @@ import numpy as np
 from math import pi
 import math
 from geometry_msgs.msg import Twist
-
+import rospkg
 from parameters import *
 from Obstacle_avoidance import *
 
@@ -188,8 +188,9 @@ if __name__ == '__main__':
 
 
         try:
-
-                fileObs = '/home/sailboat/git/SailBoatROS/catkin_ws/src/sailrobot/scripts/coord_Obstacle.txt'
+		
+                rospack = rospkg.RosPack()
+                fileObs = rospack.get_path('sailrobot') + '/scripts/coord_Obstacle.txt'
                 LObs0 = utilities.readGPSCoordinates(fileObs)
 		LObs = []
 		if len(LObs0)< 2:
@@ -206,7 +207,7 @@ if __name__ == '__main__':
                 display = False
                 rate = 10
 		rmax = 50
-		fileGPS = '/home/sailboat/git/SailBoatROS/catkin_ws/src/sailrobot/scripts/coord_GPS.txt'
+                fileGPS = rospack.get_path('sailrobot') + '/scripts/coord_GPS.txt'
 		LObj = [] 
 		nObj = 0
 		test_GPS_file = False

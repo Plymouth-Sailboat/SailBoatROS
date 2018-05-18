@@ -10,7 +10,7 @@ import numpy as np
 from math import pi
 import math
 from geometry_msgs.msg import Twist
-
+import rospkg
 from parameters import *
 
 
@@ -179,8 +179,8 @@ if __name__ == '__main__':
                 display = False
                 rate = 10
 		rmax = 50
-		current_path = os.path.realpath(__file__)
-		fileGPS = "%f/coord_GPS.txt"%(current_path)
+		rospack = rospkg.RosPack()
+		fileGPS = rospack.get_path('sailrobot') + '/scripts/coord_GPS.txt'
 		LObj = [] 
 		nObj = 0
 		test_GPS_file = False
