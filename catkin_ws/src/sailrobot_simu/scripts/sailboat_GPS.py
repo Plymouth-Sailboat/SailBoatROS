@@ -119,7 +119,7 @@ def CartesienToGPS(lat1,long1,x0,y0,x,y):
 	Rearth = 6371000
 
 	lat2 = lat1 + 180/pi*(x - x0)/Rearth
-	long2 = long1 + 180/pi*(y - y0)/(Rearth*cos((lat1+lat2)/2))
+	long2 = long1 + 180/pi*(y - y0)/(Rearth*cos((lat1+lat2)/2))*0.5
 
 	return lat2,long2
 
