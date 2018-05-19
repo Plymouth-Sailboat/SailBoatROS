@@ -1,0 +1,7 @@
+PROBLEM_FILE = /home/sailboat/SailBoatROS/catkin_ws/src/sailrobot/bin/LKHData/area_scanning.tsp
+OPTIMUM = 1000 
+MOVE_TYPE = 5 
+PATCHING_C = 3 
+PATCHING_A = 2 
+RUNS = 10 
+OUTPUT_TOUR_FILE = /home/sailboat/SailBoatROS/catkin_ws/src/sailrobot/bin/LKHData/area_scanning.tour
