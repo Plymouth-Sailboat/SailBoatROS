@@ -11,27 +11,27 @@ using namespace glm;
 void PotentialField::setup(ros::NodeHandle* n){
     std::string path = ros::package::getPath("sailrobot");
     std::ifstream f(path + "/data/waypoints.txt");
-    if(f.good())
+    if(f.good()){
+	f.close();
         waypoints = Utility::ReadGPSCoordinates(path + "/data/waypoints.txt");
-    else{
+    }else{
         std::cerr << "Waypoints Coordinates File not Found" << std::endl;
         exit(0);
     }
-    f.close();
     f.open(path + "/data/obstacles.txt");
-    if(f.good())
+    if(f.good()){
+	f.close();
         obstacles = Utility::ReadGPSCoordinates(path + "/data/obstacles.txt");
-    else{
+    }else{
         std::cerr << "Obstacles Coordinates File not Found" << std::endl;
         exit(0);
     }
-    f.close();
 }
 
 
 vec2 PotentialField::distanceVector(vec2 dest, vec2 pos){
-    double d = Utility::GPSDist(pos.x, pos.y, dest.x, dest.y);
-    double bearing = Utility::GPSBearing(pos.x, pos.y, dest.x, dest.y);
+    double d = Utility::GPSDist(pos, dest);
+    double bearing = Utility::GPSBearing(pos, dest);
     
     return vec2(d*cos(bearing), d*sin(bearing));
 }
