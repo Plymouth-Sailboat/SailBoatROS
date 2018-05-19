@@ -11,6 +11,7 @@ import math
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import Vector3
+import rospkg
 
 class Potential_Field(Controller):
 	waypoints = []
@@ -18,12 +19,9 @@ class Potential_Field(Controller):
 
 	def __init__(self, name):
 		Controller.__init__(self,name, 10, MODE.HEADING)
-		rospy.Subscriber('waypoints', Point, self.addwaypoint);
-		rospy.Subscriber('obstacles', Point, self.addobstacles);
-	def addwaypoint(self, point):
-		self.waypoints.append(point)
-	def addobstacles(self, obs):
-		self.obstacles.append(obs)
+		rospack = rospkg.RosPack()
+		waypoints = utilities.readGPSCoordinates(rospack.get_path('sailrobot') + '/data/waypoints.txt')
+		obstacles = utilities.readGPSCoordinates(rospack.get_path('sailrobot') + '/data/obstacles.txt')
 	def distanceVector(self, pos, dest):
 		d = GPSDist(pos.x, pos.y, dest.x, dest.y)
 		bearing = GPSBearing(pos.x, pos.y, dest.x, dest.y)
