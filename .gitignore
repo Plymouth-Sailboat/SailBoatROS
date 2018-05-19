@@ -42,5 +42,8 @@ qtcreator-*
 # Emacs
 .#*
 
+# OBJ
+*.o
+
 # Catkin custom files
 CATKIN_IGNORE
