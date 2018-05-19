@@ -19,6 +19,6 @@ class Utility{
 		static float CartesiantoGPS(float x, float y);
 		static glm::vec3 QuaternionToEuler(float x, float y, float z, float w);
 		static glm::quat EulerToQuaternion(float x, float y, float z);
-		static glm::vec2* ReadGPSCoordinates(std::string filepath);
+		static glm::vec2* ReadGPSCoordinates(std::string filepath, int& size);
 };
 #endif

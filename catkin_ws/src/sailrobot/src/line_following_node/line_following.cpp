@@ -10,18 +10,19 @@ using namespace Sailboat;
 using namespace glm;
 
 void LineFollowing::setup(ros::NodeHandle* n){
+	int nbWaypoints = 0;
+
 	std::string path = ros::package::getPath("sailrobot");
 	std::ifstream f(path + "/data/line_following.txt");
 	if(f.good()){
 		f.close();
-		waypoints = Utility::ReadGPSCoordinates(path + "/data/waypoints.txt");
+		waypoints = Utility::ReadGPSCoordinates(path + "/data/waypoints.txt", nbWaypoints);
 	}else{
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);
 	}
 	
-	int rowsWaypoints =  sizeof(waypoints) / sizeof(waypoints[0]);
-	if(rowsWaypoints > 2){
+	if(nbWaypoints > 2){
 		std::cerr << "Too Many Coordinates" << std::endl;
 		exit(0);
 	}

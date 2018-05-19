@@ -1,5 +1,5 @@
-#ifndef LINEFOLLOWING_HPP
-#define LINEFOLLOWING_HPP
+#ifndef WAYPOINTFOLLOWER_HPP
+#define WAYPOINTFOLLOWER_HPP
 
 #include "controller.hpp"
 #include <glm/glm.hpp>
