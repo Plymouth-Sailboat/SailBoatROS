@@ -13,7 +13,7 @@ void PotentialField::setup(ros::NodeHandle* n){
 	std::ifstream f(path + "/data/waypoints.txt");
 	if(f.good()){
 		f.close();
-		waypoints = Utility::ReadGPSCoordinates(path + "/data/waypoints.txt", nbWaypoints);
+		waypoints = Utility::ReadGPSCoordinates(path + "/data/goalpoint.txt", nbWaypoints);
 	}else{
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);
@@ -49,18 +49,25 @@ geometry_msgs::Twist PotentialField::control(){
 	}
 	heading = normalize(heading);
 
+	bool isInObstacle = false;
+
 	for(int i = 0; i < nbObstacles; ++i){
 		vec2 res = distanceVector(current,obstacles[i]);
 
-		if(float dist = length2(res) < 100){
+		if(float dist = length2(res) < 10){
 			res /= dist*dist;
 			heading += res;
+			isInObstacle = true;
 		}
 	}
 
 	cmd.linear.x = (double)heading.x;
 	cmd.linear.y = (double)heading.y;
 	cmd.linear.z = 0.0;
+
+	if(isInObstacle)
+		publishMSG("PAvoiding obstacle");
+
 	return cmd;
 }
 

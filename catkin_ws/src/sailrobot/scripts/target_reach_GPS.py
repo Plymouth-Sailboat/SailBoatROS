@@ -152,7 +152,8 @@ class Target_Reach(Controller):
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
 
-                aaw = self.windMsg.x
+                #aaw = self.windMsg.x
+		aaw = 0
 		psi_aw = self.windMsg.theta
 
                 # evaluation of phi
@@ -193,6 +194,7 @@ class Target_Reach(Controller):
 
 		if self.display == True:
                 	print('Xobj = ', self.Xobj,'/Yobj = ',self.Yobj)
+			print('theta =', theta*180/pi)
 			print('dst obj = ', dst)
 			print('theta obj = ',thetab*180/pi)
         	        print('alpha = ', alpha*180/pi)
@@ -200,6 +202,9 @@ class Target_Reach(Controller):
 			print('desired deltar = ', deltarb*180/pi)
         	        print('evaluate psi_tw = ', psi_tw*180/pi)
 			print(' ')
+
+
+		self.publishMSG('Pdist '+ (str)(dst) + '\n thetaobj ' + (str)(thetab*180/pi) + '\n Xobj ' + (str)(self.Xobj) + ' Yobj ' + (str)(self.Yobj))
 
                 return command
 
@@ -235,7 +240,7 @@ if __name__ == '__main__':
 				long0 = LObj[0][1]
 				testlat = 0
 				testlong = 0
-		
+
 		print('-lat : latitude objective')
 		print('-long : longitude objective')
 		print('-rate : loop rate' )

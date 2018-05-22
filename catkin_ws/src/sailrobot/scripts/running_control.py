@@ -106,7 +106,8 @@ class Running(Controller):
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
 
-                aaw = self.windMsg.x
+                #aaw = self.windMsg.x
+		aaw = 0
 		psi_aw = self.windMsg.theta
 
                 # evaluation of phi
@@ -166,7 +167,7 @@ class Running(Controller):
                         print('evaluate psi_tw = ', psi_tw*180/pi)
 			print('headind received = ',theta*180/pi)
                         print(' ')
-
+		self.publishMSG('Pdist '+ (str)(dst) + '\n thetaobj ' + (str)(thetab*180/pi) + '\n Xobj ' + (str)(self.Xobj) + ' Yobj ' + (str)(self.Yobj))
                 return command
 
 
@@ -186,11 +187,6 @@ if __name__ == '__main__':
 		test_GPS_file = False
 
                 for i in range(0,len(sys.argv)):
- 			if sys.argv[i] == '-n':
-				if nObj >= sys.argv[i+1]:
-					print('Not enough objective implement! Take n= ',nObj)
-				else:
-					nObj = float(sys.argv[i+1])
 
 			if sys.argv[i] == '-gpsfile':
 				test_GPS_file = True
@@ -211,7 +207,6 @@ if __name__ == '__main__':
 				rmax = float(sys.argv[i+1])
 
 
-		print(' -n : number of objective')
                 print(' -rate : loop rate' )
                 print(' -v : display information')
 		print(' -gpsfile : filepath of GPS coordinate')

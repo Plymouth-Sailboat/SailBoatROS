@@ -1,20 +1,16 @@
-NAME : area_scanning.9363.tour
-COMMENT : Length = 9363
-COMMENT : Found by LKH [Keld Helsgaun] Sat May 19 12:29:37 2018
+NAME : area_scanning.892.tour
+COMMENT : Length = 892
+COMMENT : Found by LKH [Keld Helsgaun] Mon May 21 20:54:38 2018
 TYPE : TOUR
-DIMENSION : 12
+DIMENSION : 8
 TOUR_SECTION
 1
-5
-9
-10
-11
-12
-8
-4
-3
 7
 6
 2
+3
+4
+5
+8
 -1
 EOF

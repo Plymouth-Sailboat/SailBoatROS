@@ -118,7 +118,8 @@ class Running(Controller):
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
 
-                aaw = self.windMsg.x
+                #aaw = self.windMsg.x
+		aaw = 0
 		psi_aw = self.windMsg.theta
 
                 # evaluation of phi
@@ -179,7 +180,7 @@ class Running(Controller):
                         print('evaluate psi_tw = ', psi_tw*180/pi)
 			print('headind received = ',theta*180/pi)
                         print(' ')
-
+		self.publishMSG('Pdist '+ (str)(dst) + '\n thetaobj ' + (str)(thetab*180/pi) + '\n Xobj ' + (str)(self.Xobj) + ' Yobj ' + (str)(self.Yobj))
                 return command
 
 
@@ -193,7 +194,7 @@ if __name__ == '__main__':
                 fileObs = rospack.get_path('sailrobot') + '/scripts/coord_Obstacle.txt'
                 LObs0 = utilities.readGPSCoordinates(fileObs)
 		LObs = []
-		if len(LObs0)< 2:
+		if len(LObs0)<2:
 			LObs = []
 		else:
 			i = 0
@@ -214,7 +215,7 @@ if __name__ == '__main__':
 
                 for i in range(0,len(sys.argv)):
  			if sys.argv[i] == '-n':
-				if nObj >= sys.argv[i+1]:
+				if nObj < 0: #sys.argv[i+1]:
 					print('Not enough objective implement! Take n= ',nObj)
 				else:
 					nObj = float(sys.argv[i+1])
@@ -226,6 +227,21 @@ if __name__ == '__main__':
 				else:	
 					LObj = utilities.readGPSCoordinates(sys.argv[i+1])
 					nObj = len(LObj)
+			
+
+			if sys.argv[i] == '-gpsobstacle':
+
+				fileObs = sys.argv[i+1]
+       	         		LObs0 = utilities.readGPSCoordinates(fileObs)
+                		LObs = []
+                		if len(LObs0)<2:
+                        		LObs = []
+                		else:
+                        		i = 0
+                        		while i < len(LObs0)-1:
+                                		Obs = py.IntervalVector([py.Interval(LObs0[i][0],LObs0[i][1]),py.Interval(LObs0[i+1][0],LObs0[i+1][1])])
+                                		i = i+2
+                                		LObs = LObs + [Obs]
 
                         if sys.argv[i] == '-rate':
                                 rate = float(sys.argv[i+1])
@@ -241,6 +257,7 @@ if __name__ == '__main__':
                 print(' -rate : loop rate' )
                 print(' -v : display information')
 		print(' -gpsfile : filepath of GPS coordinate')
+		print(' -gpsobstacle : filepath of obstacle GPS coordinate')
 		print(' -rm : cutoff distance')
                 print(' ')
 

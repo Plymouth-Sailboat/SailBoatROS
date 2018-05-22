@@ -16,12 +16,11 @@ void LineFollowing::setup(ros::NodeHandle* n){
 	std::ifstream f(path + "/data/line_following.txt");
 	if(f.good()){
 		f.close();
-		waypoints = Utility::ReadGPSCoordinates(path + "/data/waypoints.txt", nbWaypoints);
+		waypoints = Utility::ReadGPSCoordinates(path + "/data/line_following.txt", nbWaypoints);
 	}else{
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);
 	}
-	
 	if(nbWaypoints > 2){
 		std::cerr << "Too Many Coordinates" << std::endl;
 		exit(0);
@@ -62,6 +61,8 @@ geometry_msgs::Twist LineFollowing::control(){
 	else
 		cmd.angular.x = 45.0*((sin(heading.z-thetabar)>=0)?1:-1);
 	cmd.angular.y = M_PI/2.0*((wind-thetabar)+1)/2.0;
+
+	publishMSG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y));
 	
 	return cmd;
 }

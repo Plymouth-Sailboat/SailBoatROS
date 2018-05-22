@@ -59,6 +59,10 @@ void AreaScanning::buildLKHFiles(){
 				int dist = (Utility::GPSDist(waypoints[i], waypoints[j])*10);
 				if(dist == 0)
 					dist = 9999;
+				float bearing = Utility::GPSBearing(waypoints[i], waypoints[j]);
+				float wind = windMsg.theta;
+				if(cos(bearing - wind) > 0.83)
+					dist += 1000;
 				problem << dist << " ";
 			}
 			int dist = (Utility::GPSDist(waypoints[i], waypoints[nbWaypoints-1])*10);
@@ -87,6 +91,11 @@ void AreaScanning::readResults(){
 				waypointsOrder[i++] = std::stoi(line);
 		}
 		f.close();
+		std::string waypointsS = "P";
+		for(int i = 0; i < nbWaypoints; ++i){
+			waypointsS += std::to_string(waypointsOrder[i]) + "\n";
+		}
+		publishMSG(waypointsS);
 	}else{
 		std::cerr << "Couldn't open tour file" << std::endl;
 		exit(0);

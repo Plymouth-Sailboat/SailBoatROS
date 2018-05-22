@@ -27,10 +27,12 @@ geometry_msgs::Twist WaypointFollower::control(){
 
 	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
 
-	if(Utility::GPSDist(current, waypoints[currentWaypoint]) < 10)
+	if(Utility::GPSDist(current, waypoints[currentWaypoint]) < 10){
 		currentWaypoint++;
+		publishMSG("PArrive au point " + std::to_string(currentWaypoint));
+	}
 	if(currentWaypoint > nbWaypoints)
-		return cmd;
+		currentWaypoint = 0;
 
 	float wind = windMsg.theta;
 	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation.x, imuMsg.orientation.y, imuMsg.orientation.z, imuMsg.orientation.w);
