@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <geometry_msgs/Quaternion.h>
 #include <string>
 
 class Utility{
@@ -17,7 +18,10 @@ class Utility{
 		static float GPSBearing(glm::vec2 point1, glm::vec2 point2);
 		static float GPStoCartesian(float lat, float gpslong);
 		static float CartesiantoGPS(float x, float y);
+		static glm::vec3 QuaternionToEuler(glm::quat q);
 		static glm::vec3 QuaternionToEuler(float x, float y, float z, float w);
+		static glm::vec3 QuaternionToEuler(geometry_msgs::Quaternion q);
+		static glm::quat EulerToQuaternion(glm::vec3 v);
 		static glm::quat EulerToQuaternion(float x, float y, float z);
 		static glm::vec2* ReadGPSCoordinates(std::string filepath, int& size);
 };
