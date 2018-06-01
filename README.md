@@ -5,7 +5,7 @@
 
 # SailBoatROS
 
-C++ and Python code for [Plymouth's Autonomous Sailboat](http://165.227.238.42/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribe to topics sent by the arduino and publish commands to it. It is comprised of classes in C++ and Python for easy integration.
+C++ and Python code for [Plymouth's Autonomous Sailboat](https://plymouth-sailboat.github.io/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribe to topics sent by the arduino and publish commands to it. It is comprised of classes in C++ and Python for easy integration.
 
 ## Getting Started
 
@@ -84,7 +84,7 @@ roslaunch sailrobot start.launch usb_port:=<port>
 
 ## Authors
 
-* **Ulysse VAUTIER** - *Initial work* - [UlysseVautier](https://github.com/UlysseVautier)
+* **Ulysse VAUTIER** - *Initial work* - [UlysseVautier](https://ulyssevautier.github.io/)
 * **Jian WAN** - [Jian Wan](https://www.plymouth.ac.uk/staff/jian-wan)
 * **Christophe Viel** - [Christophe Viel](https://www.researchgate.net/profile/Christophe_Viel)
 
