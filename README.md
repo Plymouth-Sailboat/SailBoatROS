@@ -52,6 +52,8 @@ pip install numpy
 Clone the project and catkin_make in the workspace. Source the catkin workspace to have access to the nodes.
 
 ```
+git clone https://github.com/Plymouth-Sailboat/SailBoatROS.git
+cd SailBoatROS/catkin_wss
 catkin_make
 source devel/setup.bash
 ```
