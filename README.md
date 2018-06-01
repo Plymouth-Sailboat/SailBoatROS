@@ -13,7 +13,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- ROS Kinetic
+- [ROS Kinetic](http://wiki.ros.org/kinetic)
 - Raspberry Pi 3 connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface)
 - [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node)
 - [Rosserial-Arduino Node](http://wiki.ros.org/rosserial_arduino)
