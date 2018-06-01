@@ -53,7 +53,7 @@ Clone the project and catkin_make in the workspace. Source the catkin workspace 
 
 ```
 git clone https://github.com/Plymouth-Sailboat/SailBoatROS.git
-cd SailBoatROS/catkin_wss
+cd SailBoatROS/catkin_ws
 catkin_make
 source devel/setup.bash
 ```
