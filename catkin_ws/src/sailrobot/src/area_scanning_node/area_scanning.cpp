@@ -12,11 +12,13 @@ using namespace glm;
 
 void AreaScanning::setup(ros::NodeHandle* n){
 	std::string path = ros::package::getPath("sailrobot");
-	std::ifstream f(path + "/data/area_scanning.txt");
-	if(f.good()){
-		f.close();
-		waypoints = Utility::ReadGPSCoordinates(path + "/data/area_scanning.txt", nbWaypoints);
-	}else{
+	
+	std::string areaPath = "/data/area_scanning.txt";
+	if(n->hasParam("area"))
+		n->getParam("area", areaPath);
+
+	waypoints = Utility::ReadGPSCoordinates(path + areaPath, nbWaypoints);
+	if(waypoints == NULL){
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);
 	}

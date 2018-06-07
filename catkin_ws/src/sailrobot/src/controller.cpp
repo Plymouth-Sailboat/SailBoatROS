@@ -11,7 +11,7 @@ Controller::Controller(std::string name, int looprate, int controller) : name(na
 void Controller::init(int argc, char **argv){
     ros::init(argc, argv, name);
     
-    n = new ros::NodeHandle();
+    n = new ros::NodeHandle("~");
     loop_rate = new ros::Rate(looprate);
     
     timer = n->createTimer(ros::Duration(30.0), &Controller::wakeup, this);

@@ -13,16 +13,18 @@ void LineFollowing::setup(ros::NodeHandle* n){
 	int nbWaypoints = 0;
 
 	std::string path = ros::package::getPath("sailrobot");
-	std::ifstream f(path + "/data/line_following.txt");
-	if(f.good()){
-		f.close();
-		waypoints = Utility::ReadGPSCoordinates(path + "/data/line_following.txt", nbWaypoints);
-	}else{
+
+	std::string waypointPath = "/data/line_following.txt";
+	if(n->hasParam("waypoints"))
+		n->getParam("waypoints",waypointPath);
+
+	waypoints = Utility::ReadGPSCoordinates(path + waypointPath, nbWaypoints);
+	if(waypoints != NULL){
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);
 	}
-	if(nbWaypoints > 2){
-		std::cerr << "Too Many Coordinates" << std::endl;
+	if(nbWaypoints < 2){
+		std::cerr << "Not Enough Coordinates" << std::endl;
 		exit(0);
 	}
 }

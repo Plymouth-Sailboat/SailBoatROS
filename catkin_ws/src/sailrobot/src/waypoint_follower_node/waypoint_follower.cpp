@@ -41,7 +41,7 @@ geometry_msgs::Twist WaypointFollower::control(){
 	
 	publishMSG("PDistance to next waypoint : " + std::to_string(dist));
 
-	cmd.angular.z = theta - heading.z;
+	cmd.angular.z = theta;
 publishMSG("Pessaie d'aller a  " + std::to_string(waypoints[currentWaypoint].x) + " " + std::to_string(waypoints[currentWaypoint].y));
 	return cmd;
 }

@@ -152,6 +152,8 @@ target_link_libraries(waypoint_follower ${catkin_LIBRARIES})
 add_executable(area_scanning ${basic_source} src/area_scanning_node/area_scanning_node.cpp src/area_scanning_node/area_scanning.cpp)
 target_link_libraries(area_scanning ${catkin_LIBRARIES})
 
+add_executable(user_test ${basic_source} src/user_friendly_test_node/user_friendly_test_node.cpp src/user_friendly_test_node/user_friendly_test.cpp)
+target_link_libraries(user_test ${catkin_LIBRARIES})
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
