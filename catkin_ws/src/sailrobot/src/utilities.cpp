@@ -85,8 +85,20 @@ float Utility::CartesiantoGPS(float x, float y){
 
 }
 
+vec3 Utility::QuaternionToEuler(geometry_msgs::Quaternion q){
+	return eulerAngles(quat(q.x, q.y, q.z, q.w));
+}
+
+vec3 Utility::QuaternionToEuler(quat q){
+	return eulerAngles(q);
+}
+
 vec3 Utility::QuaternionToEuler(float x, float y, float z, float w){
 	return eulerAngles(quat(x,y,z,w));
+}
+
+quat Utility::EulerToQuaternion(vec3 v){
+	return quat(v);
 }
 
 quat Utility::EulerToQuaternion(float x, float y, float z){

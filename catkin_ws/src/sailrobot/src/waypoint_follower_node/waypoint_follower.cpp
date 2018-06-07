@@ -29,16 +29,17 @@ geometry_msgs::Twist WaypointFollower::control(){
 
 	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
 
-	if(Utility::GPSDist(current, waypoints[currentWaypoint]) < 10){
+	if(Utility::GPSDist(current, waypoints[currentWaypoint]) < 5){
+		publishMSG("PArrived at waypoint " + std::to_string(currentWaypoint));
 		currentWaypoint++;
-		publishMSG("PArrive au point " + std::to_string(currentWaypoint));
 	}
 	if(currentWaypoint > nbWaypoints)
 		currentWaypoint = 0;
 
-	float wind = windMsg.theta;
-	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation.x, imuMsg.orientation.y, imuMsg.orientation.z, imuMsg.orientation.w);
 	float theta = Utility::GPSBearing(current, waypoints[currentWaypoint]);
+	float dist = Utility::GPSDist(current, waypoints[currentWaypoint]);
+	
+	publishMSG("PDistance to next waypoint : " + std::to_string(dist));
 
 	cmd.angular.z = theta - heading.z;
 publishMSG("Pessaie d'aller a  " + std::to_string(waypoints[currentWaypoint].x) + " " + std::to_string(waypoints[currentWaypoint].y));

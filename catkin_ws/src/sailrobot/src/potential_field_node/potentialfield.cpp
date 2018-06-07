@@ -73,6 +73,7 @@ geometry_msgs::Twist PotentialField::control(){
 	if(isInObstacle)
 		publishMSG("PAvoiding obstacle");
 
+	publishMSG("PAttracted by : " + std::to_string(waypoints[0].x) + " " + std::to_string(waypoints[0].y));
 	return cmd;
 }
 
