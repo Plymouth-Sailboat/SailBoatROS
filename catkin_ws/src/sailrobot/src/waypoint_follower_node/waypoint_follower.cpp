@@ -11,11 +11,13 @@ using namespace glm;
 
 void WaypointFollower::setup(ros::NodeHandle* n){
 	std::string path = ros::package::getPath("sailrobot");
-	std::ifstream f(path + "/data/waypoints.txt");
-	if(f.good()){
-		f.close();
-		waypoints = Utility::ReadGPSCoordinates(path + "/data/waypoints.txt", nbWaypoints);
-	}else{
+
+	std::string waypointPath = "/data/waypoints.txt";
+	if(n->hasParam("waypoints"))
+		n->getParam("waypoints", waypointPath);
+
+	waypoints = Utility::ReadGPSCoordinates(path + waypointPath, nbWaypoints);
+	if(waypoints == NULL){
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);
 	}
@@ -38,7 +40,7 @@ geometry_msgs::Twist WaypointFollower::control(){
 	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation.x, imuMsg.orientation.y, imuMsg.orientation.z, imuMsg.orientation.w);
 	float theta = Utility::GPSBearing(current, waypoints[currentWaypoint]);
 
-	cmd.angular.z = theta;
-
+	cmd.angular.z = theta - heading.z;
+publishMSG("Pessaie d'aller a  " + std::to_string(waypoints[currentWaypoint].x) + " " + std::to_string(waypoints[currentWaypoint].y));
 	return cmd;
 }
