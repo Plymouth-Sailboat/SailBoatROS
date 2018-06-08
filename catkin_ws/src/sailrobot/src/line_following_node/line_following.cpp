@@ -34,7 +34,7 @@ geometry_msgs::Twist LineFollowing::control(){
 	
 	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
 	float wind = windMsg.theta;
-	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation.x, imuMsg.orientation.y, imuMsg.orientation.z, imuMsg.orientation.w);
+	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
 	
 	int q = 0;
 	float r = 50.0;

@@ -1,4 +1,4 @@
-#include "potential_field_node/potentialfield.hpp"
+#include "potential_field_node/potential_field.hpp"
 #include "math.h"
 #include <fstream>
 #include <iostream>
@@ -31,6 +31,11 @@ void PotentialField::setup(ros::NodeHandle* n){
 		std::cerr << "Obstacles Coordinates File not Found" << std::endl;
 		exit(0);
 	}
+
+	if(nbWaypoints < 1){
+		std::cerr << "No Waypoints" << std::endl;
+		exit(0);
+	}
 }
 
 
@@ -38,15 +43,13 @@ vec2 PotentialField::distanceVector(vec2 dest, vec2 pos){
 	double d = Utility::GPSDist(pos, dest);
 	double bearing = Utility::GPSBearing(pos, dest);
 
-	return vec2(d*cos(bearing), d*sin(bearing));
+	return vec2(d*sin(bearing), -d*cos(bearing));
 }
 
 geometry_msgs::Twist PotentialField::control(){
-	if(nbWaypoints < 1)
-		return geometry_msgs::Twist();
+	geometry_msgs::Twist cmd;
 	vec2 current(gpsMsg.latitude, gpsMsg.longitude);
 
-	geometry_msgs::Twist cmd;
 	vec2 heading;
 
 	for(int i = 0; i < nbWaypoints; ++i){
@@ -59,7 +62,7 @@ geometry_msgs::Twist PotentialField::control(){
 	for(int i = 0; i < nbObstacles; ++i){
 		vec2 res = distanceVector(current,obstacles[i]);
 
-		if(float dist = length2(res) < 10){
+		if(float dist = length(res) < 10){
 			res /= dist*dist;
 			heading += res;
 			isInObstacle = true;
@@ -70,10 +73,12 @@ geometry_msgs::Twist PotentialField::control(){
 	cmd.linear.y = (double)heading.y;
 	cmd.linear.z = 0.0;
 
-	if(isInObstacle)
-		publishMSG("PAvoiding obstacle");
+	std::string message = "";
 
-	publishMSG("PAttracted by : " + std::to_string(waypoints[0].x) + " " + std::to_string(waypoints[0].y));
+	if(isInObstacle)
+		message += "PAvoiding obstacle \n";
+
+	publishMSG(message + "PAttracted by : " + std::to_string(waypoints[0].x) + " " + std::to_string(waypoints[0].y));
 	return cmd;
 }
 

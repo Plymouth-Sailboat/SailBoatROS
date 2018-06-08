@@ -140,7 +140,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/sailrobot_node.cpp)
 
-add_executable(potential_field ${basic_source} src/potential_field_node/potential_field_node.cpp src/potential_field_node/potentialfield.cpp)
+add_executable(potential_field ${basic_source} src/potential_field_node/potential_field_node.cpp src/potential_field_node/potential_field.cpp)
 target_link_libraries(potential_field ${catkin_LIBRARIES})
 
 add_executable(line_following ${basic_source} src/line_following_node/line_following_node.cpp src/line_following_node/line_following.cpp)

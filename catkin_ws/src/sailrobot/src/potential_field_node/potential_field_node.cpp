@@ -1,4 +1,4 @@
-#include "potential_field_node/potentialfield.hpp"
+#include "potential_field_node/potential_field.hpp"
 
 int main(int argc, char **argv)
 {
