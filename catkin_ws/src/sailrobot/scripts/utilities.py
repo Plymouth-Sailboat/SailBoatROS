@@ -2,6 +2,7 @@
 import math
 import numpy as np
 import os
+import rospkg
 
 def GPSDist(lat1, lon1, lat2, lon2):
         R = 6371000
@@ -72,6 +73,10 @@ def EulerToQuaternion(x, y, z):
         return qx,qy,wz,qw
 
 def readGPSCoordinates(filepath):
+	rospack = rospkg.RosPack()
+	rospath = rospack.get_path('sailrobot')
+	if filepath[0] is not '/':
+		filepath = rospath + "/" + filepath
         if os.path.exists(filepath):
                 with open(filepath, 'r') as file:
                         try:
