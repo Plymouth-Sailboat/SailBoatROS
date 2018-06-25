@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iterator>
 #include <algorithm>
+#include <ros/package.h>
 
 using namespace glm;
 
@@ -107,6 +108,9 @@ quat Utility::EulerToQuaternion(float x, float y, float z){
 
 vec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
 	vec2* coordinates = NULL;
+	std::string path = ros::package::getPath("sailrobot");
+	if(filepath[0] != '/')
+		filepath = path + "/" + filepath;
 	std::fstream file(filepath);
 	if(!file){
 		std::cerr << "GPS Reading : Couldn't open file" << std::endl;

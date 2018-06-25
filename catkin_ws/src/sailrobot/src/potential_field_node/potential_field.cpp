@@ -9,24 +9,22 @@ using namespace Sailboat;
 using namespace glm;
 
 void PotentialField::setup(ros::NodeHandle* n){
-	std::string path = ros::package::getPath("sailrobot");
-
-	std::string goalPath = "/data/goalpoint.txt";
+	std::string goalPath = "data/goalpoint.txt";
 	if (n->hasParam("goal"))
 		n->getParam("goal",goalPath);
 
-	waypoints = Utility::ReadGPSCoordinates(path + goalPath, nbWaypoints);
+	waypoints = Utility::ReadGPSCoordinates(goalPath, nbWaypoints);
 	if(waypoints == NULL){
 		std::cerr << "Goals empty" << std::endl;
 		exit(0);
 	}
 
 
-        std::string obstaclesPath = "/data/obstacles.txt";
+        std::string obstaclesPath = "data/obstacles.txt";
         if (n->hasParam("obstacles"))
                 n->getParam("obstacles",obstaclesPath);
 
-	obstacles = Utility::ReadGPSCoordinates(path + obstaclesPath, nbObstacles);
+	obstacles = Utility::ReadGPSCoordinates(obstaclesPath, nbObstacles);
 	if(obstacles == NULL){
 		std::cerr << "Obstacles Coordinates File not Found" << std::endl;
 		exit(0);
