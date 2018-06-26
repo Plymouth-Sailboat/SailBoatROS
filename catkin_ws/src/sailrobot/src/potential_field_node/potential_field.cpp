@@ -72,7 +72,7 @@ geometry_msgs::Twist PotentialField::control(){
 	vec2 windPotential;
 	for(int i = -3; i < 3; ++i){
 		for(int j = -3; j < 3; ++j){
-			float pangle = cos(atan2(j,i)+M_PI/2.0;
+			float pangle = cos(atan2(j,i)+M_PI/2.0);
 			if(cos(pangle-windMsg.theta) < cos(closeHauled)){
 				windPotential -= length(vec2(i,j))*vec2(-sin(pangle - currentHeading), cos(pangle - currentHeading)); 
 			}
