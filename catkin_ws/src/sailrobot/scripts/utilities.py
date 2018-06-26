@@ -69,7 +69,7 @@ def EulerToQuaternion(x, y, z):
         qz = cy * cr * sp + sy * sr * cp
         qw = sy * cr * cp - cy * sr * sp
 	
-        return qx,qy,wz,qw
+        return qx,qy,qz,qw
 
 def readGPSCoordinates(filepath):
         if os.path.exists(filepath):

@@ -39,11 +39,11 @@ void PotentialField::setup(ros::NodeHandle* n){
 }
 
 
-vec2 PotentialField::distanceVector(vec2 dest, vec2 pos){
+vec2 PotentialField::distanceVector(vec2 pos, vec2 dest){
 	double d = Utility::GPSDist(pos, dest);
 	double bearing = Utility::GPSBearing(pos, dest);
-
-	return vec2(d*sin(bearing), -d*cos(bearing));
+	
+	return vec2(-d*sin(bearing), d*cos(bearing));
 }
 
 geometry_msgs::Twist PotentialField::control(){
@@ -78,7 +78,7 @@ geometry_msgs::Twist PotentialField::control(){
 	if(isInObstacle)
 		message += "PAvoiding obstacle \n";
 
-	publishMSG(message + "PAttracted by : " + std::to_string(waypoints[0].x) + " " + std::to_string(waypoints[0].y));
+	publishMSG(message + "PAttracted by : " + std::to_string(waypoints[0].x) + " " + std::to_string(waypoints[0].y) + " heading of : (" + std::to_string(heading.x) + "," + std::to_string(heading.y) + ")");
 	return cmd;
 }
 
