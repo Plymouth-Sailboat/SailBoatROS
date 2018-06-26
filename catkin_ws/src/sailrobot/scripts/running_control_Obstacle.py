@@ -101,7 +101,7 @@ class Running(Controller):
 
 
                 # Optimal sail angle
-                deltasopt = np.abs(pi/2*(np.cos(psi_tw - thetab) + 1)/2)
+                deltasopt = np.abs(pi/2*(np.cos(psi_aw) + 1)/2)
                 deltasb = np.min([deltasopt,np.abs(pi-np.abs(psi_aw))-pi/36])
                 deltasb = - np.sign(psi_aw)*np.min([np.abs(deltasb),pi/2])
 
@@ -118,15 +118,14 @@ class Running(Controller):
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
 
-                #aaw = self.windMsg.x
-		aaw = 0
+                aaw = np.max([self.windMsg.x,1])
 		psi_aw = self.windMsg.theta
 
                 # evaluation of phi
                 dx = self.v*np.cos(theta) - self.u*np.sin(theta)
                 dy = self.v*np.sin(theta) + self.u*np.cos(theta)
-                phi = math.atan2(dy,dx) # phi = np.angle(dx + 1j*dy)
-
+                #phi = math.atan2(dy,dx) # phi = np.angle(dx + 1j*dy)
+		phi = theta
 
                 # calcul de psi_tw ((en attendant une autre version du code))
                 u0 = self.v*np.sin(phi) + aaw*np.sin(theta + psi_aw)
@@ -189,9 +188,9 @@ if __name__ == '__main__':
 
 
         try:
-		
+
                 rospack = rospkg.RosPack()
-                fileObs = rospack.get_path('sailrobot') + '/scripts/coord_Obstacle.txt'
+                fileObs = rospack.get_path('sailrobot') + '/data/gps_simu.txt'
                 LObs0 = utilities.readGPSCoordinates(fileObs)
 		LObs = []
 		if len(LObs0)<2:
@@ -208,8 +207,8 @@ if __name__ == '__main__':
                 display = False
                 rate = 10
 		rmax = 50
-                fileGPS = rospack.get_path('sailrobot') + '/scripts/coord_GPS.txt'
-		LObj = [] 
+                fileGPS = rospack.get_path('sailrobot') + '/data/gps_simu.txt'
+		LObj = []
 		nObj = 0
 		test_GPS_file = False
 
@@ -221,18 +220,38 @@ if __name__ == '__main__':
 					nObj = float(sys.argv[i+1])
 
 			if sys.argv[i] == '-gpsfile':
+				test_GPS_file = True
 				if sys.argv[i+1] == '0':
 					LObj = utilities.readGPSCoordinates(fileGPS)
 					nObj = len(LObj)
-				else:	
+
+				elif sys.argv[i+1] == '/':
 					LObj = utilities.readGPSCoordinates(sys.argv[i+1])
 					nObj = len(LObj)
-			
+
+				else:
+                                        fileGPS = rospack.get_path('sailrobot')+ '/data/' + sys.argv[i+1]
+                                        LObj = utilities.readGPSCoordinates(fileGPS)
+                                        nObJ = len(LObj)
+
+
+                                if nObj <2:
+                                        LObj = array([LObj[0],LObj[0]])
+                                        nObj = nObj+1
+
+
 
 			if sys.argv[i] == '-gpsobstacle':
 
-				fileObs = sys.argv[i+1]
-       	         		LObs0 = utilities.readGPSCoordinates(fileObs)
+
+                                if sys.argv[i+1] == '/':
+                                        LObs0 = utilities.readGPSCoordinates(sys.argv[i+1])
+
+                                else:
+                                        fileGPS = rospack.get_path('sailrobot')+ '/data/' + sys.argv[i+1]
+                                        LObs0 = utilities.readGPSCoordinates(fileGPS)
+
+
                 		LObs = []
                 		if len(LObs0)<2:
                         		LObs = []

@@ -12,7 +12,7 @@ from numpy import array
 import numpy as np
 from roblib2 import *
 import utilities
-
+import rospkg
 from parameters import *
 
 
@@ -95,23 +95,6 @@ def plot_sailboat(Lx,Ly,x,y,theta,deltas,deltar,psy_tw,aaw,display_obj,LObj,disp
         axis((-400, 400, -400, 400))
         draw()
 
-
-def EulerQuaternion(pitch,roll,yaw):
-
-        cy = np.cos(yaw/2)
-        cr = np.cos(roll/2)
-        cp = np.cos(pitch/2)
-
-        sy = np.sin(yaw/2)
-        sr = np.sin(roll/2)
-        sp = np.sin(pitch/2)
-
-        w = cy*cr*cp + sy*sr*sp
-        x = cy*sr*cp - sy*cr*sp
-        y = cy*cr*sp + sy*sr*cp
-        z = sy*cr*cp - cy*sr*sp
-
-        return x, y, z, w
 
 
 def CartesienToGPS(lat1,long1,x0,y0,x,y):
@@ -229,8 +212,9 @@ if __name__ == '__main__':
 	display_obj = False
 	display_obs = False
 
-        fileGPS = '/home/sailboat/git/SailBoatROS/catkin_ws/src/sailrobot/scripts/coord_GPS.txt'
-	fileObs = '/home/sailboat/git/SailBoatROS/catkin_ws/src/sailrobot/scripts/coord_Obstacle.txt'
+	rospack = rospkg.RosPack()
+        fileGPS = rospack.get_path('sailrobot')+'/data/gps_simu.txt'
+	fileObs = rospack.get_path('sailrobot')+'/data/gps_simu_obstacle.txt'
 	LObj = utilities.readGPSCoordinates(fileGPS)
 	LObs = utilities.readGPSCoordinates(fileObs)
 
@@ -358,7 +342,7 @@ if __name__ == '__main__':
         	msg_GPS.longitude = S1.long
 
 		# msg = 'Imu informatiom'
-	        x,y,z,w = EulerQuaternion(0.0,0.0,S1.theta)
+	        x,y,z,w = utilities.EulerToQuaternion(0.0,0.0,S1.theta)
         	msg_Imu = Imu()
         	msg_Imu.orientation.x = x
         	msg_Imu.orientation.y = y
@@ -391,6 +375,8 @@ if __name__ == '__main__':
 			print('u = ', S1.u, ' m/s')
 	        	print('sail angle = ', S1.deltas*180/pi,' deg')
         		print('rudder angle = ', S1.deltar*180/pi,' deg')
+			print('psi_tw = ', S1.psi_tw*180/pi,' deg')
+			print('psi_aw = ', S1.psi_aw*180/pi, ' deg')
 			print(' ')
 
 		# Plot sailboat

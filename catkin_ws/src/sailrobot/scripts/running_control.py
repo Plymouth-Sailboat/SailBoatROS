@@ -89,7 +89,7 @@ class Running(Controller):
 
 
                 # Optimal sail angle
-                deltasopt = np.abs(pi/2*(np.cos(psi_tw - thetab) + 1)/2)
+                deltasopt = np.abs(pi/2*(np.cos(psi_aw) + 1)/2)
                 deltasb = np.min([deltasopt,np.abs(pi-np.abs(psi_aw))-pi/36])
                 deltasb = - np.sign(psi_aw)*np.min([np.abs(deltasb),pi/2])
 
@@ -106,14 +106,14 @@ class Running(Controller):
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
 
-                #aaw = self.windMsg.x
-		aaw = 0
+                aaw = np.max([self.windMsg.x,1])
 		psi_aw = self.windMsg.theta
 
                 # evaluation of phi
                 dx = self.v*np.cos(theta) - self.u*np.sin(theta)
                 dy = self.v*np.sin(theta) + self.u*np.cos(theta)
-                phi = math.atan2(dy,dx) # phi = np.angle(dx + 1j*dy)
+                #phi = math.atan2(dy,dx) # phi = np.angle(dx + 1j*dy)
+		phi = theta
 
 
                 # calcul de psi_tw ((en attendant une autre version du code))
@@ -181,8 +181,8 @@ if __name__ == '__main__':
                 rate = 10
 		rmax = 50
 		rospack = rospkg.RosPack()
-		fileGPS = rospack.get_path('sailrobot') + '/scripts/coord_GPS.txt'
-		LObj = [] 
+		fileGPS = rospack.get_path('sailrobot') + '/data/gps_simu.txt'
+		LObj = []
 		nObj = 0
 		test_GPS_file = False
 
@@ -190,12 +190,26 @@ if __name__ == '__main__':
 
 			if sys.argv[i] == '-gpsfile':
 				test_GPS_file = True
-				if sys.argv[i+1] == '0':
+				path = sys.argv[i+1]
+				if path == '0':
 					LObj = utilities.readGPSCoordinates(fileGPS)
 					nObj = len(LObj)
-				else:	
+
+				elif path[0]=='/':
+
 					LObj = utilities.readGPSCoordinates(sys.argv[i+1])
 					nObj = len(LObj)
+
+				else :
+                                        fileGPS = rospack.get_path('sailrobot')+ '/data/' + sys.argv[i+1]
+                                        LObj = utilities.readGPSCoordinates(fileGPS)
+                                        nObj = len(LObj)
+
+
+				if nObj <2:
+					LObj = array([LObj[0],LObj[0]])
+					nObj = nObj+1
+
 
                         if sys.argv[i] == '-rate':
                                 rate = float(sys.argv[i+1])

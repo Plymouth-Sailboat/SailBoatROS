@@ -41,6 +41,7 @@ class Target_Reach(Controller):
         delta = delta
         dsecu = dsecu
         darret0 = darret0
+	rb = rb
         dsecu2 = dsecu2
         kp = kp
         kv = kv
@@ -54,7 +55,7 @@ class Target_Reach(Controller):
                 self.Xobj = X
                 self.Yobj = Y
 		self.display = display
-		self.darret = np.max([self.darret0, self.p8/np.sin(pi/4)])
+		self.darret = np.max([self.darret0, 2*self.p8/np.sin(pi/4)])
 
 
         def update_rudder(self,thetab,theta,phi):
@@ -87,35 +88,46 @@ class Target_Reach(Controller):
 
                 # test if desired orientation is upwind: tack strategy
                 if np.cos(psi_tw - thetab) + np.cos(self.delta) < 0 :
+
+
+			if (dst > darret):   # if in pre-arrival area
+				if np.sin(psi_tw - thetab)>0:
+					self.q = -1
+				else:
+					self.q = 1
+
+			if (dst <= darret): # if in arrival area
+                        	if np.cos(thetab - (psi_tw + pi - self.delta)) > np.cos(thetab - (psi_tw  + pi + self.delta)) :
+                                	self.q = - 1
+                        	else:
+                                	self.q = 1
+
+
                         thetab = psi_tw + pi + self.q*self.delta
 
-                else:   # else, stock sailboat direction
-
-                        if (np.cos(thetab - (psi_tw + pi - self.delta))> np.cos(thetab - (psi_tw  + pi + self.delta))):
-                        	self.q = - 1
-                        else:
-                                self.q = 1
 
                 # stop strategy : put sailboat upwind
                 if (dst < self.darret):
-                        if (self.v > 0):
+                        if ((dst < rb)|(np.cos(alpha-psi_tw)<0))&(self.v>0):
                                 thetab = psi_tw + pi
                         else:
-                                thetab = psi_tw + pi - self.delta*np.sign(self.u)
+                                thetab = thetab
 
                 return thetab
 
-        def sail_opening(self,theta,dst,psi_tw,psi_aw,dvd,thetab):
+
+        def sail_opening(self,theta,dst,psi_tw,psi_aw,dvd,thetab,alpha):
                 deltas = self.sailAngle
 
 
                 # stop strategy : put sailboat upwind
                 if (dst < self.darret):
+                        if (dvd < 0)|(np.cos(alpha-psi_tw)<0):
 
-			if (self.v > 0):
-                                deltasb = -np.sign(psi_aw)*np.abs(pi-np.abs(psi_aw))
-                        	if np.abs(deltasb)>pi/2:
-					deltasb = sign(deltasb)*pi/2
+				deltasb = -sign(psi_aw)*np.max([pi/4,pi-np.abs(psi_aw)])
+                                #deltasb = -np.sign(psi_aw)*np.abs(pi-np.abs(psi_aw))
+                        	#if np.abs(deltasb)>pi/2:
+				#	deltasb = -sign(deltasb)*pi/2
 
 			else:
                                 deltasopt = np.abs(pi/2*(np.cos(psi_tw - thetab) + 1)/2)
@@ -125,7 +137,6 @@ class Target_Reach(Controller):
                                 deltasb = - np.sign(psi_aw)*np.min([deltasopt,deltaslim])
 
                 else:  # if ship far to the target area
-
                         ddeltas = -(dvd - self.dv)*self.ka
                         deltasb = np.abs(deltas) + self.dt*ddeltas
 
@@ -134,10 +145,9 @@ class Target_Reach(Controller):
                         	deltasb = 0
 
                 	if ddeltas < 0:  # desire to speed up
-                        	deltasopt = np.abs(pi/2*(np.cos(psi_aw) + 1)/2)
-	                 	deltasb = np.max([np.abs(deltasb), np.min([deltasopt,np.abs(pi-np.abs(psi_aw))-pi/36])])
-				deltasb = - np.sign(psi_aw)*np.min([np.abs(deltasb),pi/2])
-
+                        	deltasopt = np.abs(pi/2*(np.cos(psi_tw - thetab) + 1)/2)
+                        	deltasb = np.max([np.abs(deltasb), np.min([deltasopt,np.abs(pi-np.abs(psi_aw))-pi/36])]) 
+                        	deltasb = - np.sign(psi_aw)*np.min([np.abs(deltasb),pi/2])
                 	else:   # desire to slow down
                         	borne2 = np.max([np.abs(pi-np.abs(psi_aw)),0.0])
                         	deltasb = - np.sign(psi_aw)*np.min([np.abs(deltasb),borne2,pi/2])
@@ -150,6 +160,7 @@ class Target_Reach(Controller):
                 x,y = self.gpsMsg.latitude,  self.gpsMsg.longitude
                 xi,yi,zi,wi = self.imuMsg.orientation.x, self.imuMsg.orientation.y, self.imuMsg.orientation.z, self.imuMsg.orientation.w
                 theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[2]
+
 
 
                 self.dv = self.imuMsg.linear_acceleration.x
@@ -182,7 +193,7 @@ class Target_Reach(Controller):
                 thetab = self.desired_orientation(thetab0,dst,alpha,psi_tw)
 
                 # evaluate sail opening
-                deltasb = self.sail_opening(theta,dst,psi_tw,psi_aw,dvd,thetab)
+                deltasb = self.sail_opening(theta,dst,psi_tw,psi_aw,dvd,thetab,alpha)
 
                 # evaluate rudder angle
                 deltarb = self.update_rudder(thetab,theta,phi)
@@ -237,34 +248,33 @@ if __name__ == '__main__':
 				display = True
 
 			if sys.argv[i] == '-gpsfile':
-                                path = sys.argv[i+1]
-                                if path[0]=='/':
-                                        LObj = utilities.readGPSCoordinates(sys.argv[i+1])
-                                else:
-                                        fileGPS = rospack.get_path('sailrobot')+ '/data/' + sys.argv[i+1]
-                                        LObj = utilities.readGPSCoordinates(fileGPS)
+
+				path = sys.argv[i+1]
+				if path[0]=='/':
+					LObj = utilities.readGPSCoordinates(sys.argv[i+1])
+				else:
+					fileGPS = rospack.get_path('sailrobot')+ '/data/' + sys.argv[i+1]
+					LObj = utilities.readGPSCoordinates(fileGPS)
 
 				lat0 = LObj[0][0]
 				long0 = LObj[0][1]
 				testlat = 1
 				testlong = 1
 
-			if sys.argv[i] == '-ls':
+			if sys.argv[i]=='-ls':
 				test_ls = 1
-
 
 		print('-lat : latitude objective')
 		print('-long : longitude objective')
 		print('-rate : loop rate' )
 		print('-v : display information')
-		print('-gpsfile : filepath of GPS coordinate')
-		print('-ls : display list of function' )
-		print(' ')
+		print(' -gpsfile : filepath of GPS coordinate')
+                print('-ls : display list of function' )
+                print(' ')
 
-
-		if (test_ls == 1):
-			print(' ')
-		elif (testlat == 0)|(testlong == 0):
+                if (test_ls == 1):
+                        print(' ')
+                elif (testlat == 0)|(testlong == 0):
 			print("Add Latitude obj and Longitude obj")
 
 		else:
