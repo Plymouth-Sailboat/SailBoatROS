@@ -49,7 +49,7 @@ vec2 PotentialField::distanceVector(vec2 pos, vec2 dest){
 geometry_msgs::Twist PotentialField::control(){
 	geometry_msgs::Twist cmd;
 	vec2 current(gpsMsg.latitude, gpsMsg.longitude);
-	float currentHeading = (Utility::QuaternionToEuler(imuMsg.quaternion)).z;
+	float currentHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
 
 	vec2 heading;
 
@@ -73,7 +73,7 @@ geometry_msgs::Twist PotentialField::control(){
 	for(int i = -3; i < 3; ++i){
 		for(int j = -3; j < 3; ++j){
 			float pangle = cos(atan2(j,i)+M_PI/2.0;
-			if(cose(pangle-windMsg.theta) < cos(closeHauled)){
+			if(cos(pangle-windMsg.theta) < cos(closeHauled)){
 				windPotential -= length(vec2(i,j))*vec2(-sin(pangle - currentHeading), cos(pangle - currentHeading)); 
 			}
 		}
