@@ -12,14 +12,12 @@ using namespace glm;
 void LineFollowing::setup(ros::NodeHandle* n){
 	int nbWaypoints = 0;
 
-	std::string path = ros::package::getPath("sailrobot");
-
-	std::string waypointPath = "/data/line_following.txt";
+	std::string waypointPath = "data/line_following.txt";
 	if(n->hasParam("waypoints"))
 		n->getParam("waypoints",waypointPath);
 
-	waypoints = Utility::ReadGPSCoordinates(path + waypointPath, nbWaypoints);
 	if(waypoints == NULL){
+	waypoints = Utility::ReadGPSCoordinates(waypointPath, nbWaypoints);
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);
 	}

@@ -10,13 +10,11 @@ using namespace Sailboat;
 using namespace glm;
 
 void WaypointFollower::setup(ros::NodeHandle* n){
-	std::string path = ros::package::getPath("sailrobot");
-
-	std::string waypointPath = "/data/waypoints.txt";
+	std::string waypointPath = "data/waypoints.txt";
 	if(n->hasParam("waypoints"))
 		n->getParam("waypoints", waypointPath);
 
-	waypoints = Utility::ReadGPSCoordinates(path + waypointPath, nbWaypoints);
+	waypoints = Utility::ReadGPSCoordinates(waypointPath, nbWaypoints);
 	if(waypoints == NULL){
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);

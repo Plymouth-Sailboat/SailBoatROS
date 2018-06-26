@@ -18,6 +18,8 @@ namespace Sailboat{
 		glm::vec2* waypoints;
 		glm::vec2* obstacles;
 		glm::vec2 distanceVector(glm::vec2 dest, glm::vec2 pos);
+
+		float closeHauled;
 	};
 }
 
