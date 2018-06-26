@@ -9,7 +9,7 @@ C++ and Python code for [Plymouth's Autonomous Sailboat](https://plymouth-sailbo
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. For a full tutorial for the Raspberry Pi installation follow [Preparing the Raspberry Pi](/Plymouth-Sailboat/SailBoatROS/wiki/Preparing-the-Raspberry-Pi) in the wiki.
 
 ### Prerequisites
 
