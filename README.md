@@ -9,7 +9,7 @@ C++ and Python code for [Plymouth's Autonomous Sailboat](https://plymouth-sailbo
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. For a full tutorial for the Raspberry Pi installation follow [Preparing the Raspberry Pi](/Plymouth-Sailboat/SailBoatROS/wiki/Preparing-the-Raspberry-Pi) in the wiki.
 
 ### Prerequisites
 
@@ -59,7 +59,7 @@ roslaunch sailrobot start.launch usb_port:=<port>
 
 We use standard messages as much as possible and try to have as less dependencies as possible.
 
-This repo expects to have a working ROS Kinetic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation). If you are on a raspberry pi 3 we suggest installing the [Ubuntu Mate image](https://downloads.ubiquityrobotics.com/) from Ubiquity which already has ROS Kinetic installed.
+This repo expects to have a working ROS Kinetic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation). If you are on a raspberry pi 3 we suggest installing the [Ubiquity Robotics image](https://downloads.ubiquityrobotics.com/) which already has ROS Kinetic installed.
 
 #### ROS Dependencies
 We use the message [gps_common/GPSFix](http://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html) for our GPS, which you will need to install the dependency.
