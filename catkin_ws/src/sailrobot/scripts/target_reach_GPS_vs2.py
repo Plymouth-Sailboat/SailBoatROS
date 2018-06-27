@@ -80,7 +80,7 @@ class Target_Reach(Controller):
                 thetab = thetab0
 
                 # Bypass strategy
-                if (dst< self.dsecu)&(dst>self.dsecu2)&(np.cos(thetab - psi_tw)>0):
+                if (dst< self.dsecu)&(dst>self.darret)&(np.cos(thetab - psi_tw)>0):
                         if np.cos(alpha - (psi_tw + pi/2)) > np.cos(alpha - (psi_tw - pi/2)):
                                 thetab = thetab + pi/2
                         else:
@@ -90,13 +90,13 @@ class Target_Reach(Controller):
                 if np.cos(psi_tw - thetab) + np.cos(self.delta) < 0 :
 
 
-			if (dst > darret):   # if in pre-arrival area
+			if (dst > self.darret):   # if in pre-arrival area
 				if np.sin(psi_tw - thetab)>0:
 					self.q = -1
 				else:
 					self.q = 1
 
-			if (dst <= darret): # if in arrival area
+			if (dst <= self.darret): # if in arrival area
                         	if np.cos(thetab - (psi_tw + pi - self.delta)) > np.cos(thetab - (psi_tw  + pi + self.delta)) :
                                 	self.q = - 1
                         	else:
@@ -124,13 +124,12 @@ class Target_Reach(Controller):
                 if (dst < self.darret):
                         if (dvd < 0)|(np.cos(alpha-psi_tw)<0):
 
-				deltasb = -sign(psi_aw)*np.max([pi/4,pi-np.abs(psi_aw)])
-                                #deltasb = -np.sign(psi_aw)*np.abs(pi-np.abs(psi_aw))
-                        	#if np.abs(deltasb)>pi/2:
-				#	deltasb = -sign(deltasb)*pi/2
+				deltasb = -np.sign(psi_aw)*pi/2
+				#deltasb = -np.sign(psi_aw)*np.max([pi/2,pi-np.abs(psi_aw)])
+
 
 			else:
-                                deltasopt = np.abs(pi/2*(np.cos(psi_tw - thetab) + 1)/2)
+                                deltasopt = np.abs(pi/2*(np.cos(psi_aw) + 1)/2)
                                 deltasM = np.min([pi/2,np.abs(pi - np.abs(psi_aw))])
                                 eps = pi/36
                                 deltaslim = np.max([0, deltasM-eps])
@@ -145,7 +144,7 @@ class Target_Reach(Controller):
                         	deltasb = 0
 
                 	if ddeltas < 0:  # desire to speed up
-                        	deltasopt = np.abs(pi/2*(np.cos(psi_tw - thetab) + 1)/2)
+                        	deltasopt = np.abs(pi/2*(np.cos(psi_aw) + 1)/2)
                         	deltasb = np.max([np.abs(deltasb), np.min([deltasopt,np.abs(pi-np.abs(psi_aw))-pi/36])]) 
                         	deltasb = - np.sign(psi_aw)*np.min([np.abs(deltasb),pi/2])
                 	else:   # desire to slow down

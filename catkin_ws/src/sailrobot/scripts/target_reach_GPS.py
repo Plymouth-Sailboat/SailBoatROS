@@ -242,7 +242,7 @@ if __name__ == '__main__':
                                         LObj = utilities.readGPSCoordinates(sys.argv[i+1])
                                 else:
                                         fileGPS = rospack.get_path('sailrobot')+ '/data/' + sys.argv[i+1]
-                                        LObj = utilities.readGPSCoordinates(fileGPS)
+					LObj = utilities.readGPSCoordinates(fileGPS)
 
 				lat0 = LObj[0][0]
 				long0 = LObj[0][1]
