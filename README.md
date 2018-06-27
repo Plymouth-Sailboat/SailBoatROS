@@ -5,7 +5,8 @@
 
 # SailBoatROS
 
-C++ and Python code for [Plymouth's Autonomous Sailboat](https://plymouth-sailboat.github.io/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribe to topics sent by the arduino and publish commands to it. It is comprised of classes in C++ and Python for easy integration.
+C++ and Python code for [Plymouth's Autonomous Sailboat](https://plymouth-sailboat.github.io/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribe to topics sent by the arduino and publish commands to it. It is made of classes in C++ and Python for easy integration.  
+For a full view of the package [go here](/Plymouth-Sailboat/SailBoatROS/wiki/Sailrobot-Package)
 
 ## Getting Started
 
