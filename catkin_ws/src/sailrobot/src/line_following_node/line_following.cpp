@@ -33,6 +33,7 @@ geometry_msgs::Twist LineFollowing::control(){
 	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
 	float wind = windMsg.theta;
 	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
+	float windNorth = wind + heading.z;
 	
 	int q = 0;
 	float r = 5.0;
@@ -51,8 +52,8 @@ geometry_msgs::Twist LineFollowing::control(){
 	
 	float thetabar = 0;
 	
-	if(cos(wind-theta)+cos(ksi) < 0 || (abs(e) < r && (cos(wind-theta)+cos(ksi) < 0)))
-		thetabar = M_PI + wind - q*ksi;
+	if(cos(windNorth-theta)+cos(ksi) < 0 || (abs(e) < r && (cos(windNorth-theta)+cos(ksi) < 0)))
+		thetabar = M_PI + windNorth - q*ksi;
 	else
 		thetabar = theta;
 	
@@ -60,7 +61,7 @@ geometry_msgs::Twist LineFollowing::control(){
 		cmd.angular.x = M_PI/4.0*sin(heading.z-thetabar);
 	else
 		cmd.angular.x = M_PI/4.0*((sin(heading.z-thetabar)>=0)?1:-1);
-	cmd.angular.y = M_PI/2.0*((wind-thetabar)+1)/2.0;
+	cmd.angular.y = M_PI/2.0*(cos(windNorth-thetabar)+1)/2.0;
 
 	publishMSG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y));
 	

@@ -44,7 +44,7 @@ geometry_msgs::Twist WaypointFollower::control(){
 	
 	float heading = Utility::GPSBearing(current, waypoints[currentWaypoint]);
 	//Tacking CHECK
-	float windNorth = wind - boatHeading;
+	float windNorth = wind + boatHeading;
 	bool isTacking = false;
 	if(cos(windNorth - heading) + cos(closeHauled) < 0){
 		vec2 line = normalize(waypoints[currentWaypoint] - *tackingStart);
@@ -58,7 +58,7 @@ geometry_msgs::Twist WaypointFollower::control(){
 	}
 
 
-	std::string message = "PDistance to next waypoint : " + std::to_string(dist) + "\nessaie d'aller a  " + std::to_string(waypoints[currentWaypoint].x) + " " + std::to_string(waypoints[currentWaypoint].y) + "\n";
+	std::string message = "PDistance to next waypoint : " + std::to_string(dist) + "\nTries to go to  " + std::to_string(waypoints[currentWaypoint].x) + " " + std::to_string(waypoints[currentWaypoint].y) + "\nWith heading : " + std::to_string(std::fmod(heading*180/M_PI,360.0)) + "\n";
 	if(isTacking)
 		message += "TACKING\n";
 	publishMSG(message);
