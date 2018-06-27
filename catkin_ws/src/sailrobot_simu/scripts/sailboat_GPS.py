@@ -75,8 +75,8 @@ def plot_sailboat(Lx,Ly,x,y,theta,deltas,deltar,psy_tw,aaw,display_obj,LObj,disp
 				for k in range(0,2):
                         		dst1 = utilities.GPSDist(LObs[i+j][0],LObs[i+k][1],latref,longref)
                         		theta10 = utilities.GPSBearing(latref,longref,LObs[i+j][0],LObs[i+k][1])
-                        		x10 = np.cos(theta10)*dst1
-                        		y10 = np.sin(theta10)*dst1
+                        		x10 = np.cos(theta10+pi/2)*dst1
+                        		y10 = np.sin(theta10+pi/2)*dst1
                         		plot(x10,y10,'*r')
 
 
@@ -84,13 +84,13 @@ def plot_sailboat(Lx,Ly,x,y,theta,deltas,deltar,psy_tw,aaw,display_obj,LObj,disp
 		for i in range(0,len(LObj)):
 	                dst1 = utilities.GPSDist(LObj[i][0],LObj[i][1],latref,longref)
                 	theta10 = utilities.GPSBearing(latref,longref,LObj[i][0],LObj[i][1])
-                	x10 = np.cos(theta10)*dst1
-                	y10 = np.sin(theta10)*dst1
+                	x10 = np.cos(theta10+pi/2)*dst1
+                	y10 = np.sin(theta10+pi/2)*dst1
 			plot(x10,y10,'*b')
 
 
-        x11 = array([x,y,theta])
-        draw_sailboat(x11,deltas,deltar,psy_tw,aaw,'r',5)
+        x11 = array([x,y,theta+pi/2])
+        draw_sailboat(x11,deltas,deltar,psy_tw+pi/2,aaw,'r',5)
 
         axis((-400, 400, -400, 400))
         draw()
@@ -102,7 +102,7 @@ def CartesienToGPS(lat1,long1,x0,y0,x,y):
 	Rearth = 6371000
 
 	lat2 = lat1 + 180/pi*(x - x0)/Rearth
-	long2 = long1 + 180/pi*(y - y0)/(Rearth*cos((lat1+lat2)/2))*0.5
+	long2 = long1 - 180/pi*(y - y0)/(Rearth*np.cos((lat1+lat2)/2)) #*0.5
 
 	return lat2,long2
 
@@ -201,11 +201,11 @@ class Sailboat:
 if __name__ == '__main__':
 
 	# default values
-	lat0 = 50.37228  - (50.3727) #(50.3759061)
-	long0 = -4.137886200000025  - (-4.13793) #(-4.139577700000018)
+	lat0 = -0.0002 #  50.37228  - (50.37264) #(50.3759061)
+	long0 = - 0.0002 # -4.137886200000025  - (-4.137890) #(-4.139577700000018)
         theta0 = 0
 	atw = 10.0
-	psi_tw =  pi/2.0
+	psi_tw = 0 #  pi/2.0
         latref = 0.0
         longref = 0.0
 	display = False
@@ -371,6 +371,8 @@ if __name__ == '__main__':
 			print('heading = ', S1.theta*180/pi,' deg')
 	        	print('x = ', S1.x, ' m')
 	        	print('y = ', S1.y, ' m')
+			print('dx = ', S1.dx, ' m/s')
+			print('dy = ', S1.dy, ' m/s')
 			print('v = ', S1.v, ' m/s')
 			print('u = ', S1.u, ' m/s')
 	        	print('sail angle = ', S1.deltas*180/pi,' deg')
@@ -382,8 +384,9 @@ if __name__ == '__main__':
 		# Plot sailboat
 		dst = utilities.GPSDist(S1.lat,S1.long,latref,longref)
 		theta00 = utilities.GPSBearing(latref,longref,S1.lat,S1.long)
-		x00 = np.cos(theta00)*dst
-		y00 = np.sin(theta00)*dst
+
+		x00 = np.cos(theta00+pi/2)*dst
+		y00 = np.sin(theta00+pi/2)*dst
 		Lx = Lx + [x00]
 		Ly = Ly + [y00]
 
