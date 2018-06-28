@@ -11,7 +11,7 @@ using namespace glm;
 void UserTest::setup(ros::NodeHandle* n){
 }
 
-geometry_msgs::Twist UserTest::control(){
+bool UserTest::loopUnpublished(){
 	float lat = gpsMsg.latitude;
 	float lon = gpsMsg.longitude;
 	float alt = gpsMsg.altitude;
@@ -31,7 +31,6 @@ geometry_msgs::Twist UserTest::control(){
 	std::cout << "rudder angle : " << rudderAngle << std::endl;
 	std::cout << "sail angle : " << sailAngle << std::endl;
 
-	geometry_msgs::Twist cmd;
-	return cmd;
+	return true;
 }
 
