@@ -1,10 +1,13 @@
 <?xml version="1.0"?>
 <robot name="sailboat">
 	<link name="world"/>
+	<link name="base_hull_Z"/>
+        <link name="base_hull_Y"/>
 	<link name="base_hull">
 		<visual>
+			<origin rpy="1.57 0 0"/>
 			<geometry>
-				<cylinder length="2.0" radius="0.2"/>
+				<cylinder length="2.0" radius="0.1"/>
 			</geometry>
 		</visual>
 	</link>
@@ -25,10 +28,27 @@
                         </geometry>
                 </visual>
         </link>
-	<joint name="world_hull" type="floating">
+	<joint name="world_hull_Z" type="continuous">
 		<parent link="world"/>
-		<child link="base_hull"/>
+		<child link="base_hull_Z"/>
+
+		<axis xyz="0 0 1"/>
 	</joint>
+	<joint name="world_hull_Y" type="continuous">
+                <parent link="base_hull_Z"/>
+                <child link="base_hull_Y"/>
+
+                <axis xyz="0 1 0"/>
+
+        </joint>
+	<joint name="world_hull_X" type="continuous">
+                <parent link="base_hull_Y"/>
+                <child link="base_hull"/>
+
+                <axis xyz="1 0 0"/>
+
+        </joint>
+
 
 	<joint name="hull_rudder" type="fixed">
 		<parent link="base_hull"/>
