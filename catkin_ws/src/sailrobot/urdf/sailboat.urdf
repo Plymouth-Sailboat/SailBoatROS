@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <robot name="sailboat">
+	<link name="world"/>
 	<link name="base_hull">
 		<visual>
 			<geometry>
@@ -7,7 +8,8 @@
 			</geometry>
 		</visual>
 	</link>
-
+	<link name="base_rudder"/>
+	<link name="base_sail"/>
 	<link name="sailboat_sail">
                 <visual>
                         <geometry>
@@ -23,5 +25,41 @@
                         </geometry>
                 </visual>
         </link>
+	<joint name="world_hull" type="floating">
+		<parent link="world"/>
+		<child link="base_hull"/>
+	</joint>
+
+	<joint name="hull_rudder" type="fixed">
+		<parent link="base_hull"/>
+		<child link="base_rudder"/>
+
+		<origin xyz="0 -0.1 0"/>
+	</joint>
+
+        <joint name="hull_sail" type="fixed">
+                <parent link="base_hull"/>
+                <child link="base_sail"/>
+
+		<origin xyz="0 0.05 0" />
+        </joint>
+
+        <joint name="rudder_angle" type="revolute">
+                <parent link="base_rudder"/>
+                <child link="sailboat_rudder"/>
+
+		<origin xyz="0 0 -0.03"/>
+		<axis xyz="0 0 1"/>
+                <limit lower="-0.78" upper="0.78" effort="100" velocity="1"/>
+        </joint>
+
+        <joint name="sail_angle" type="revolute">
+                <parent link="base_sail"/>
+                <child link="sailboat_sail"/>
+
+		<origin xyz="0 0 1"/>
+		<axis xyz="0 0 1"/>
+		<limit lower="-1.57" upper="1.57" effort="100" velocity="1"/>
+        </joint>
 
 </robot>
