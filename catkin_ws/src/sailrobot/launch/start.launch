@@ -1,7 +1,7 @@
 <launch>
 	<arg name="model" default="$(find sailrobot)/urdf/sailboat.urdf" />
 	<arg name="usb_port" default="/dev/ttyACM0" />
-	
+	<node pkg="topic_tools" name="relay_GPS" type="relay" arg="/sailboat/GPS /fix">	
 	<group ns="sailboat">
 		<node pkg="rosserial_python" name="serial" type="serial_node.py">
 			<param name="baud" value="115200"/>
