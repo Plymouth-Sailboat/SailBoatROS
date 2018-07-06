@@ -31,7 +31,8 @@ void Controller::init(int argc, char **argv){
 	setup(n);
 
 	usleep(1000*1000);
-	publishMSG("C" + std::to_string(controller));
+	if(!loopUnpublished())
+		publishMSG("C" + std::to_string(controller));
 }
 
 void Controller::wakeup(const ros::TimerEvent& event){

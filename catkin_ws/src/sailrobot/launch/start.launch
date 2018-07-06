@@ -1,5 +1,7 @@
 <launch>
+	<arg name="model" default="$(find sailrobot)/urdf/sailboat.urdf" />
 	<arg name="usb_port" default="/dev/ttyACM0" />
+	<param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />	
 	
 	<group ns="sailboat">
 		<node pkg="rosserial_python" name="serial" type="serial_node.py">
