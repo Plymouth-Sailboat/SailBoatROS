@@ -4,7 +4,7 @@
 
 using namespace Sailboat;
 
-Controller::Controller(std::string name, int looprate, int controller) : name(name), looprate(looprate), controller(controller){
+Controller::Controller(std::string name, int looprate, int controller) : name(name), looprate(looprate), controller(controller), rudderAngle(0), sailAngle(0){
 
 }
 

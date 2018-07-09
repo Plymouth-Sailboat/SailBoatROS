@@ -4,6 +4,7 @@
 #include "controller.hpp"
 #include <glm/glm.hpp>
 #include <tf2_ros/transform_broadcaster.h>
+#include <sensor_msgs/JointState.h>
 
 namespace Sailboat{
     class TransformBroadcaster : public Controller{
@@ -16,6 +17,8 @@ namespace Sailboat{
 
 	private:
 		tf2_ros::TransformBroadcaster* broadcaster;
+		ros::Publisher jointPub;
+		sensor_msgs::JointState joint;
 	};
 }
 
