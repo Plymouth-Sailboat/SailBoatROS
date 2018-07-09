@@ -30,16 +30,13 @@ bool TransformBroadcaster::loopUnpublished(){
         transformStamped.transform.translation.z = 0.0;
 
 	
-        transformStamped.transform.rotation.x = imuMsg.orientation.w;
-        transformStamped.transform.rotation.y = imuMsg.orientation.x;
-        transformStamped.transform.rotation.z = imuMsg.orientation.y;
-        //transformStamped.transform.rotation.w = imuMsg.orientation.z;
+        transformStamped.transform.rotation = imuMsg.orientation;
 
-        transformStamped.transform.rotation.w = 1;
+        //transformStamped.transform.rotation.w = 1;
 
 	joint.header.stamp = ros::Time::now();
-	joint.position[0] = rudderAngle;
-	joint.position[1] = sailAngle;
+	joint.position[0] = rudderAngle*M_PI/180;
+	joint.position[1] = sailAngle*M_PI/180;
 
 	broadcaster->sendTransform(transformStamped);
 	jointPub.publish(joint);
