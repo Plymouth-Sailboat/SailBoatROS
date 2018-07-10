@@ -10,33 +10,59 @@ using namespace Sailboat;
 using namespace glm;
 
 void WaypointFollower::setup(ros::NodeHandle* n){
-	std::string path = ros::package::getPath("sailrobot");
-	std::ifstream f(path + "/data/waypoints.txt");
-	if(f.good()){
-		f.close();
-		waypoints = Utility::ReadGPSCoordinates(path + "/data/waypoints.txt", nbWaypoints);
-	}else{
+	std::string waypointPath = "data/waypoints.txt";
+	if(n->hasParam("waypoints"))
+		n->getParam("waypoints", waypointPath);
+
+	waypoints = Utility::ReadGPSCoordinates(waypointPath, nbWaypoints);
+	if(waypoints == NULL){
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);
 	}
 	currentWaypoint = 0;
+	closeHauled = M_PI/3.0;
 }
 
 geometry_msgs::Twist WaypointFollower::control(){
 	geometry_msgs::Twist cmd;
 
 	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
-
-	if(Utility::GPSDist(current, waypoints[currentWaypoint]) < 10)
-		currentWaypoint++;
-	if(currentWaypoint > nbWaypoints)
-		return cmd;
-
 	float wind = windMsg.theta;
-	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation.x, imuMsg.orientation.y, imuMsg.orientation.z, imuMsg.orientation.w);
-	float theta = Utility::GPSBearing(current, waypoints[currentWaypoint]);
+	float boatHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
 
-	cmd.angular.z = theta;
+	if(tackingStart == NULL){
+		tackingStart = new vec2(current.x,current.y);
+	}
 
+	float dist = Utility::GPSDist(current, waypoints[currentWaypoint]);
+	if(dist < 5){
+		publishMSG("PArrived at waypoint " + std::to_string(currentWaypoint));
+		*tackingStart = waypoints[currentWaypoint];
+		currentWaypoint++;
+	}
+	currentWaypoint %= nbWaypoints;
+	
+	float heading = Utility::GPSBearing(current, waypoints[currentWaypoint]);
+	//Tacking CHECK
+	float windNorth = wind + boatHeading;
+	bool isTacking = false;
+	if(cos(windNorth - heading) + cos(closeHauled) < 0){
+		vec2 line = normalize(waypoints[currentWaypoint] - *tackingStart);
+		vec2 currentLine = current - *tackingStart;
+		float e = line.x*currentLine.y - line.y*currentLine.x;
+		if(abs(e) > rmax/2.0)
+			q = sign(e);
+		heading = windNorth + M_PI - q*closeHauled;
+		
+		isTacking = true;
+	}
+
+
+	std::string message = "PDistance to next waypoint : " + std::to_string(dist) + "\nTries to go to  " + std::to_string(waypoints[currentWaypoint].x) + " " + std::to_string(waypoints[currentWaypoint].y) + "\nWith heading : " + std::to_string(std::fmod(heading*180/M_PI,360.0)) + "\n";
+	if(isTacking)
+		message += "TACKING\n";
+	publishMSG(message);
+	
+	cmd.angular.z = heading;
 	return cmd;
 }

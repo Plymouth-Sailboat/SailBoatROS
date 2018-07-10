@@ -101,7 +101,7 @@ class Running(Controller):
 
 
                 # Optimal sail angle
-                deltasopt = np.abs(pi/2*(np.cos(psi_tw - thetab) + 1)/2)
+                deltasopt = np.abs(pi/2*(np.cos(psi_aw) + 1)/2)
                 deltasb = np.min([deltasopt,np.abs(pi-np.abs(psi_aw))-pi/36])
                 deltasb = - np.sign(psi_aw)*np.min([np.abs(deltasb),pi/2])
 
@@ -118,14 +118,14 @@ class Running(Controller):
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
 
-                aaw = self.windMsg.x
+                aaw = np.max([self.windMsg.x,1])
 		psi_aw = self.windMsg.theta
 
                 # evaluation of phi
                 dx = self.v*np.cos(theta) - self.u*np.sin(theta)
                 dy = self.v*np.sin(theta) + self.u*np.cos(theta)
-                phi = math.atan2(dy,dx) # phi = np.angle(dx + 1j*dy)
-
+                #phi = math.atan2(dy,dx) # phi = np.angle(dx + 1j*dy)
+		phi = theta
 
                 # calcul de psi_tw ((en attendant une autre version du code))
                 u0 = self.v*np.sin(phi) + aaw*np.sin(theta + psi_aw)
@@ -179,7 +179,7 @@ class Running(Controller):
                         print('evaluate psi_tw = ', psi_tw*180/pi)
 			print('headind received = ',theta*180/pi)
                         print(' ')
-
+		self.publishMSG('Pdist '+ (str)(dst) + '\n thetaobj ' + (str)(thetab*180/pi) + '\n Xobj ' + (str)(self.Xobj) + ' Yobj ' + (str)(self.Yobj))
                 return command
 
 
@@ -188,12 +188,12 @@ if __name__ == '__main__':
 
 
         try:
-		
+
                 rospack = rospkg.RosPack()
-                fileObs = rospack.get_path('sailrobot') + '/scripts/coord_Obstacle.txt'
+                fileObs = rospack.get_path('sailrobot') + '/data/gps_simu.txt'
                 LObs0 = utilities.readGPSCoordinates(fileObs)
 		LObs = []
-		if len(LObs0)< 2:
+		if len(LObs0)<2:
 			LObs = []
 		else:
 			i = 0
@@ -207,25 +207,60 @@ if __name__ == '__main__':
                 display = False
                 rate = 10
 		rmax = 50
-                fileGPS = rospack.get_path('sailrobot') + '/scripts/coord_GPS.txt'
-		LObj = [] 
+                fileGPS = rospack.get_path('sailrobot') + '/data/gps_simu.txt'
+		LObj = []
 		nObj = 0
 		test_GPS_file = False
 
                 for i in range(0,len(sys.argv)):
  			if sys.argv[i] == '-n':
-				if nObj >= sys.argv[i+1]:
+				if nObj < 0: #sys.argv[i+1]:
 					print('Not enough objective implement! Take n= ',nObj)
 				else:
 					nObj = float(sys.argv[i+1])
 
 			if sys.argv[i] == '-gpsfile':
+				test_GPS_file = True
 				if sys.argv[i+1] == '0':
 					LObj = utilities.readGPSCoordinates(fileGPS)
 					nObj = len(LObj)
-				else:	
+
+				elif sys.argv[i+1] == '/':
 					LObj = utilities.readGPSCoordinates(sys.argv[i+1])
 					nObj = len(LObj)
+
+				else:
+                                        fileGPS = rospack.get_path('sailrobot')+ '/data/' + sys.argv[i+1]
+                                        LObj = utilities.readGPSCoordinates(fileGPS)
+                                        nObJ = len(LObj)
+
+
+                                if nObj <2:
+                                        LObj = array([LObj[0],LObj[0]])
+                                        nObj = nObj+1
+
+
+
+			if sys.argv[i] == '-gpsobstacle':
+
+
+                                if sys.argv[i+1] == '/':
+                                        LObs0 = utilities.readGPSCoordinates(sys.argv[i+1])
+
+                                else:
+                                        fileGPS = rospack.get_path('sailrobot')+ '/data/' + sys.argv[i+1]
+                                        LObs0 = utilities.readGPSCoordinates(fileGPS)
+
+
+                		LObs = []
+                		if len(LObs0)<2:
+                        		LObs = []
+                		else:
+                        		i = 0
+                        		while i < len(LObs0)-1:
+                                		Obs = py.IntervalVector([py.Interval(LObs0[i][0],LObs0[i][1]),py.Interval(LObs0[i+1][0],LObs0[i+1][1])])
+                                		i = i+2
+                                		LObs = LObs + [Obs]
 
                         if sys.argv[i] == '-rate':
                                 rate = float(sys.argv[i+1])
@@ -241,6 +276,7 @@ if __name__ == '__main__':
                 print(' -rate : loop rate' )
                 print(' -v : display information')
 		print(' -gpsfile : filepath of GPS coordinate')
+		print(' -gpsobstacle : filepath of obstacle GPS coordinate')
 		print(' -rm : cutoff distance')
                 print(' ')
 

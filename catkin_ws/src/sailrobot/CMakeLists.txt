@@ -140,7 +140,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/sailrobot_node.cpp)
 
-add_executable(potential_field ${basic_source} src/potential_field_node/potential_field_node.cpp src/potential_field_node/potentialfield.cpp)
+add_executable(potential_field ${basic_source} src/potential_field_node/potential_field_node.cpp src/potential_field_node/potential_field.cpp)
 target_link_libraries(potential_field ${catkin_LIBRARIES})
 
 add_executable(line_following ${basic_source} src/line_following_node/line_following_node.cpp src/line_following_node/line_following.cpp)
@@ -151,6 +151,13 @@ target_link_libraries(waypoint_follower ${catkin_LIBRARIES})
 
 add_executable(area_scanning ${basic_source} src/area_scanning_node/area_scanning_node.cpp src/area_scanning_node/area_scanning.cpp)
 target_link_libraries(area_scanning ${catkin_LIBRARIES})
+
+add_executable(user_test ${basic_source} src/user_friendly_test_node/user_friendly_test_node.cpp src/user_friendly_test_node/user_friendly_test.cpp)
+target_link_libraries(user_test ${catkin_LIBRARIES})
+
+add_executable(transform_broadcaster ${basic_source} src/transform_broadcaster_node/transform_broadcaster_node.cpp src/transform_broadcaster_node/transform_broadcaster.cpp)
+target_link_libraries(transform_broadcaster ${catkin_LIBRARIES})
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

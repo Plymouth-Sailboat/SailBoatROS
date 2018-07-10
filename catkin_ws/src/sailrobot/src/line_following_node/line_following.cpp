@@ -12,18 +12,17 @@ using namespace glm;
 void LineFollowing::setup(ros::NodeHandle* n){
 	int nbWaypoints = 0;
 
-	std::string path = ros::package::getPath("sailrobot");
-	std::ifstream f(path + "/data/line_following.txt");
-	if(f.good()){
-		f.close();
-		waypoints = Utility::ReadGPSCoordinates(path + "/data/waypoints.txt", nbWaypoints);
-	}else{
+	std::string waypointPath = "data/line_following.txt";
+	if(n->hasParam("waypoints"))
+		n->getParam("waypoints",waypointPath);
+
+	if(waypoints == NULL){
+	waypoints = Utility::ReadGPSCoordinates(waypointPath, nbWaypoints);
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);
 	}
-	
-	if(nbWaypoints > 2){
-		std::cerr << "Too Many Coordinates" << std::endl;
+	if(nbWaypoints < 2){
+		std::cerr << "Not Enough Coordinates" << std::endl;
 		exit(0);
 	}
 }
@@ -33,10 +32,11 @@ geometry_msgs::Twist LineFollowing::control(){
 	
 	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
 	float wind = windMsg.theta;
-	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation.x, imuMsg.orientation.y, imuMsg.orientation.z, imuMsg.orientation.w);
+	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
+	float windNorth = wind + heading.z;
 	
 	int q = 0;
-	float r = 50.0;
+	float r = 5.0;
 	float psi = M_PI/4.0;
 	float ksi = M_PI/3.0;
 	vec2 ba = waypoints[1]-waypoints[0];
@@ -52,16 +52,18 @@ geometry_msgs::Twist LineFollowing::control(){
 	
 	float thetabar = 0;
 	
-	if(cos(wind-theta)+cos(ksi) < 0 || (abs(e) < r && (cos(wind-theta)+cos(ksi) < 0)))
-		thetabar = M_PI + wind - q*ksi;
+	if(cos(windNorth-theta)+cos(ksi) < 0 || (abs(e) < r && (cos(windNorth-theta)+cos(ksi) < 0)))
+		thetabar = M_PI + windNorth - q*ksi;
 	else
 		thetabar = theta;
 	
 	if(cos(heading.z - thetabar) >= 0)
-		cmd.angular.x = 45.0*sin(heading.z-thetabar);
+		cmd.angular.x = M_PI/4.0*sin(heading.z-thetabar);
 	else
-		cmd.angular.x = 45.0*((sin(heading.z-thetabar)>=0)?1:-1);
-	cmd.angular.y = M_PI/2.0*((wind-thetabar)+1)/2.0;
+		cmd.angular.x = M_PI/4.0*((sin(heading.z-thetabar)>=0)?1:-1);
+	cmd.angular.y = M_PI/2.0*(cos(windNorth-thetabar)+1)/2.0;
+
+	publishMSG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y));
 	
 	return cmd;
 }

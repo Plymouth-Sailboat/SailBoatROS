@@ -1,0 +1,14 @@
+<launch>
+	<arg name="model" default="$(find sailrobot)/urdf/sailboat.urdf" />
+	<arg name="usb_port" default="/dev/ttyACM0" />
+	<param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />	
+	<node name="transform_broadcast" pkg="sailrobot" type="transform_broadcaster"/>
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />	
+	<group ns="sailboat">
+		<node pkg="rosserial_python" name="serial" type="serial_node.py">
+			<param name="baud" value="115200"/>
+			<param name="port" value="$(arg usb_port)"/>
+		</node>
+	</group>
+	<node name="fix_relay" pkg="topic_tools" type="relay" args="/sailboat/GPS /fix"/>
+</launch>

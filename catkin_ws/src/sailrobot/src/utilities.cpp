@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iterator>
 #include <algorithm>
+#include <ros/package.h>
 
 using namespace glm;
 
@@ -85,8 +86,20 @@ float Utility::CartesiantoGPS(float x, float y){
 
 }
 
+vec3 Utility::QuaternionToEuler(geometry_msgs::Quaternion q){
+	return eulerAngles(quat(q.w, q.x, q.y, q.z));
+}
+
+vec3 Utility::QuaternionToEuler(quat q){
+	return eulerAngles(q);
+}
+
 vec3 Utility::QuaternionToEuler(float x, float y, float z, float w){
-	return eulerAngles(quat(x,y,z,w));
+	return eulerAngles(quat(w,x,y,z));
+}
+
+quat Utility::EulerToQuaternion(vec3 v){
+	return quat(v);
 }
 
 quat Utility::EulerToQuaternion(float x, float y, float z){
@@ -95,6 +108,9 @@ quat Utility::EulerToQuaternion(float x, float y, float z){
 
 vec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
 	vec2* coordinates = NULL;
+	std::string path = ros::package::getPath("sailrobot");
+	if(filepath[0] != '/')
+		filepath = path + "/" + filepath;
 	std::fstream file(filepath);
 	if(!file){
 		std::cerr << "GPS Reading : Couldn't open file" << std::endl;
