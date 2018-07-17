@@ -161,7 +161,6 @@ class Running(Controller):
                 deltasb = self.sail_opening(theta,psi_tw,psi_aw,thetab)
 
                 # evaluate rudder angle
-#                deltarb = self.update_rudder(thetab,theta,phi)
 		deltarb = Fct_update_rudder(self.List_dist,thetab,theta,phi,self)
 
                 # send message to update control of sail and rudder
@@ -190,9 +189,19 @@ if __name__ == '__main__':
         try:
 
                 rospack = rospkg.RosPack()
-                fileObs = rospack.get_path('sailrobot') + '/data/gps_simu.txt'
+                fileObs = rospack.get_path('sailrobot') + '/data/coord_Obstacle.txt'
                 LObs0 = utilities.readGPSCoordinates(fileObs)
 		LObs = []
+		test_GPS_Obs = False
+
+                fileGPS = rospack.get_path('sailrobot') + '/data/gps_running.txt'
+                LObj = utilities.readGPSCoordinates(fileGPS)
+                nObj = len(LObj)
+                if nObj <2:
+                        LObj = array([LObj[0],LObj[0]])
+                        nObj = nObj+1
+
+
 		if len(LObs0)<2:
 			LObs = []
 		else:
@@ -207,9 +216,6 @@ if __name__ == '__main__':
                 display = False
                 rate = 10
 		rmax = 50
-                fileGPS = rospack.get_path('sailrobot') + '/data/gps_simu.txt'
-		LObj = []
-		nObj = 0
 		test_GPS_file = False
 
                 for i in range(0,len(sys.argv)):
@@ -243,7 +249,7 @@ if __name__ == '__main__':
 
 			if sys.argv[i] == '-gpsobstacle':
 
-
+				test_GPS_Obs = True
                                 if sys.argv[i+1] == '/':
                                         LObs0 = utilities.readGPSCoordinates(sys.argv[i+1])
 
@@ -282,8 +288,13 @@ if __name__ == '__main__':
 
 
 		if test_GPS_file == False:
-			print('Default GPS coordinate of file coord_GPS.txt used. Enter filepath of an other file with command -gpsfile if desire.')
+			print('Default GPS coordinate of file gps_running.txt used. Enter filepath of an other file with command -gpsfile if desire.')
 			print(' ')
+
+		if test_GPS_Obs == False:
+                        print('Default GPS coordinate Obstacle of file coord_Obstacle.txt used. Enter filepath of an other file with command -gpsobstacle if desire.')
+                        print(' ')
+
 
 		target =  Running('running', nObj,LObj, rate,display,rmax,LObs)
 

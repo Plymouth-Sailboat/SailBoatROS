@@ -181,9 +181,14 @@ if __name__ == '__main__':
                 rate = 10
 		rmax = 50
 		rospack = rospkg.RosPack()
-		fileGPS = rospack.get_path('sailrobot') + '/data/gps_simu.txt'
-		LObj = []
-		nObj = 0
+		fileGPS = rospack.get_path('sailrobot') + '/data/gps_running.txt'
+                LObj = utilities.readGPSCoordinates(fileGPS)
+                nObj = len(LObj)
+                if nObj <2:
+			LObj = array([LObj[0],LObj[0]])
+                        nObj = nObj+1
+#		LObj = []
+#		nObj = 0
 		test_GPS_file = False
 
                 for i in range(0,len(sys.argv)):
@@ -229,7 +234,7 @@ if __name__ == '__main__':
 
 
 		if test_GPS_file == False:
-			print('Default GPS coordinate of file coord_GPS.txt used. Enter filepath of an other file with command -gpsfile if desire.')
+			print('Default GPS coordinate of file gps_running.txt used. Enter filepath of an other file with command -gpsfile if desire.')
 			print(' ')
 
 		target =  Running('running', nObj, LObj,rate,display,rmax)
