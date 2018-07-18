@@ -176,7 +176,7 @@ if __name__ == '__main__':
 
 
         try:
-
+		test_ls = 0
                 display = False
                 rate = 10
 		rmax = 50
@@ -225,23 +225,30 @@ if __name__ == '__main__':
 			if sys.argv[i] == '-rm':
 				rmax = float(sys.argv[i+1])
 
+                        if sys.argv[i] == '-ls':
+                                test_ls = 1
+
 
                 print(' -rate : loop rate' )
                 print(' -v : display information')
 		print(' -gpsfile : filepath of GPS coordinate')
 		print(' -rm : cutoff distance')
+                print('-ls : display list of function' )
                 print(' ')
 
+                if (test_ls == 1):
+                        print(' ')
+                else:
 
-		if test_GPS_file == False:
-			print('Default GPS coordinate of file gps_running.txt used. Enter filepath of an other file with command -gpsfile if desire.')
-			print(' ')
+			if test_GPS_file == False:
+				print('Default GPS coordinate of file gps_running.txt used. Enter filepath of an other file with command -gpsfile if desire.')
+				print(' ')
 
-		target =  Running('running', nObj, LObj,rate,display,rmax)
+			target =  Running('running', nObj, LObj,rate,display,rmax)
 
 
-                while not rospy.is_shutdown():
-			target.loop()
+        	        while not rospy.is_shutdown():
+				target.loop()
 
 
         except rospy.ROSInterruptException:
