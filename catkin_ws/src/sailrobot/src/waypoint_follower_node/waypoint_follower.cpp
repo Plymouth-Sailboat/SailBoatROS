@@ -47,7 +47,7 @@ geometry_msgs::Twist WaypointFollower::control(){
 	float windNorth = wind + boatHeading;
 	bool isTacking = false;
 	if(cos(windNorth - heading) + cos(closeHauled) < 0){
-		vec2 line = normalize(waypoints[currentWaypoint] - *tackingStart);
+		vec2 line = normalize(waypoints[currentWaypoint] - (*tackingStart));
 		vec2 currentLine = current - *tackingStart;
 		float e = line.x*currentLine.y - line.y*currentLine.x;
 		if(abs(e) > rmax/2.0)
