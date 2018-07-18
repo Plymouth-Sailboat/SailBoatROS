@@ -315,9 +315,14 @@ if __name__ == '__main__':
                 		else:
                         		j = 0
                         		while j < len(LObs0)-1:
-                                		Obs = py.IntervalVector([py.Interval(LObs0[j][0],LObs0[j][1]),py.Interval(LObs0[j+1][0],LObs0[j+1][1])])
+
+
+                                		latmin, latmax = np.min([LObs0[j][0], LObs0[j+1][0]]), np.max([LObs0[j][0], LObs0[j+1][0]])
+                                		longmin, longmax = np.min([LObs0[j][1], LObs0[j+1][1]]), np.max([LObs0[j][1], LObs0[j+1][1]])
+                                		Obs = py.IntervalVector([py.Interval(latmin,latmax),py.Interval(longmin,longmax)])
                                 		j = j+2
                                 		LObs = LObs + [Obs]
+
 
 			if sys.argv[i] == '-rate':
                                 rate = float(sys.argv[i+1])
