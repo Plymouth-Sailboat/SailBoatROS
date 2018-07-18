@@ -238,14 +238,15 @@ def Test_Dead_area(x2,Obs,dsecuObs,param2):
 
 
     # edges of obstacle
-    A = [Obs[0][0], Obs[0][1]]
+    A = [Obs[0][0], Obs[1][0]]
     B = [Obs[0][0], Obs[1][1]]
-    C = [Obs[1][0], Obs[1][1]]
-    D = [Obs[1][0], Obs[0][1]]
-#    A = [Obs[0][0], Obs[1][0]]
-#    B = [Obs[1][0], Obs[1][1]]
-#    C = [Obs[0][0], Obs[1][1]]
-#    D = [Obs[1][0], Obs[1][0]]
+    C = [Obs[0][1], Obs[1][1]]
+    D = [Obs[0][1], Obs[1][0]]
+#    A = [Obs[0][0], Obs[0][1]]
+#    B = [Obs[0][0], Obs[1][1]]
+#    C = [Obs[1][0], Obs[1][1]]
+#    D = [Obs[1][0], Obs[0][1]]
+
 
 
     # calcule des distances de l obstacle

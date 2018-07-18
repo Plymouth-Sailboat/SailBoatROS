@@ -264,10 +264,16 @@ if __name__ == '__main__':
 
 		if (test_ls == 1):
 			print(' ')
-		elif (testlat == 0)|(testlong == 0):
-			print("Add Latitude obj and Longitude obj")
-
 		else:
+
+                        if (testlat == 0)|(testlong == 0):
+                                print("Default value of  Latitude obj and Longitude obj")
+                                fileGPS = rospack.get_path('sailrobot')+ '/data/gps_position_target.txt'
+                                LObj = utilities.readGPSCoordinates(fileGPS)
+                                lat0 = LObj[0][0]
+                                long0 = LObj[0][1]
+
+
 		        target =  Target_Reach('target', lat0, long0,rate,display)
                         while not rospy.is_shutdown():
                                 target.loop()

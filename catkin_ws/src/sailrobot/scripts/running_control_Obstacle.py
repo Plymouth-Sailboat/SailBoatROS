@@ -20,6 +20,17 @@ import Interval as py
 # POUR COORDONNEES GPS
 
 
+def CartesienToGPS(lat1,long1,x0,y0,x,y):
+
+        Rearth = 6371000
+
+        lat2 = lat1 + 180/pi*(x - x0)/Rearth
+        long2 = long1 - 180/pi*(y - y0)/(Rearth*np.cos((lat1+lat2)/2))
+
+        return lat2,long2
+
+
+
 class Running(Controller):
 
         Xobj = 0
@@ -53,6 +64,38 @@ class Running(Controller):
 		self.deltarh = 0
 		self.LObs = LObs
 		self.List_dist = []
+
+
+
+	def add_dynamic_obstacle(self):
+
+                fileObs = rospack.get_path('sailrobot') + '/data/coord_Obstacle_dynamic.txt'
+                LObs0 = utilities.readGPSCoordinates(fileObs)
+		LObs1 = []
+
+                if len(LObs0)<1:
+                        LObs1 = []
+                else:
+                        i = 0
+                        while i < len(LObs0):
+
+				r_obs = 0.5; # obstacle of radium 1m and center the gps coord. ((improved))
+				[lat1,long1] = CartesienToGPS(LObs0[i][0],LObs0[i][1],0,0,r_obs*math.sqrt(2)/2,r_obs*math.sqrt(2)/2)
+				[lat2,long2] = CartesienToGPS(LObs0[i][0],LObs0[i][1],0,0,-r_obs*math.sqrt(2)/2,-r_obs*math.sqrt(2)/2)
+
+                                latmin, latmax = np.min([lat1, lat2]), np.max([lat1, lat2])
+                                longmin, longmax = np.min([long1, long2]), np.max([long1, long2])
+                                Obs = py.IntervalVector([py.Interval(latmin,latmax),py.Interval(longmin,longmax)])
+
+                                i = i+1
+                                LObs1 = LObs1 + [Obs]
+
+		LObsTot = self.LObs + LObs1
+
+
+		return LObsTot
+
+
 
 
         def update_rudder(self,thetab,theta,phi):
@@ -92,7 +135,10 @@ class Running(Controller):
 
 		# obstacle avoidance
 		param2 = [dsecu,dsecu2,p8*2]
-		thetab, self.List_dist = Obstacle_avoidance(x,y,thetab,phi,psi_tw,delta,dsecuObs,param2,self.LObs)
+
+		List_Obs = self.add_dynamic_obstacle()
+		#List_Obs = self.LObs
+		thetab, self.List_dist = Obstacle_avoidance(x,y,thetab,phi,psi_tw,delta,dsecuObs,param2,List_Obs)
 
 		return thetab
 
@@ -161,7 +207,6 @@ class Running(Controller):
                 deltasb = self.sail_opening(theta,psi_tw,psi_aw,thetab)
 
                 # evaluate rudder angle
-#                deltarb = self.update_rudder(thetab,theta,phi)
 		deltarb = Fct_update_rudder(self.List_dist,thetab,theta,phi,self)
 
                 # send message to update control of sail and rudder
@@ -188,17 +233,32 @@ if __name__ == '__main__':
 
 
         try:
-
+		test_ls = 0
                 rospack = rospkg.RosPack()
-                fileObs = rospack.get_path('sailrobot') + '/data/gps_simu.txt'
+                fileObs = rospack.get_path('sailrobot') + '/data/coord_Obstacle.txt'
                 LObs0 = utilities.readGPSCoordinates(fileObs)
 		LObs = []
+		test_GPS_Obs = False
+
+                fileGPS = rospack.get_path('sailrobot') + '/data/gps_running.txt'
+                LObj = utilities.readGPSCoordinates(fileGPS)
+                nObj = len(LObj)
+                if nObj <2:
+                        LObj = array([LObj[0],LObj[0]])
+                        nObj = nObj+1
+
+
 		if len(LObs0)<2:
 			LObs = []
 		else:
 			i = 0
 			while i < len(LObs0)-1:
-				Obs = py.IntervalVector([py.Interval(LObs0[i][0],LObs0[i][1]),py.Interval(LObs0[i+1][0],LObs0[i+1][1])])
+				#Obs = py.IntervalVector([py.Interval(LObs0[i][0],LObs0[i][1]),py.Interval(LObs0[i+1][0],LObs0[i+1][1])])
+				latmin, latmax = np.min([LObs0[i][0], LObs0[i+1][0]]), np.max([LObs0[i][0], LObs0[i+1][0]])
+				longmin, longmax = np.min([LObs0[i][1], LObs0[i+1][1]]), np.max([LObs0[i][1], LObs0[i+1][1]])
+
+				Obs = py.IntervalVector([py.Interval(latmin,latmax),py.Interval(longmin,longmax)])
+
 				i = i+2
 				LObs = LObs + [Obs]
 
@@ -207,9 +267,6 @@ if __name__ == '__main__':
                 display = False
                 rate = 10
 		rmax = 50
-                fileGPS = rospack.get_path('sailrobot') + '/data/gps_simu.txt'
-		LObj = []
-		nObj = 0
 		test_GPS_file = False
 
                 for i in range(0,len(sys.argv)):
@@ -243,7 +300,7 @@ if __name__ == '__main__':
 
 			if sys.argv[i] == '-gpsobstacle':
 
-
+				test_GPS_Obs = True
                                 if sys.argv[i+1] == '/':
                                         LObs0 = utilities.readGPSCoordinates(sys.argv[i+1])
 
@@ -256,13 +313,18 @@ if __name__ == '__main__':
                 		if len(LObs0)<2:
                         		LObs = []
                 		else:
-                        		i = 0
-                        		while i < len(LObs0)-1:
-                                		Obs = py.IntervalVector([py.Interval(LObs0[i][0],LObs0[i][1]),py.Interval(LObs0[i+1][0],LObs0[i+1][1])])
-                                		i = i+2
+                        		j = 0
+                        		while j < len(LObs0)-1:
+
+
+                                		latmin, latmax = np.min([LObs0[j][0], LObs0[j+1][0]]), np.max([LObs0[j][0], LObs0[j+1][0]])
+                                		longmin, longmax = np.min([LObs0[j][1], LObs0[j+1][1]]), np.max([LObs0[j][1], LObs0[j+1][1]])
+                                		Obs = py.IntervalVector([py.Interval(latmin,latmax),py.Interval(longmin,longmax)])
+                                		j = j+2
                                 		LObs = LObs + [Obs]
 
-                        if sys.argv[i] == '-rate':
+
+			if sys.argv[i] == '-rate':
                                 rate = float(sys.argv[i+1])
 
                         if sys.argv[i] == '-v':
@@ -271,6 +333,9 @@ if __name__ == '__main__':
 			if sys.argv[i] == '-rm':
 				rmax = float(sys.argv[i+1])
 
+                        if sys.argv[i] == '-ls':
+                                test_ls = 1
+
 
 		print(' -n : number of objective')
                 print(' -rate : loop rate' )
@@ -278,18 +343,29 @@ if __name__ == '__main__':
 		print(' -gpsfile : filepath of GPS coordinate')
 		print(' -gpsobstacle : filepath of obstacle GPS coordinate')
 		print(' -rm : cutoff distance')
+                print('-ls : display list of function' )
                 print(' ')
 
 
-		if test_GPS_file == False:
-			print('Default GPS coordinate of file coord_GPS.txt used. Enter filepath of an other file with command -gpsfile if desire.')
-			print(' ')
-
-		target =  Running('running', nObj,LObj, rate,display,rmax,LObs)
+                if (test_ls == 1):
+                        print(' ')
+                else:
 
 
-                while not rospy.is_shutdown():
-			target.loop()
+			if test_GPS_file == False:
+				print('Default GPS coordinate of file gps_running.txt used. Enter filepath of an other file with command -gpsfile if desire.')
+				print(' ')
+
+			if test_GPS_Obs == False:
+        	                print('Default GPS coordinate Obstacle of file coord_Obstacle.txt used. Enter filepath of an other file with command -gpsobstacle if desire.')
+                	        print(' ')
+
+
+			target =  Running('running', nObj,LObj, rate,display,rmax,LObs)
+
+
+        	        while not rospy.is_shutdown():
+				target.loop()
 
 
         except rospy.ROSInterruptException:
