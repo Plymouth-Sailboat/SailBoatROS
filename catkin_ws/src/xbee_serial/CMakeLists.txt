@@ -140,7 +140,7 @@ include_directories(
 add_executable(xbee_end_device src/xbee_end_device/xbee_end_device.cpp src/xbee_end_device/xbee_end_device_node.cpp include/xbee_end_device/xbee_end_device.hpp src/controller.cpp include/controller.hpp)
 
 
-add_executable(xbee_coordinator src/xbee_coordinator/xbee_coordinator_node.cpp)
+add_executable(xbee_coordinator src/xbee_coordinator/xbee_coordinator_node.cpp src/xbee_parser.cpp include/xbee_parser.h)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

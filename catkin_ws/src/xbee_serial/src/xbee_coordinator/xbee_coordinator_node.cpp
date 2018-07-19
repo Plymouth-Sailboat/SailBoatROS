@@ -4,7 +4,7 @@
 #include "serial/serial.h"
 #include <sstream>
 
-
+#include "xbee_parser.h"
 
 int main(int argc, char **argv)
 {
@@ -17,6 +17,8 @@ int main(int argc, char **argv)
 	serial::Serial serialXbee("/dev/ttyUSB1", 57600, serial::Timeout::simpleTimeout(1000));
 	if(!serialXbee.isOpen())
 		std::cerr << "Xbee not connect" << std::endl;
+
+	Xbee_Parser::XbeeParser parser;
 	while (ros::ok())
 	{
 		unsigned char buffer[256];
@@ -35,7 +37,11 @@ int main(int argc, char **argv)
                                 std::cout << (int)buffer[i] << " ";
                         std::cout << std::endl;
 
-			if(pos + sizeof(float)*6 < 256){
+			parser.parse(buffer+pos, si-pos);
+			pub.publish(parser.getData<sensor_msgs::Imu>(0));
+			pub2.publish(parser.getData<gps_common::GPSFix>(1));
+
+/*			if(pos + sizeof(float)*6 < 256){
 				float orientation[4];
 				memcpy(orientation, buffer+pos+2, sizeof(float)*4);
 				sensor_msgs::Imu imu;
@@ -56,7 +62,7 @@ int main(int argc, char **argv)
 
 				serialXbee.flush();
 			}
-		}
+*/		}
 
 		ros::spinOnce();
 		loop_rate.sleep();

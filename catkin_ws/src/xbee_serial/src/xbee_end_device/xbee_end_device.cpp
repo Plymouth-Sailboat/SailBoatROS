@@ -9,8 +9,8 @@ using namespace Xbee;
 void XbeeEndDevice::setup(ros::NodeHandle* n){}
 
 void XbeeEndDevice::addBytes(float* data, int size, unsigned char id, int* pos, unsigned char* buffer){
-	buffer[(*pos)++] = id;
 	buffer[(*pos)++] = size;
+	buffer[(*pos)++] = id;
         memcpy(buffer+(*pos),data,size);
         *pos += size;
 }
