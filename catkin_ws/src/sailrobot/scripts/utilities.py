@@ -40,9 +40,8 @@ def GPSBearing(lat1, lon1, lat2, lon2):
         return bearing
 
 def QuaternionToEuler(x,y,z,w):
-        ysqr = z * z
-	
-        t0 = +2.0 * (w * x + y * z)
+        ysqr = y * y	
+        t0 = +2.0 * (x * w + z * y)
         t1 = +1.0 - 2.0 * (x * x + ysqr)
         X = math.atan2(t0, t1)
 	

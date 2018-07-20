@@ -55,6 +55,8 @@ class Running(Controller):
                 else:
                         psi = theta
 
+		#psi = theta;
+
                 # calcul de deltar
                 if np.cos(psi - thetab) >= 0 :
                         deltar = self.deltarmax*(np.sin(psi - thetab))
@@ -102,6 +104,7 @@ class Running(Controller):
                 x,y = self.gpsMsg.latitude,  self.gpsMsg.longitude
                 xi,yi,zi,wi = self.imuMsg.orientation.x, self.imuMsg.orientation.y, self.imuMsg.orientation.z, self.imuMsg.orientation.w
                 theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[2]
+
 
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
