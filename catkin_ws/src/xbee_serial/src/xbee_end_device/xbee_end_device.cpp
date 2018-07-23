@@ -4,6 +4,8 @@
 #include <string>
 #include <serial/serial.h>
 
+#include "xbee_parser.h"
+
 using namespace Xbee;
 
 void XbeeEndDevice::setup(ros::NodeHandle* n){}
@@ -21,18 +23,27 @@ bool XbeeEndDevice::loopUnpublished(){
 
 	buffer[pos++] = 255;
 	buffer[pos++] = 255;
+	buffer[pos++] = 0;
 
+	Xbee_Parser::XbeeParser parser;
 
-        float quaternion[4] = {(float)imuMsg.orientation.x, (float)imuMsg.orientation.y, (float)imuMsg.orientation.z, (float)imuMsg.orientation.w};
+	size_t size = 0;
+	unsigned char* quaternion = ((Xbee_Parser::XImu*)parser.getParser(0))->build(imuMsg,&size);
+	memcpy(buffer+pos, quaternion, size);
+	pos+= size;
 
-	addBytes(quaternion, sizeof(quaternion), 0, &pos, buffer);
-
-	float gps[2] = {(float)gpsMsg.latitude, (float)gpsMsg.longitude};
-
-	addBytes(gps, sizeof(gps), 1, &pos, buffer);
+	size = 0;
+	unsigned char* gps = ((Xbee_Parser::XGps*)parser.getParser(1))->build(gpsMsg,&size);
+	memcpy(buffer+pos,gps,size);
+	pos += size;
 
 	buffer[pos++] = 125;
 	buffer[pos++] = 125;
+
+	buffer[2] = pos;
+
+	delete quaternion;
+	delete gps;
 
 	if(serialXbee.isOpen()){
 		serialXbee.write(buffer, pos);

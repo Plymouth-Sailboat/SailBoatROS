@@ -26,43 +26,30 @@ int main(int argc, char **argv)
 			serialXbee.read(buffer,si);	
 
 			int pos = 0;
-			for(int i = 0; i < 255; ++i){
+			bool found = false;
+			for(int i = 0; i < si; ++i){
 				if(buffer[i] == 255 && buffer[i+1] == 255){
 					pos = i+2;
+					found = true;
 					break;
 				}	
 			}
-			std::cout << "received : " << si << std::endl;
+
+			if(!found)
+				continue;
+
+			std::cout << "received : " << si << " data : " << (int)buffer[pos] << std::endl;
                         for(int i = pos; i < si; ++i)
                                 std::cout << (int)buffer[i] << " ";
                         std::cout << std::endl;
 
-			parser.parse(buffer+pos, si-pos);
+			if(buffer[pos++] <= si-pos+2)
+				continue;
+
+			parser.parse(buffer+pos, buffer[pos]-2);
 			pub.publish(parser.getData<sensor_msgs::Imu>(0));
 			pub2.publish(parser.getData<gps_common::GPSFix>(1));
-
-/*			if(pos + sizeof(float)*6 < 256){
-				float orientation[4];
-				memcpy(orientation, buffer+pos+2, sizeof(float)*4);
-				sensor_msgs::Imu imu;
-				imu.orientation.x = orientation[0];
-				imu.orientation.y = orientation[1];
-				imu.orientation.z = orientation[2];
-				imu.orientation.w = orientation[3];
-				pub.publish(imu);
-
-				float gps[2];
-				memcpy(gps,buffer+pos+4+sizeof(float)*4, sizeof(float)*2);
-
-				gps_common::GPSFix gpsM;
-				gpsM.latitude = gps[0];
-				gpsM.longitude = gps[1];
-
-				pub2.publish(gpsM);
-
-				serialXbee.flush();
-			}
-*/		}
+		}
 
 		ros::spinOnce();
 		loop_rate.sleep();

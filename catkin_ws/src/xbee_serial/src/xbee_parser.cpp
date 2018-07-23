@@ -34,6 +34,13 @@ int XImu::parse(unsigned char* data){
 	return size;
 }
 
+unsigned char* XImu::build(sensor_msgs::Imu msg, size_t* pos){
+	unsigned char* data = new unsigned char[sizeof(float)*4+2];
+	float orientation[4] = {(float)msg.orientation.x, (float)msg.orientation.y, (float)msg.orientation.z, (float)msg.orientation.w};
+	addBytes(orientation, sizeof(float)*4, 0, pos, data);
+	return data;
+}
+
 int XGps::parse(unsigned char* data){
         int size = data[0]+2;
         float gps[2];
@@ -43,11 +50,26 @@ int XGps::parse(unsigned char* data){
         return size;
 }
 
+unsigned char* XGps::build(gps_common::GPSFix msg, size_t* pos){
+	unsigned char* data = new unsigned char[sizeof(float)*2+2];
+	float gps[2] = {(float)msg.latitude, (float)msg.longitude};
+	addBytes(gps, sizeof(float)*2, 1, pos, data);
+	return data;
+}
+
 int XPose2D::parse(unsigned char* data){
         int size = data[0]+2;
         float orientation[4];
         memcpy(orientation,data+2,size-2);
         return size;
+}
+
+unsigned char* XPose2D::build(geometry_msgs::Pose2D msg, size_t* pos){
+	unsigned char* data = new unsigned char[2];
+        if(pos != NULL)
+                *pos += 2;
+
+	return data;
 }
 
 int XString::parse(unsigned char* data){
@@ -57,12 +79,38 @@ int XString::parse(unsigned char* data){
         return size;
 }
 
+unsigned char* XString::build(std_msgs::String msg, size_t* pos){
+	unsigned char* data = new unsigned char[2];
+	data[0] = msg.data.length();
+	data[1] = 2;
+	std::string dataS(msg.data);
+	memcpy(data+2, dataS.c_str(), dataS.length());
+
+        if(pos != NULL)
+                *pos += dataS.length()+2;
+
+	return data;
+}
+
 int XFloat32::parse(unsigned char* data){
         int size = data[0]+2;
         float value;
         memcpy(&value,data+2,size-2);
 	parsed.data = value;
         return size;
+}
+
+unsigned char* XFloat32::build(std_msgs::Float32 msg, size_t* pos){
+	unsigned char* data = new unsigned char[sizeof(float)];
+	data[0] = sizeof(float);
+	data[1] = 4;
+	float value = msg.data;
+	memcpy(data, &value, sizeof(float));
+
+        if(pos != NULL)
+                *pos += sizeof(float)+2;
+
+	return data;
 }
 
 int XTwist::parse(unsigned char* data){
@@ -78,4 +126,22 @@ int XTwist::parse(unsigned char* data){
 
         return size;
 }
+
+unsigned char* XTwist::build(geometry_msgs::Twist msg, size_t* pos){
+	unsigned char* data = new unsigned char[2];
+
+        if(pos != NULL)
+                *pos += 2;
+
+	return data;
+}
+
+template<class T>
+void XParser<T>::addBytes(float* data, int size, unsigned char id, size_t* pos, unsigned char* buffer){
+        buffer[(*pos)++] = size;
+        buffer[(*pos)++] = id;
+        memcpy(buffer+(*pos),data,size);
+        *pos += size;
+}
+
 
