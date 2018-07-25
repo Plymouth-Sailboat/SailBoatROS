@@ -7,7 +7,7 @@
 namespace Sailboat{
     class AreaScanning : public Controller{
 	public:
-        AreaScanning(std::string name) : Controller(name,10, MODE::HEADING){}
+        AreaScanning(std::string name) : Controller(name,10, MODE::HEADING), tackingStart(NULL), rmax(20), q(1){}
         ~AreaScanning(){}
 		void setup(ros::NodeHandle* n);
 		virtual geometry_msgs::Twist control();
@@ -17,6 +17,10 @@ namespace Sailboat{
 		int nbWaypoints;
 		glm::vec2* waypoints;
 		int* waypointsOrder;
+		glm::vec2* tackingStart;
+		float rmax;
+		float closeHauled;
+		int q;
 
 		void buildLKHFiles();
 		void readResults();

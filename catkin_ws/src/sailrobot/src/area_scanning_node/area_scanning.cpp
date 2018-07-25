@@ -23,6 +23,7 @@ void AreaScanning::setup(ros::NodeHandle* n){
 		exit(0);
 	}
 	currentWaypoint = 0;
+	closeHauled = M_PI/3.0;
 
 	buildLKHFiles();
 	std::system((path + "/bin/LKH " + path + "/bin/LKHData/area_scanning.par").c_str());
@@ -108,17 +109,38 @@ geometry_msgs::Twist AreaScanning::control(){
 	geometry_msgs::Twist cmd;
 
 	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
-
-	if(Utility::GPSDist(current, waypoints[waypointsOrder[currentWaypoint]]) < 10)
-		currentWaypoint++;
-	if(currentWaypoint > nbWaypoints)
-		return cmd;
-
 	float wind = windMsg.theta;
-	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation.x, imuMsg.orientation.y, imuMsg.orientation.z, imuMsg.orientation.w);
-	float theta = Utility::GPSBearing(current, waypoints[waypointsOrder[currentWaypoint]]);
+	float boatHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
+	float heading = Utility::GPSBearing(current, waypoints[waypointsOrder[currentWaypoint]]);
 
-	cmd.angular.z = theta;
+	
+	if(tackingStart == NULL){
+		tackingStart = new vec2(current.x,current.y);
+	}
+
+	float dist = Utility::GPSDist(current, waypoints[waypointsOrder[currentWaypoint]]);
+	if(dist < 5){
+		publishMSG("PArrived at waypoint " + std::to_string(waypointsOrder[currentWaypoint]));
+		*tackingStart = waypoints[waypointsOrder[currentWaypoint]];
+		currentWaypoint++;
+	}
+	currentWaypoint %= nbWaypoints;
+	
+	//Tacking CHECK
+	float windNorth = wind + boatHeading;
+	bool isTacking = false;
+	if(cos(windNorth - heading) + cos(closeHauled) < 0){
+		vec2 line = normalize(waypoints[waypointsOrder[currentWaypoint]] - (*tackingStart));
+		vec2 currentLine = current - *tackingStart;
+		float e = line.x*currentLine.y - line.y*currentLine.x;
+		if(abs(e) > rmax/2.0)
+			q = sign(e);
+		heading = windNorth + M_PI - q*closeHauled;
+		
+		isTacking = true;
+	}
+	
+	cmd.angular.z = heading;
 
 	return cmd;
 }
