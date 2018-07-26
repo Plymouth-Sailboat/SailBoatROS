@@ -78,8 +78,14 @@ class Target_Reach(Controller):
         def desired_orientation(self,thetab0,dst,alpha,psi_tw):   # first desired orientation 
                 thetab = thetab0
 
+
                 # Bypass strategy
                 if (dst< self.dsecu)&(dst>self.dsecu2)&(np.cos(thetab - psi_tw)>0):
+
+	                if self.display == True:
+				print('Bypass strategy')
+
+
                         if np.cos(alpha - (psi_tw + pi/2)) > np.cos(alpha - (psi_tw - pi/2)):
                                 thetab = thetab + pi/2
                         else:
@@ -87,6 +93,11 @@ class Target_Reach(Controller):
 
                 # test if desired orientation is upwind: tack strategy
                 if np.cos(psi_tw - thetab) + np.cos(self.delta) < 0 :
+
+                        if self.display == True:
+                                print('Upwind strategy')
+
+
                         thetab = psi_tw + pi + self.q*self.delta
 
                 else:   # else, stock sailboat direction
@@ -96,8 +107,14 @@ class Target_Reach(Controller):
                         else:
                                 self.q = 1
 
+
                 # stop strategy : put sailboat upwind
                 if (dst < self.darret):
+
+                        if self.display == True:
+                                print('Stop strategy')
+
+
                         if (self.v > 0):
                                 thetab = psi_tw + pi
                         else:
@@ -115,7 +132,7 @@ class Target_Reach(Controller):
 			if (self.v > 0):
                                 deltasb = -np.sign(psi_aw)*np.abs(pi-np.abs(psi_aw))
                         	if np.abs(deltasb)>pi/2:
-					deltasb = sign(deltasb)*pi/2
+					deltasb = np.sign(deltasb)*pi/2
 
 			else:
                                 deltasopt = np.abs(pi/2*(np.cos(psi_tw - thetab) + 1)/2)

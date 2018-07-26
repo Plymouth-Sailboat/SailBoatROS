@@ -122,24 +122,40 @@ class Running(Controller):
                 # test if desired orientation is upwind: tack strategy
                 if np.cos(psi_tw - thetab) + np.cos(self.delta) < 0 :
 
-	                dst =  utilities.GPSDist(x, y, self.Xobj, self.Yobj)
-        	        alpha1 = utilities.GPSBearing(self.Xobj, self.Yobj, x, y)
-			alpha0 = utilities.GPSBearing(self.Xobj, self.Yobj, self.x0, self.y0)
-			alphai = alpha1 - alpha0
+	               	if self.display == True:
+        	               	print('Tack strategy')
 
-			e = dst*np.abs(np.sin(alphai))
-			if e > self.rmax:
-				self.q = np.sign(np.sin(alphai))
 
-                        thetab = psi_tw + pi + self.q*self.delta
+	        #        dst =  utilities.GPSDist(x, y, self.Xobj, self.Yobj)
+        	#        alpha1 = utilities.GPSBearing(self.Xobj, self.Yobj, x, y)
+		#	alpha0 = utilities.GPSBearing(self.Xobj, self.Yobj, self.x0, self.y0)
+		#	alphai = alpha1 - alpha0
+
+		#	e = dst*np.abs(np.sin(alphai))
+		#	if e > self.rmax:
+		#		self.q = np.sign(np.sin(alphai))
+
+                #       thetab = psi_tw + pi + self.q*self.delta
+
+
+			###############
+		if np.cos(thetab0-(psi_tw+pi+delta))>np.cos(thetab0-(psi_tw+pi-delta)):
+			thetab = psi_tw+pi+self.delta
+		else:
+			thetab = psi_tw+pi-self.delta
+			#############
 
 		# obstacle avoidance
 		param2 = [dsecu,dsecu2,p8*2]
 
+		thetaTest = thetab
 		List_Obs = self.add_dynamic_obstacle()
 		#List_Obs = self.LObs
-		thetab, self.List_dist = Obstacle_avoidance(x,y,thetab,phi,psi_tw,delta,dsecuObs,param2,List_Obs)
+		thetab, self.List_dist = Obstacle_avoidance(x,y,thetab,phi,psi_tw,self.delta,dsecuObs,param2,List_Obs)
 
+                if (self.display == True)&(np.cos(thetaTest-thetab)<cos(pi/10)):
+                        print('OBSTACLE AVOIDANCE')
+			print(thetaTest*180/pi,thetab*180/pi)
 		return thetab
 
 
@@ -216,13 +232,15 @@ class Running(Controller):
 
                 if self.display == True:
                         print('Current Xobj = ', self.Xobj,'/Yobj = ',self.Yobj)
+			print('Current position = ', x,', ',y)
                         print('dst obj = ', dst)
 			print('theta obj = ', thetab*180/pi)
+                        print('headind received = ',theta*180/pi)
+			print('thetab0 = ', thetab0*180/pi)
                         print('alpha = ', alpha*180/pi)
                         print('desired deltas = ', deltasb*180/pi)
                         print('desired deltar = ', deltarb*180/pi)
                         print('evaluate psi_tw = ', psi_tw*180/pi)
-			print('headind received = ',theta*180/pi)
                         print(' ')
 		self.publishMSG('Pdist '+ (str)(dst) + '\n thetaobj ' + (str)(thetab*180/pi) + '\n Xobj ' + (str)(self.Xobj) + ' Yobj ' + (str)(self.Yobj))
                 return command
