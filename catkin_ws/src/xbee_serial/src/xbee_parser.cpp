@@ -25,19 +25,27 @@ void XbeeParser::parse(unsigned char* data, size_t size){
 
 int XImu::parse(unsigned char* data){
 	int size = data[0]+2;
-	float orientation[4];
+	float orientation[10];
 	memcpy(orientation,data+2,size-2);
-	parsed.orientation.x = orientation[0]; 
+	parsed.orientation.x = orientation[0];
         parsed.orientation.y = orientation[1];
         parsed.orientation.z = orientation[2];
         parsed.orientation.w = orientation[3];
+
+	parsed.angular_velocity.x = orientation[4];
+	parsed.angular_velocity.y = orientation[5];
+	parsed.angular_velocity.z = orientation[6];
+
+	parsed.linear_acceleration.x = orientation[7];
+	parsed.linear_acceleration.y = orientation[8];
+	parsed.linear_acceleration.z = orientation[9];
 	return size;
 }
 
 unsigned char* XImu::build(sensor_msgs::Imu msg, size_t* pos){
-	unsigned char* data = new unsigned char[sizeof(float)*4+2];
-	float orientation[4] = {(float)msg.orientation.x, (float)msg.orientation.y, (float)msg.orientation.z, (float)msg.orientation.w};
-	addBytes(orientation, sizeof(float)*4, 0, pos, data);
+	unsigned char* data = new unsigned char[sizeof(float)*10+2];
+	float orientation[10] = {(float)msg.orientation.x, (float)msg.orientation.y, (float)msg.orientation.z, (float)msg.orientation.w, (float)msg.angular_velocity.x, (float)msg.angular_velocity.y, (float)msg.angular_velocity.z, (float)msg.linear_acceleration.x, (float)msg.linear_acceleration.y, (float)msg.linear_acceleration.z};
+	addBytes(orientation, sizeof(float)*10, 0, pos, data);
 	return data;
 }
 
@@ -47,13 +55,18 @@ int XGps::parse(unsigned char* data){
         memcpy(gps,data+2,size-2);
         parsed.latitude = gps[0];
         parsed.longitude = gps[1];
+	parsed.altitude = gps[2];
+	parsed.track = gps[3];
+	parsed.speed = gps[4];
+	parsed.time = gps[5];
+	parsed.hdop = gps[6];
         return size;
 }
 
 unsigned char* XGps::build(gps_common::GPSFix msg, size_t* pos){
-	unsigned char* data = new unsigned char[sizeof(float)*2+2];
-	float gps[2] = {(float)msg.latitude, (float)msg.longitude};
-	addBytes(gps, sizeof(float)*2, 1, pos, data);
+	unsigned char* data = new unsigned char[sizeof(float)*7+2];
+	float gps[7] = {(float)msg.latitude, (float)msg.longitude, (float)msg.altitude, (float)msg.track, (float)msg.speed, (float)msg.time, (float)msg.hdop};
+	addBytes(gps, sizeof(float)*7, 1, pos, data);
 	return data;
 }
 
