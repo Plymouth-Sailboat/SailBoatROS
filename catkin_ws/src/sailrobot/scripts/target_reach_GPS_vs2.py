@@ -79,15 +79,24 @@ class Target_Reach(Controller):
         def desired_orientation(self,thetab0,dst,alpha,psi_tw):   # first desired orientation 
                 thetab = thetab0
 
+                if (self.display == True)&(dst<self.dsecu)&(dst>self.darret):
+                        print('Pre-arrival area')
+
+
                 # Bypass strategy
                 if (dst< self.dsecu)&(dst>self.darret)&(np.cos(thetab - psi_tw)>0):
                         if np.cos(alpha - (psi_tw + pi/2)) > np.cos(alpha - (psi_tw - pi/2)):
                                 thetab = thetab + pi/2
                         else:
                                 thetab = thetab - pi/2
+			if self.display == True:
+				print('Bypass strategy used: thetab=',thetab*180/pi)
 
                 # test if desired orientation is upwind: tack strategy
                 if np.cos(psi_tw - thetab) + np.cos(self.delta) < 0 :
+
+                        if self.display == True:
+                                print('Tack strategy used')
 
 
 			if (dst > self.darret):   # if in pre-arrival area
@@ -104,6 +113,8 @@ class Target_Reach(Controller):
 
 
                         thetab = psi_tw + pi + self.q*self.delta
+                        if self.display == True:
+                                print('thetab upwind =',thetab*180/pi)
 
 
                 # stop strategy : put sailboat upwind
@@ -112,6 +123,10 @@ class Target_Reach(Controller):
                                 thetab = psi_tw + pi
                         else:
                                 thetab = thetab
+
+                        if self.display == True:
+                                print('Arrival area: thetab=',thetab*180/pi)
+
 
                 return thetab
 
