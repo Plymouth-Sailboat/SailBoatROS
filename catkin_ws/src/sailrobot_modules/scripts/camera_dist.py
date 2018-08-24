@@ -209,17 +209,16 @@ def chatter():
 	    rospack = rospkg.RosPack()
 	    nomfichier = rospack.get_path('sailrobot') + '/data/coord_Obstacle_dynamic.txt'
  
-	    fichier = open(nomfichier, "w")
- 
 	#    point = Point()
 	#    if(dist_sonde0 == 0.0):
 	    coord = coord_distance_gps(lat*math.pi/180,long*math.pi/180,theta*math.pi/180,dist_sonde0, R=6.371*10**6)
-
-	    point.x = coord[0]
-	    point.y = coord[1]
+	    if(not(coord[0]==0)):
+		fichier = open(nomfichier, "w")
+	    	point.x = coord[0]
+	    	point.y = coord[1]
 	#    print((lat,long,theta,dist_sonde0))
-	    fichier.write(str(coord[0]) + "," + str(coord[1]))
-	    fichier.close()
+	    	fichier.write(str(coord[0]) + "," + str(coord[1]))
+	    	fichier.close()
 
     return point
 
