@@ -29,9 +29,9 @@ param = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p100]
 dsecu2 = 15
 dsecu = 30  # dsecu2 + pi*p3/np.abs(p5*p8*np.sin(2*pi/4))
 rb = (p8)/np.sin(pi/4)	# turning angle
-darret0 = 2*rb
+darret0 = np.max([5,2*rb])
 
-dsecuObs = 2*p8  + pi*p3/np.abs(p5*p8*np.sin(2*pi/4))
+dsecuObs = 15 # 2*p8  + pi*p3/np.abs(p5*p8*np.sin(2*pi/4))
 
 
 # Sail control

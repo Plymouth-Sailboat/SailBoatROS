@@ -118,7 +118,6 @@ class Running(Controller):
                 #phi = math.atan2(dy,dx) # phi = np.angle(dx + 1j*dy)
 		phi = theta
 
-
                 # calcul de psi_tw ((en attendant une autre version du code))
                 u0 = self.v*np.sin(phi) + aaw*np.sin(theta + psi_aw)
                 v0 = self.v*np.cos(phi) + aaw*np.cos(theta + psi_aw)
@@ -164,11 +163,11 @@ class Running(Controller):
                         print('Current Xobj = ', self.Xobj,'/Yobj = ',self.Yobj)
                         print('dst obj = ', dst)
 			print('theta obj = ', thetab*180/pi)
+                        print('headind received = ',theta*180/pi)
                         print('alpha = ', alpha*180/pi)
                         print('desired deltas = ', deltasb*180/pi)
                         print('desired deltar = ', deltarb*180/pi)
                         print('evaluate psi_tw = ', psi_tw*180/pi)
-			print('headind received = ',theta*180/pi)
                         print(' ')
 		self.publishMSG('Pdist '+ (str)(dst) + '\n thetaobj ' + (str)(thetab*180/pi) + '\n Xobj ' + (str)(self.Xobj) + ' Yobj ' + (str)(self.Yobj))
                 return command

@@ -79,9 +79,6 @@ class Target_Reach(Controller):
         def desired_orientation(self,thetab0,dst,alpha,psi_tw):   # first desired orientation 
                 thetab = thetab0
 
-                if (self.display == True)&(dst<self.dsecu)&(dst>self.darret):
-                        print('Pre-arrival area')
-
 
                 # Bypass strategy
                 if (dst< self.dsecu)&(dst>self.darret)&(np.cos(thetab - psi_tw)>0):
@@ -89,32 +86,45 @@ class Target_Reach(Controller):
                                 thetab = thetab + pi/2
                         else:
                                 thetab = thetab - pi/2
-			if self.display == True:
-				print('Bypass strategy used: thetab=',thetab*180/pi)
+
+                	if self.display == True:
+                        	print('Bypass strategy')
+
 
                 # test if desired orientation is upwind: tack strategy
                 if np.cos(psi_tw - thetab) + np.cos(self.delta) < 0 :
 
+
                         if self.display == True:
-                                print('Tack strategy used')
-
-
-			if (dst > self.darret):   # if in pre-arrival area
-				if np.sin(psi_tw - thetab)>0:
-					self.q = -1
-				else:
-					self.q = 1
-
-			if (dst <= self.darret): # if in arrival area
-                        	if np.cos(thetab - (psi_tw + pi - self.delta)) > np.cos(thetab - (psi_tw  + pi + self.delta)) :
-                                	self.q = - 1
-                        	else:
-                                	self.q = 1
+                                print('Upwind strategy')
 
 
                         thetab = psi_tw + pi + self.q*self.delta
-                        if self.display == True:
-                                print('thetab upwind =',thetab*180/pi)
+
+                else:   # else, stock sailboat direction
+
+                        if (np.cos(thetab - (psi_tw + pi - self.delta))> np.cos(thetab - (psi_tw + pi + self.delta)) ):
+                                self.q = - 1
+                        else:
+                                self.q = 1
+
+#                        if self.display == True:
+#                                print('Upwind strategy')
+
+#			if (dst > self.darret):   # if in pre-arrival area
+#				if -np.sin(psi_tw - thetab)>0:
+#					self.q = -1
+#				else:
+#					self.q = 1
+
+#			if (dst <= self.darret): # if in arrival area
+#                        	if np.cos(thetab - (psi_tw + pi - self.delta)) > np.cos(thetab - (psi_tw  + pi + self.delta)) :
+#                                	self.q = - 1
+#                        	else:
+#                                	self.q = 1
+
+
+#                        thetab = psi_tw + pi + self.q*self.delta
 
 
                 # stop strategy : put sailboat upwind
@@ -125,7 +135,7 @@ class Target_Reach(Controller):
                                 thetab = thetab
 
                         if self.display == True:
-                                print('Arrival area: thetab=',thetab*180/pi)
+                                print('Stop strategy')
 
 
                 return thetab
@@ -137,6 +147,8 @@ class Target_Reach(Controller):
 
                 # stop strategy : put sailboat upwind
                 if (dst < self.darret):
+
+
                         if (dvd < 0)|(np.cos(alpha-psi_tw)<0):
 
 				deltasb = -np.sign(psi_aw)*pi/2
@@ -175,7 +187,9 @@ class Target_Reach(Controller):
                 xi,yi,zi,wi = self.imuMsg.orientation.x, self.imuMsg.orientation.y, self.imuMsg.orientation.z, self.imuMsg.orientation.w
                 theta = utilities.QuaternionToEuler(xi, yi, zi, wi)[2]
 
-
+#		theta = theta + np.sign(theta)*45*pi/180
+#		if np.abs(theta)>pi:
+#			theta = theta - 2*pi*np.sign(theta)
 
                 self.dv = self.imuMsg.linear_acceleration.x
                 self.v,self.u = self.velMsg.linear.x, self.velMsg.linear.y
@@ -201,7 +215,7 @@ class Target_Reach(Controller):
 
                 # evaluate desire acceleration
                 v0 = np.max([0, self.u*np.tan(theta - alpha)])
-                dvd = -self.kv*(self.v- v0) + self.kp*dst
+                dvd = -self.kv*(self.v - v0) + self.kp*dst
 
                 # evaluate the desire orientation
                 thetab = self.desired_orientation(thetab0,dst,alpha,psi_tw)
@@ -221,6 +235,7 @@ class Target_Reach(Controller):
                 	print('Xobj = ', self.Xobj,'/Yobj = ',self.Yobj)
 			print('theta =', theta*180/pi)
 			print('dst obj = ', dst)
+			print('thetab0 = ', thetab0*180/pi)
 			print('theta obj = ',thetab*180/pi)
         	        print('alpha = ', alpha*180/pi)
 			print('desired deltas = ', deltasb*180/pi)
