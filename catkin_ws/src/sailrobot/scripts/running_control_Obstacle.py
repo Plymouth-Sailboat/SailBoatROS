@@ -139,10 +139,10 @@ class Running(Controller):
 
 
 			###############
-		if np.cos(thetab0-(psi_tw+pi+delta))>np.cos(thetab0-(psi_tw+pi-delta)):
-			thetab = psi_tw+pi+self.delta
-		else:
-			thetab = psi_tw+pi-self.delta
+			if np.cos(thetab0-(psi_tw+pi+self.delta))>np.cos(thetab0-(psi_tw+pi-self.delta)):
+				thetab = psi_tw+pi+self.delta
+			else:
+				thetab = psi_tw+pi-self.delta
 			#############
 
 		# obstacle avoidance
