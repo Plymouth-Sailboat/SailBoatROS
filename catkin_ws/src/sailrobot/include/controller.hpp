@@ -12,6 +12,7 @@
 #include <std_msgs/Float32.h>
 #include <nav_msgs/Odometry.h>
 #include <string>
+#include <vector>
 
 namespace Sailboat{
 	class Controller{
@@ -84,6 +85,7 @@ namespace Sailboat{
 
 			int looprate;
 			int controller;
+			std::vector<float> windAvg;
 	};
 }
 

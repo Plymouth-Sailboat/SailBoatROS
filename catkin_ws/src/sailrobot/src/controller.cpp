@@ -90,7 +90,21 @@ void Controller::imu(const sensor_msgs::Imu::ConstPtr& msg){
 }
 
 void Controller::wind(const geometry_msgs::Pose2D::ConstPtr& msg){
-	windMsg = *msg;
+	//windMsg = *msg;
+	windMsg.x = msg->x;
+	windMsg.y = msg->y;
+	windAvg.push_back(msg->theta);
+	if(windAvg.size() > 50)
+		windAvg.erase(windAvg.begin());
+	float ws = 0;
+	float wc = 0;
+	float w = 0;
+	for(int i = 0; i < windAvg.size(); ++i){
+		ws += sin(windAvg[i]);
+		wc += cos(windAvg[i]);
+	}
+	w = atan2(ws,wc);
+	windMsg.theta = w;
 }
 
 void Controller::sail(const std_msgs::Float32::ConstPtr& msg){

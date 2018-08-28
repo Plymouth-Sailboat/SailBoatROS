@@ -8,6 +8,8 @@ from geometry_msgs.msg import Pose2D
 from std_msgs.msg import Float32
 from nav_msgs.msg import Odometry
 
+import math
+import numpy
 from enum import Enum
 import time
 
@@ -26,6 +28,7 @@ class Controller:
     	sailAngle = 0.0
     	rudderAngle = 0.0
     	rudder2Angle = 0.0
+	windArray = []
 
 	def wakeup(self,event):
             self.publishMSG("M")
@@ -44,7 +47,16 @@ class Controller:
             self.imuMsg = data
 		
         def wind(self,data):
-            self.windMsg = data
+            #self.windMsg = data
+	    self.windArray.append(data.theta)
+	    if(len(self.windArray) > 25):
+		del self.windArray[0]
+	    ws = numpy.sum(numpy.sin(self.windArray))
+	    wc = numpy.sum(numpy.cos(self.windArray))
+	    w = math.atan2(ws,wc)
+	    self.windMsg.theta = w
+	    self.windMsg.x = data.x
+	    self.windMsg.y = data.y
 		
         def sail(self,data):
             self.sailAngle = data.data
