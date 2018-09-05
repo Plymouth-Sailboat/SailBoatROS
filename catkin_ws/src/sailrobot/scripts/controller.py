@@ -31,7 +31,7 @@ class Controller:
 	windArray = []
 
 	def wakeup(self,event):
-            self.publishMSG("M")
+            self.publishMSG("C" + str(self.controller))
         def loop(self):
             control = self.control()
             if(control):
@@ -47,16 +47,17 @@ class Controller:
             self.imuMsg = data
 		
         def wind(self,data):
-            #self.windMsg = data
-	    self.windArray.append(data.theta)
-	    if(len(self.windArray) > 25):
-		del self.windArray[0]
-	    ws = numpy.sum(numpy.sin(self.windArray))
-	    wc = numpy.sum(numpy.cos(self.windArray))
-	    w = math.atan2(ws,wc)
-	    self.windMsg.theta = w
-	    self.windMsg.x = data.x
-	    self.windMsg.y = data.y
+            self.windMsg = data
+	    
+#            self.windArray.append(data.theta)
+#	    if(len(self.windArray) > 25):
+#		del self.windArray[0]
+#	    ws = numpy.sum(numpy.sin(self.windArray))
+#	    wc = numpy.sum(numpy.cos(self.windArray))
+#	    w = math.atan2(ws,wc)
+#	    self.windMsg.theta = w
+#	    self.windMsg.x = data.x
+#	    self.windMsg.y = data.y
 		
         def sail(self,data):
             self.sailAngle = data.data
@@ -88,6 +89,9 @@ class Controller:
         def publishMSG(self, msg):
             self.pubMsg.publish(msg)
 
+        def publishLOG(self, msg):
+            self.pubLog.publish(msg)
+
     	def __init__(self, name, looprate, mode):
         	self.name = name
         	self.looprate = looprate
@@ -100,6 +104,7 @@ class Controller:
 
         	self.pubCmd = rospy.Publisher('/sailboat/sailboat_cmd', Twist, queue_size=100)  
         	self.pubMsg = rospy.Publisher('/sailboat/sailboat_msg', String, queue_size=10)  
+        	self.pubLog = rospy.Publisher('/sailboat/pc_log', String, queue_size=10)  
         	self.odomMsg = rospy.Publisher('/sailboat/odom', Odometry, queue_size=100)
         	self.gpsSub = rospy.Subscriber('/sailboat/GPS', GPSFix, self.gps)
         	self.imuSub = rospy.Subscriber('/sailboat/IMU', Imu, self.imu)

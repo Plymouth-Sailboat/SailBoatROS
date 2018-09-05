@@ -27,6 +27,7 @@ void Controller::init(int argc, char **argv){
 	odomMsg = n->advertise<nav_msgs::Odometry>("/sailboat/odom", 100);
 	pubCmd = n->advertise<geometry_msgs::Twist>("/sailboat/sailboat_cmd", 100);
 	pubMsg = n->advertise<std_msgs::String>("/sailboat/sailboat_msg", 10);
+	pubLog = n->advertise<std_msgs::String>("/sailboat/pc_log", 10);
 
 	setup(n);
 
@@ -36,7 +37,7 @@ void Controller::init(int argc, char **argv){
 }
 
 void Controller::wakeup(const ros::TimerEvent& event){
-	publishMSG("M");
+	publishMSG("C" + std::to_string(controller));
 }
 
 void Controller::loop(){
@@ -80,6 +81,15 @@ void Controller::publishMSG(std::string msg){
 	pubMsg.publish(msgD);
 }
 
+void Controller::publishLOG(std_msgs::String msg){
+        pubLog.publish(msg);
+}
+
+void Controller::publishLOG(std::string msg){
+        std_msgs::String msgD;
+        msgD.data = msg.c_str();
+        pubLog.publish(msgD);
+}
 
 void Controller::gps(const gps_common::GPSFix::ConstPtr& msg){
 	gpsMsg = *msg;
@@ -90,8 +100,8 @@ void Controller::imu(const sensor_msgs::Imu::ConstPtr& msg){
 }
 
 void Controller::wind(const geometry_msgs::Pose2D::ConstPtr& msg){
-	//windMsg = *msg;
-	windMsg.x = msg->x;
+	windMsg = *msg;
+	/*windMsg.x = msg->x;
 	windMsg.y = msg->y;
 	windAvg.push_back(msg->theta);
 	if(windAvg.size() > 50)
@@ -104,7 +114,7 @@ void Controller::wind(const geometry_msgs::Pose2D::ConstPtr& msg){
 		wc += cos(windAvg[i]);
 	}
 	w = atan2(ws,wc);
-	windMsg.theta = w;
+	windMsg.theta = w;*/
 }
 
 void Controller::sail(const std_msgs::Float32::ConstPtr& msg){

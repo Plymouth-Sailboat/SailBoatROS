@@ -55,6 +55,7 @@ namespace Sailboat{
 			ros::Publisher odomMsg;
 			ros::Publisher pubCmd;
 			ros::Publisher pubMsg;
+			ros::Publisher pubLog;
 
 			std::string name;
 
@@ -69,7 +70,8 @@ namespace Sailboat{
 			void publishCMD(geometry_msgs::Twist cmd);
 			void publishMSG(std_msgs::String msg);
 			void publishMSG(std::string msg);
-
+			void publishLOG(std_msgs::String msg);
+			void publishLOG(std::string msg);
 			template <class T>
 				T getParam(std::string name){T tmp; if(ros::param::get(name,tmp)) return tmp; return T();}
 		private:

@@ -63,7 +63,7 @@ geometry_msgs::Twist LineFollowing::control(){
 		cmd.angular.x = M_PI/4.0*((sin(heading.z-thetabar)>=0)?1:-1);
 	cmd.angular.y = M_PI/2.0*(cos(windNorth-thetabar)+1)/2.0;
 
-	publishMSG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y));
+	publishLOG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y));
 	
 	return cmd;
 }

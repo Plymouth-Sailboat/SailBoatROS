@@ -61,7 +61,7 @@ geometry_msgs::Twist WaypointFollower::control(){
 	std::string message = "PDistance to next waypoint : " + std::to_string(dist) + "\nTries to go to  " + std::to_string(waypoints[currentWaypoint].x) + " " + std::to_string(waypoints[currentWaypoint].y) + "\nWith heading : " + std::to_string(std::fmod(heading*180/M_PI,360.0)) + "\n";
 	if(isTacking)
 		message += "TACKING\n";
-	publishMSG(message);
+	publishLOG(message);
 	
 	cmd.angular.z = heading;
 	return cmd;
