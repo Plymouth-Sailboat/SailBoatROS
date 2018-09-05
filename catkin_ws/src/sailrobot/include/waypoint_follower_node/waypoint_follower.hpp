@@ -1,3 +1,14 @@
+/**
+ * @file waypoint_follower.hpp
+ * @class WaypointFollower
+ * @brief Waypoint Follower Class
+ *
+ * This is the implementation for a waypoint follower for an autonomous sailboat
+ *
+ * @author Ulysse Vautier
+ * @version 
+ * @date 2018-09-05
+ */
 #ifndef WAYPOINTFOLLOWER_HPP
 #define WAYPOINTFOLLOWER_HPP
 

@@ -1,3 +1,15 @@
+/**
+ * @file controller.hpp
+ * @class Controller
+ * @brief Sailboat Controller Class (C++)
+ *
+ * This class is the base class for any controller of the sailboat. It subscribes to the necessary sensors and publishes the command autonomatically.
+ * The User only need to derive from this class and implement the setup(ros::NodeHandle* n) and th econtrol() methods.
+ *
+ * @author Ulysse Vautier
+ * @date 2018-09-05
+ */
+
 #ifndef CONTROLLER_HPP
 #define CONTROLLER_HPP
 
@@ -31,6 +43,11 @@ namespace Sailboat{
 			virtual geometry_msgs::Twist control() = 0;
 			virtual bool loopUnpublished(){return false;}
 
+			/**
+			 * @name Virtual Callbacks for subscribers
+			 *
+			 * @{
+			 */
 			virtual void gps(const gps_common::GPSFix::ConstPtr& msg);
 			virtual void imu(const sensor_msgs::Imu::ConstPtr& msg);
 			virtual void wind(const geometry_msgs::Pose2D::ConstPtr& msg);
@@ -38,6 +55,7 @@ namespace Sailboat{
 			virtual void rudder(const std_msgs::Float32::ConstPtr& msg);
 			virtual void rudder2(const std_msgs::Float32::ConstPtr& msg);
 			virtual void vel(const geometry_msgs::Twist::ConstPtr& msg);
+			/** @} */
 		protected:
 			ros::NodeHandle* n;
 			ros::Rate* loop_rate;
