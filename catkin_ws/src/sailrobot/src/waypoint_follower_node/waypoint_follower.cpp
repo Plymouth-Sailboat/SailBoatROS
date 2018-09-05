@@ -1,3 +1,9 @@
+/**
+ * @file waypoint_follower.cpp
+ * @brief Controller Class Implementation
+ * @author Ulysse Vautier
+ * @date 2018-09-05
+ */
 #include "waypoint_follower_node/waypoint_follower.hpp"
 #include "math.h"
 #include <ros/package.h>
@@ -26,14 +32,12 @@ void WaypointFollower::setup(ros::NodeHandle* n){
 geometry_msgs::Twist WaypointFollower::control(){
 	geometry_msgs::Twist cmd;
 
+	/// Getting the necessary data for the control
 	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
 	float wind = windMsg.theta;
 	float boatHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
 
-	if(tackingStart == NULL){
-		tackingStart = new vec2(current.x,current.y);
-	}
-
+	/// Calculate the distance to the next waypoint, if close, change to the other waypoint
 	float dist = Utility::GPSDist(current, waypoints[currentWaypoint]);
 	if(dist < 5){
 		publishMSG("PArrived at waypoint " + std::to_string(currentWaypoint));
@@ -42,8 +46,12 @@ geometry_msgs::Twist WaypointFollower::control(){
 	}
 	currentWaypoint %= nbWaypoints;
 	
+	/// Check the tacking and change the heading accordingly
+	if(tackingStart == NULL){
+		tackingStart = new vec2(current.x,current.y);
+	}
+
 	float heading = Utility::GPSBearing(current, waypoints[currentWaypoint]);
-	//Tacking CHECK
 	float windNorth = wind + boatHeading;
 	bool isTacking = false;
 	if(cos(windNorth - heading) + cos(closeHauled) < 0){
@@ -52,17 +60,17 @@ geometry_msgs::Twist WaypointFollower::control(){
 		float e = line.x*currentLine.y - line.y*currentLine.x;
 		if(abs(e) > rmax/2.0)
 			q = sign(e);
-		heading = windNorth + M_PI - q*closeHauled;
-		
+		heading = windNorth + M_PI - q*closeHauled;	
 		isTacking = true;
 	}
 
-
+	/// Log message
 	std::string message = "PDistance to next waypoint : " + std::to_string(dist) + "\nTries to go to  " + std::to_string(waypoints[currentWaypoint].x) + " " + std::to_string(waypoints[currentWaypoint].y) + "\nWith heading : " + std::to_string(std::fmod(heading*180/M_PI,360.0)) + "\n";
 	if(isTacking)
 		message += "TACKING\n";
 	publishLOG(message);
 	
+	/// Send a command of heading to let the Arduino take care of the sail and rudder angle
 	cmd.angular.z = heading;
 	return cmd;
 }
