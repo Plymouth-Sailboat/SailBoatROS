@@ -5,8 +5,8 @@ from numpy import mean,pi,cos,sin,sqrt,tan,arctan,arctan2,tanh,arcsin,\
                     exp,dot,array,log,eye, zeros, ones, inf,size,\
                     arange,reshape,concatenate,vstack,hstack,diag,median,sign,sum,meshgrid,cross,linspace,append,round
 import numpy as np
-import Interval as py
-import utilities
+from python_class import Interval as py
+from python_class import utilities
 
 def Fct_update_rudder(List_dist,thetab,theta,phi,S2):
 

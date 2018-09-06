@@ -2,16 +2,16 @@
 # license removed for brevity
 
 import sys
-from controller import Controller
-from controller import MODE
+from python_class.controller import Controller
+from python_class.controller import MODE
+from python_class import utilities
+from python_class.parameters import *
 import rospy
-import utilities
 import numpy as np
 from math import pi
 import math
 from geometry_msgs.msg import Twist
 import rospkg
-from parameters import *
 
 
 # POUR COORDONNEES GPS
@@ -169,7 +169,7 @@ class Running(Controller):
                         print('desired deltar = ', deltarb*180/pi)
                         print('evaluate psi_tw = ', psi_tw*180/pi)
                         print(' ')
-		self.publishMSG('Pdist '+ (str)(dst) + '\n thetaobj ' + (str)(thetab*180/pi) + '\n Xobj ' + (str)(self.Xobj) + ' Yobj ' + (str)(self.Yobj))
+		self.publishLOG('Pdist '+ (str)(dst) + '\n thetaobj ' + (str)(thetab*180/pi) + '\n Xobj ' + (str)(self.Xobj) + ' Yobj ' + (str)(self.Yobj))
                 return command
 
 
