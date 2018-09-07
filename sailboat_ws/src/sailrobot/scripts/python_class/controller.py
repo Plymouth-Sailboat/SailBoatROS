@@ -106,7 +106,7 @@ class Controller:
         	self.pubMsg = rospy.Publisher('/sailboat/sailboat_msg', String, queue_size=10)  
         	self.pubLog = rospy.Publisher('/sailboat/pc_log', String, queue_size=10)  
         	self.odomMsg = rospy.Publisher('/sailboat/odom', Odometry, queue_size=100)
-        	self.gpsSub = rospy.Subscriber('/sailboat/GPS', GPSFix, self.gps)
+        	self.gpsSub = rospy.Subscriber('/sailboat/GPS/fix', GPSFix, self.gps)
         	self.imuSub = rospy.Subscriber('/sailboat/IMU', Imu, self.imu)
         	self.windSub = rospy.Subscriber('/sailboat/wind', Pose2D, self.wind)
 		self.sailSub = rospy.Subscriber('/sailboat/sail', Float32, self.sail)

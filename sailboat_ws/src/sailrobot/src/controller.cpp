@@ -16,7 +16,7 @@ void Controller::init(int argc, char **argv){
 
 	timer = n->createTimer(ros::Duration(30.0), &Controller::wakeup, this);
 
-	gpsSub = n->subscribe("/sailboat/GPS", 100, &Controller::gpsCallback, this);
+	gpsSub = n->subscribe("/sailboat/GPS/fix", 100, &Controller::gpsCallback, this);
 	imuSub = n->subscribe("/sailboat/IMU", 100, &Controller::imuCallback, this);
 	windSub = n->subscribe("/sailboat/wind", 100, &Controller::windCallback, this);
 	sailSub = n->subscribe("/sailboat/sail", 100, &Controller::sailCallback, this);
