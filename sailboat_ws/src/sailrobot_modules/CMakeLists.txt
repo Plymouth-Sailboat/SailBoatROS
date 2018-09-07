@@ -143,6 +143,7 @@ include_directories(
 add_executable(ais_parser src/ais_parser_node/Parser.cpp include/ais_parser_node/Parser.h include/ais_parser_node/NMEA.h src/ais_parser_node/NMEA.cpp include/ais_parser_node/check.h src/ais_parser_node/check.cpp)
 add_executable(rtl_sdr_connect src/rtl_sdr_connect_node/rtl_sdr_connect.cpp include/rtl_sdr_connect_node/rtl_sdr_connect.h )
 add_executable(ais_decode src/ais_decode_node/ais_decode.cpp src/ais_decode_node/Message.cpp include/ais_decode_node/Message.h)
+add_executable(gpsfix_tcp src/gpsfix_tcp/gpsfix_tcp.cpp src/gpsfix_tcp/TCPServer.cpp include/gpsfix_tcp/TCPServer.h)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -164,7 +165,9 @@ target_link_libraries(ais_parser
 target_link_libraries(ais_decode
     ${catkin_LIBRARIES}
 )
-
+target_link_libraries(gpsfix_tcp
+    ${catkin_LIBRARIES}
+)
 #############
 ## Install ##
 #############
