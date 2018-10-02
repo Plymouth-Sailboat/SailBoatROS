@@ -2,7 +2,6 @@
 ![C++ Wrapper](https://img.shields.io/badge/C%2B%2B-100%25-green.svg)
 ![Python Wrapper](https://img.shields.io/badge/Python-100%25-green.svg)
 [![Current version of release](https://img.shields.io/github/release/Plymouth-Sailboat/SailBoatROS/all.svg)](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest)
-[![Build Status](https://travis-ci.org/Plymouth-Sailboat/SailBoatROS.svg?branch=master)](https://travis-ci.org/Plymouth-Sailboat/SailBoatROS)
 
 # SailBoatROS
 
@@ -17,8 +16,6 @@ These instructions will get you a copy of the project up and running on your loc
 
 You can either install the image from the [latest release](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) directly to your SD card or you can follow the guide here or [on the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Preparing-the-Raspberry-Pi) to install from scratch.
 
-
-
 ### Prerequisites
 
 - [ROS Kinetic](http://wiki.ros.org/kinetic)
@@ -26,50 +23,20 @@ You can either install the image from the [latest release](https://github.com/Pl
 - [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node)
 - [Rosserial-Arduino Node](http://wiki.ros.org/rosserial_arduino)
 
-
-### Dependencies
-
-We use standard messages as much as possible and try to have as less dependencies as possible.
-
-This repo expects to have a working ROS Kinetic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation). If you are on a raspberry pi 3 we suggest installing the [Ubiquity Robotics image](https://downloads.ubiquityrobotics.com/) which already has ROS Kinetic installed.
-
-#### ROS Dependencies
-We use the message [gps_common/GPSFix](http://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html) for our GPS, which you will need to install the dependency.
-To communicate with the Arduino we use the `rosserial-arduino` [node](http://wiki.ros.org/rosserial_arduino). To install them, execute
-```
-sudo apt-get install ros-kinetic-gps-common
-sudo apt-get install ros-kinetic-rosserial-arduino
-sudo apt-get install ros-kinetic-rosserial
-```
-
-Because we use the raspberry pi camera, you will need [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node). There are multiple raspicam_node out there, either version should work. While not all our controls use the camera, you will need this for the complete sailboat to work.
-
-Those are the ROS dependencies used :
-
-```
-rospy roscpp std_msgs gps_common
-```
-#### Python Dependencies
-For python controllers, the only dependencies used is [NumPy](http://www.numpy.org/), so you will need to add it to python dependencies. Don't forget to upgrade pip first :
-```
-pip install --upgrade pip
-pip install numpy
-```
-
 ### Installing
 
 Create your catkin workspace if you haven't already :
 
 ```
 mkdir -p catkin_ws/src
-cd catkin_ws/src
+cd catkin_ws
+catkin_make
 ```
 
 Clone the project and catkin_make in the workspace. Source the catkin workspace to have access to the nodes. It is considered here that you are already in the catkin workspace (`cd catkin_ws/src`).
 
 ```
-git clone https://github.com/Plymouth-Sailboat/SailBoatROS.git .
-cd ../
+git clone https://github.com/Plymouth-Sailboat/SailBoatROS.git
 catkin_make
 source devel/setup.bash
 ```
@@ -98,6 +65,35 @@ or if you know the port on which the arduino is connected :
 
 ```
 roslaunch sailrobot start.launch usb_port:=<port>
+```
+
+### Dependencies
+
+We use standard messages as much as possible and try to have as less dependencies as possible.
+
+This repo expects to have a working ROS Kinetic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation). If you are on a raspberry pi 3 we suggest installing the [Ubiquity Robotics image](https://downloads.ubiquityrobotics.com/) which already has ROS Kinetic installed.
+
+#### ROS Dependencies
+We use the message [gps_common/GPSFix](http://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html) for our GPS, which you will need to install the dependency.
+To communicate with the Arduino we use the `rosserial-arduino` [node](http://wiki.ros.org/rosserial_arduino). To install them, execute
+```
+sudo apt-get install ros-kinetic-gps-common
+sudo apt-get install ros-kinetic-rosserial-arduino
+sudo apt-get install ros-kinetic-rosserial
+```
+
+Because we use the raspberry pi camera, you will need [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node). There are multiple raspicam_node out there, either version should work. While not all our controls use the camera, you will need this for the complete sailboat to work.
+
+Those are the ROS dependencies used :
+
+```
+rospy roscpp std_msgs gps_common
+```
+#### Python Dependencies
+For python controllers, the only dependencies used is [NumPy](http://www.numpy.org/), so you will need to add it to python dependencies. Don't forget to upgrade pip first :
+```
+pip install --upgrade pip
+pip install numpy
 ```
 
 ## Authors
