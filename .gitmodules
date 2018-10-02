@@ -1,3 +1,0 @@
-[submodule "sailboat_ws/src/sailrobot_modules/bin/rtl-ais"]
-	path = sailboat_ws/src/sailrobot_modules/bin/rtl-ais
-	url = https://github.com/dgiardini/rtl-ais.git
