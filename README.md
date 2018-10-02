@@ -28,15 +28,15 @@ You can either install the image from the [latest release](https://github.com/Pl
 Create your catkin workspace if you haven't already :
 
 ```
-mkdir catkin_ws
-cd catkin_ws
-catkin_make
+mkdir -p catkin_ws/src
+cd catkin_ws/src
 ```
 
-Clone the project and catkin_make in the workspace. Source the catkin workspace to have access to the nodes. It is considered here that you are already in the catkin workspace.
+Clone the project and catkin_make in the workspace. Source the catkin workspace to have access to the nodes. It is considered here that you are already in the catkin workspace (`cd catkin_ws/src`).
 
 ```
-git clone https://github.com/Plymouth-Sailboat/SailBoatROS.git
+git clone https://github.com/Plymouth-Sailboat/SailBoatROS.git .
+cd ../
 catkin_make
 source devel/setup.bash
 ```
