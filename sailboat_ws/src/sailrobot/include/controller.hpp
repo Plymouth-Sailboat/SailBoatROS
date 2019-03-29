@@ -29,7 +29,7 @@
 namespace Sailboat{
 	class Controller{
 		public:
-			enum MODE{STANDBY = 0, RUDDER_SAIL = 1, RETURN_HOME = 2, HEADING = 3, RC = 4, SAIL_CAP = 5, RUDDER = 6, WAYPOINTS = 7};
+			enum MODE{STANDBY = 0, RUDDER_SAIL = 1, RETURN_HOME = 2, HEADING = 3, RC = 4, SAIL_CAP = 5, RUDDER = 6};
 
 			Controller(std::string name, int looprate, int controller);
 			~Controller(){}

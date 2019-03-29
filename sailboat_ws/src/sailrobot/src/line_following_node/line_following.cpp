@@ -36,7 +36,6 @@ geometry_msgs::Twist LineFollowing::control(){
 	float windNorth = wind + heading.z;
 	
 	int q = 0;
-	float r = 5.0;
 	float psi = M_PI/4.0;
 	float ksi = M_PI/3.0;
 	vec2 ba = waypoints[1]-waypoints[0];
@@ -50,18 +49,17 @@ geometry_msgs::Twist LineFollowing::control(){
 	float phi = atan2(ba.y,ba.x);
 	float theta = phi - 2*psi/M_PI*atan(e/r);
 	
-	float thetabar = 0;
+	float thetabar = theta;
 	
-	if(cos(windNorth-theta)+cos(ksi) < 0 || (abs(e) < r && (cos(windNorth-theta)+cos(ksi) < 0)))
+	if(cos(windNorth-theta)+cos(ksi) < 0 || (abs(e) < r && (cos(windNorth-phi)+cos(ksi) < 0)))
 		thetabar = M_PI + windNorth - q*ksi;
-	else
-		thetabar = theta;
 	
 	if(cos(heading.z - thetabar) >= 0)
 		cmd.angular.x = M_PI/4.0*sin(heading.z-thetabar);
 	else
 		cmd.angular.x = M_PI/4.0*((sin(heading.z-thetabar)>=0)?1:-1);
-	cmd.angular.y = M_PI/2.0*(cos(windNorth-thetabar)+1)/2.0;
+
+	cmd.angular.y = M_PI/3.0*(cos(windNorth-thetabar)+1)/2.0;
 
 	publishLOG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y));
 	

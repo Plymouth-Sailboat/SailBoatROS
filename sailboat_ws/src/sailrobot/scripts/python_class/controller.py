@@ -14,7 +14,7 @@ from enum import Enum
 import time
 
 class MODE:
-	STANDBY, RUDDER_SAIL, RETURN_HOME, HEADING, RC, SAIL_CAP, RUDDER, WAYPOINTS = range(8)
+	STANDBY, RUDDER_SAIL, RETURN_HOME, HEADING, RC, SAIL_CAP, RUDDER = range(7)
 
 class Controller:
 	name = ''
