@@ -25,11 +25,18 @@ You can either install the image from the [latest release](https://github.com/Pl
 
 ### Installing
 
-Clone the project and catkin_make in the workspace. Source the catkin workspace to have access to the nodes.
+Create your catkin workspace if you haven't already :
+
+```
+mkdir -p catkin_ws/src
+cd catkin_ws
+catkin_make
+```
+
+Clone the project and catkin_make in the workspace. Source the catkin workspace to have access to the nodes. It is considered here that you are already in the catkin workspace (`cd catkin_ws/src`).
 
 ```
 git clone https://github.com/Plymouth-Sailboat/SailBoatROS.git
-cd SailBoatROS/catkin_ws
 catkin_make
 source devel/setup.bash
 ```
@@ -68,7 +75,7 @@ This repo expects to have a working ROS Kinetic machine. If not, install it from
 
 #### ROS Dependencies
 We use the message [gps_common/GPSFix](http://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html) for our GPS, which you will need to install the dependency.
-To communicate with the Arduino we use the `rosserial-arduino` [node](http://wiki.ros.org/rosserial_arduino). To install them, execute 
+To communicate with the Arduino we use the `rosserial-arduino` [node](http://wiki.ros.org/rosserial_arduino). To install them, execute
 ```
 sudo apt-get install ros-kinetic-gps-common
 sudo apt-get install ros-kinetic-rosserial-arduino
