@@ -35,8 +35,14 @@ catkin_make
 
 Clone the project and catkin_make in the workspace. Source the catkin workspace to have access to the nodes. It is considered here that you are already in the catkin workspace (`cd catkin_ws/src`).
 
+Since the folders contain different nodes (and not a catkin workspace), the project needs to be cloned inside the catkin src folder. Cloning a project in an unempty folder is not allowed. As such we need to tell github that the src folder is a git folder.
+
 ```
-git clone https://github.com/Plymouth-Sailboat/SailBoatROS.git
+git init
+git add remote https://github.com/Plymouth-Sailboat/SailBoatROS.git
+git fetch
+gti checkout master
+git pull
 catkin_make
 source devel/setup.bash
 ```
