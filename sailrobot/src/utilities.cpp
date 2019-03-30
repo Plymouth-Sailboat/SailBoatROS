@@ -137,3 +137,22 @@ vec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
 	return coordinates;
 }
 
+float Utility::TackingStrategy(float distanceToLine, float lineBearing, float windNorth, float heading, float corridor, float psi, float ksi){
+	int q = 1;
+	if(abs(distanceToLine) > corridor/2)
+		q = distanceToLine>=0?1:-1;
+
+	if(cos(windNorth-heading)+cos(ksi) < 0 || (abs(distanceToLine) < corridor && (cos(windNorth-lineBearing)+cos(ksi) < 0)))
+		heading = M_PI + windNorth - q*ksi;
+	return heading;
+}
+
+glm::vec2 Utility::StandardCommand(glm::vec3 currentHeading, float heading, float windNorth, float max_sail, float max_rudder){
+	glm::vec2 rudsail;	
+	if(cos(currentHeading.z - heading) >= 0)
+		rudsail.x = max_rudder*sin(currentHeading.z-heading);
+	else
+		rudsail.x = max_rudder*((sin(currentHeading.z-heading)>=0)?1:-1);
+
+	rudsail.y = max_sail*(cos(windNorth-heading)+1)/2.0;
+}

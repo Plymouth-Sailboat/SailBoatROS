@@ -7,14 +7,17 @@
 namespace Sailboat{
     class LineFollowing : public Controller{
 	public:
-        	LineFollowing(std::string name) : Controller(name,10, MODE::RUDDER), r(10.0){}
+        	LineFollowing(std::string name) : Controller(name,10, MODE::RUDDER), r(10.0), currentWaypoint(0), nbWaypoints(0){}
         	~LineFollowing(){}
 		void setup(ros::NodeHandle* n);
 		virtual geometry_msgs::Twist control();
 	private:
+		int currentWaypoint;
+		int nbWaypoints;
+
 		glm::vec2* waypoints;
 		float r;
-	};
+    };
 }
 
 #endif

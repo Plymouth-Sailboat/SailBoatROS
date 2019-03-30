@@ -1,5 +1,5 @@
 #include "line_following_node/line_following.hpp"
-#include "math.h"
+#include <math.h>
 #include <ros/package.h>
 #include <utilities.hpp>
 #include <glm/glm.hpp>
@@ -10,8 +10,6 @@ using namespace Sailboat;
 using namespace glm;
 
 void LineFollowing::setup(ros::NodeHandle* n){
-	int nbWaypoints = 0;
-
 	std::string waypointPath = "data/line_following.txt";
 	if(n->hasParam("waypoints"))
 		n->getParam("waypoints",waypointPath);
@@ -29,39 +27,44 @@ void LineFollowing::setup(ros::NodeHandle* n){
 
 geometry_msgs::Twist LineFollowing::control(){
 	geometry_msgs::Twist cmd;
-	
+	//Retrieve data
 	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
 	float wind = windMsg.theta;
 	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
 	float windNorth = wind + heading.z;
 	
-	int q = 0;
+	//Parameters
 	float psi = M_PI/4.0;
 	float ksi = M_PI/3.0;
-	vec2 ba = waypoints[1]-waypoints[0];
-	float normba = length2(ba);
 	
+	/// Calculate the distance to the next waypoint, if close, change to the next waypoint
+	float dist = Utility::GPSDist(current, waypoints[currentWaypoint]);
+	if(dist < 5){
+		publishMSG("PArrived at waypoint " + std::to_string(currentWaypoint));
+		currentWaypoint++;
+	}
+	currentWaypoint %= nbWaypoints;
+
+	vec2 ba = waypoints[(currentWaypoint+1)%nbWaypoints]-waypoints[currentWaypoint];
+	float normba = length2(ba);
 	vec2 bau = ba/normba;
+
 	vec2 ca = current-waypoints[0];
 	float e = bau.x*ca.y - bau.y*ca.x;
-	if(abs(e) > r/2)
-		q = e>=0?1:-1;
+	
 	float phi = atan2(ba.y,ba.x);
-	float theta = phi - 2*psi/M_PI*atan(e/r);
-	
-	float thetabar = theta;
-	
-	if(cos(windNorth-theta)+cos(ksi) < 0 || (abs(e) < r && (cos(windNorth-phi)+cos(ksi) < 0)))
-		thetabar = M_PI + windNorth - q*ksi;
-	
-	if(cos(heading.z - thetabar) >= 0)
-		cmd.angular.x = M_PI/4.0*sin(heading.z-thetabar);
-	else
-		cmd.angular.x = M_PI/4.0*((sin(heading.z-thetabar)>=0)?1:-1);
+	float thetabar = phi - 2*psi/M_PI*atan(e/r);
 
-	cmd.angular.y = M_PI/3.0*(cos(windNorth-thetabar)+1)/2.0;
+	//Check For Tacking	
+	thetabar = Utility::TackingStrategy(e,phi,windNorth,thetabar,r,psi,ksi);
 
+	//Standard Command for rudder and sail
+	vec2 cmdv = Utility::StandardCommand(heading,thetabar, windNorth, M_PI/3.0);
+	cmd.angular.x = cmdv.x;
+	cmd.angular.y = cmdv.y;
+
+	//LOG
 	publishLOG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y));
-	
+
 	return cmd;
 }

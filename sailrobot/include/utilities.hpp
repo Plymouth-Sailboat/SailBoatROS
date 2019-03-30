@@ -51,5 +51,18 @@ class Utility{
 
 		/// Read a GPS file. The GPS file must have each GPS coordinates (latitude, longitude) separated by an end line.
 		static glm::vec2* ReadGPSCoordinates(std::string filepath, int& size);
+
+
+		/** Tacking Strategy
+		 * @{
+		 */
+		static float TackingStrategy(float distanceToLine, float lineBearing, float windNorth, float heading, float corridor, float psi, float ksi);
+		/** @} */
+
+		/** Standard rudder and sail control from Heading
+		 * @{
+		 */
+		static glm::vec2 StandardCommand(glm::vec3 currentHeading, float heading, float windNorth, float max_sail = M_PI/2.0, float max_rudder = M_PI/4.0);
+		/** @} */
 };
 #endif
