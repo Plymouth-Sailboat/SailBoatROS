@@ -40,8 +40,19 @@ class Utility{
 		static float GPSBearing(glm::vec2 point1, glm::vec2 point2);
 		/** @} */
 
-		static float GPStoCartesian(float lat, float gpslong);
-		static float CartesiantoGPS(float x, float y);
+		/** Transforms GPS coordinates to Cartesian coordinates
+		 * @{
+		 */
+		static glm::vec3 GPSToCartesian(float lat, float gpslong);
+		/** @} */
+		
+		/** Transforms GPS coordinates to Cartesian coordinates
+		 * @{
+		 */
+		static glm::vec3 GPSToCartesian(glm::vec2 gpsposition);
+		/** @} */
+		
+		static float CartesianToGPS(float x, float y);
 
 		/** Conversion between Quaternion to Euler and Euler to Quaternion
 		 * @{

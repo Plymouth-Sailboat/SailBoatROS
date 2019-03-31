@@ -80,11 +80,17 @@ float Utility::GPSBearing(vec2 point1, vec2 point2){
 	return -atan2(y,x);
 }
 
-float Utility::GPStoCartesian(float lat, float gpslong){
-
+glm::vec3 Utility::GPSToCartesian(float lat, float gpslong){
+	return glm::vec3(6371000*cos(lat)*cos(gpslong),
+			6371000*cos(lat)*sin(gpslong),
+			6371000*sin(lat));
 }
 
-float Utility::CartesiantoGPS(float x, float y){
+glm::vec3 Utility::GPSToCartesian(glm::vec2 gpsposition){
+	return GPSToCartesian((float)gpsposition.x,(float)gpsposition.y);
+}
+
+float Utility::CartesianToGPS(float x, float y){
 
 }
 
@@ -158,7 +164,8 @@ std::map<std::string,std::string> Utility::ReadConfig(std::string filepath){
 		{
 			std::string value;
 			if( std::getline(is_line, value) ){ 
-				res[key]=value;
+				std::string val = value.substr(0,value.find(" "));
+				res[key]=val.substr(0,val.find("/"));
 			}
 		}
 	}
