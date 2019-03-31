@@ -4,6 +4,8 @@ import numpy as np
 import os
 import rospkg
 
+config = {}
+
 def GPSDist(lat1, lon1, lat2, lon2):
         R = 6371000
         degtorad = math.pi/180.0
@@ -80,14 +82,14 @@ def readGPSCoordinates(filepath):
                 with open(filepath, 'r') as file:
                         try:
                                 res = []
-                                noproblem = True
+                                problem = False
                                 for line in file:
                                         coords = line.split(",")
                                         try:
                                                 res.append([float(coords[0]),float(coords[1])])
                                         except:
-                                                noproblem = False
-                                if not noproblem:
+                                                problem = True
+                                if problem:
                                         print("Reading GPS : Wrong File Format for some lines")
                                 return res
                         except:
@@ -95,3 +97,54 @@ def readGPSCoordinates(filepath):
         else:
                 print("Reading GPS : File does not exist")
         return []
+
+def ReadConfig(filepath):
+    rospack = rospkg.RosPack()
+    rospath = rospack.get_path('sailrobot')
+    if filepath[0] is not '/':
+        filepath = rospath + "/" + filepath
+    if os.path.exists(filepath):
+        with open(filepath, 'r') as file:
+            try:
+                res = {}
+                problem = False
+                for line in file:
+                    keyval = line.split("=")
+                    try:
+                        res[keyval[0]]=keyval[1];
+                    except:
+                        problem = True
+                if problem:
+                    print("Reading Config : Wrong File Format for some lines")
+                return res
+            except:
+                print("Reading Config : File not opened")
+    else:
+        print("Reading Config : File does not exist")
+    return []
+
+def RelativeToTrueWind(v, heading, windDirection, windAcc):
+    if(int(config["true_wind"])):
+        dx = v[0]*math.cos(heading)-v[1]*math.sin(heading)
+        dy = v[0]*math.sin(heading)+v[1]*math.cos(heading)
+        return math.atan2(dx,dy)
+    else
+        return heading+windDirection
+
+def TackingStrategy(distanceToLine, lineBearing, windNorth, heading, corridor, psi, ksi){
+    q = 1;
+    if(math.abs(distanceToLine) > corridor/2)
+        q = 1 if distanceToLine >= 0 else -1
+
+    if(math.cos(windNorth-heading)+math.cos(ksi) < 0 || (math.abs(distanceToLine) < corridor && (math.cos(windNorth-lineBearing)+math.cos(ksi) < 0)))
+        heading = math.pi + windNorth - q*ksi;
+    return heading
+
+def StandardCommand(currentHeading, headaing, windNorth, max_sail, max_rudder):
+    if(math.cos(currentHeading-heading)>=0):
+        rudder=max_rudder*math.sin(currentHeading-heading)
+    else 
+        rudder=max_rudder*math.copysign(1,sin(currentHeading-heading))
+
+    sail = math.abs(max_sail*(math.cos(windNorth-heading)+1)/2.0)
+    return rudder,sail

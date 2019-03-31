@@ -10,6 +10,8 @@
 
 using namespace glm;
 
+Utility* Utility::instance = nullptr;
+
 float Utility::GPSDist(float lat1, float lon1, float lat2, float lon2){
 	float R = 6371000;
 	float ksi1 = lat1*M_PI/180.0;
@@ -137,6 +139,44 @@ vec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
 	return coordinates;
 }
 
+std::map<std::string,std::string> ReadConfig(std::string filepath){
+	std::map<std::string,std::string> res;
+	
+	std::string path = ros::package::getPath("sailrobot");
+	if(filepath[0] != '/')
+		filepath = path + "/" + filepath;
+	std::fstream file(filepath);
+	if(!file){
+		std::cerr << "Config Reading : Couldn't open file" << std::endl;
+		return res;
+	}
+	std::string line;
+	while (std::getline(file, line)) {
+		std::istringstream is_line(line);
+		std::string key;
+		if( std::getline(is_line, key, '=') )
+		{
+			std::string value;
+			if( std::getline(is_line, value) ) 
+				res[key]=value;
+		}
+	}
+	file.close();
+	return res;
+
+}
+
+float RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAcc){
+	if(std::stoi(Utility::Instance().config["true_wind"])){
+		float dx = v.x*cos(heading)-v.y*sin(heading);
+		float dy = v.x*sin(heading)+v.y*cos(heading);
+		return atan2(dy,dx);
+	}else
+		return heading+windDirection;
+
+}
+
+
 float Utility::TackingStrategy(float distanceToLine, float lineBearing, float windNorth, float heading, float corridor, float psi, float ksi){
 	int q = 1;
 	if(abs(distanceToLine) > corridor/2)
@@ -155,4 +195,7 @@ glm::vec2 Utility::StandardCommand(glm::vec3 currentHeading, float heading, floa
 		rudsail.x = max_rudder*((sin(currentHeading.z-heading)>=0)?1:-1);
 
 	rudsail.y = max_sail*(cos(windNorth-heading)+1)/2.0;
+	return rudsail;
 }
+
+
