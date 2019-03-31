@@ -1,4 +1,4 @@
-#include <utilities.hpp>
+#include "utilities.hpp"
 #include <math.h>
 #include <iostream>
 #include <fstream>
@@ -139,7 +139,7 @@ vec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
 	return coordinates;
 }
 
-std::map<std::string,std::string> ReadConfig(std::string filepath){
+std::map<std::string,std::string> Utility::ReadConfig(std::string filepath){
 	std::map<std::string,std::string> res;
 	
 	std::string path = ros::package::getPath("sailrobot");
@@ -157,8 +157,9 @@ std::map<std::string,std::string> ReadConfig(std::string filepath){
 		if( std::getline(is_line, key, '=') )
 		{
 			std::string value;
-			if( std::getline(is_line, value) ) 
+			if( std::getline(is_line, value) ){ 
 				res[key]=value;
+			}
 		}
 	}
 	file.close();
@@ -166,7 +167,7 @@ std::map<std::string,std::string> ReadConfig(std::string filepath){
 
 }
 
-float RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAcc){
+float Utility::RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAcc){
 	if(std::stoi(Utility::Instance().config["true_wind"])){
 		float dx = v.x*cos(heading)-v.y*sin(heading);
 		float dy = v.x*sin(heading)+v.y*cos(heading);

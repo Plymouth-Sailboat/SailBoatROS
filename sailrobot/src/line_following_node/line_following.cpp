@@ -14,8 +14,8 @@ void LineFollowing::setup(ros::NodeHandle* n){
 	if(n->hasParam("waypoints"))
 		n->getParam("waypoints",waypointPath);
 
-	if(waypoints == NULL){
 	waypoints = Utility::ReadGPSCoordinates(waypointPath, nbWaypoints);
+	if(waypoints == NULL){
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);
 	}
