@@ -45,8 +45,8 @@ geometry_msgs::Twist LineFollowing::control(){
 	}
 	currentWaypoint %= nbWaypoints;
 
-	vec3 a = Utility::GPSToCartesian(waypoints[(currentWaypoint+1)%nbWaypoints]);
-	vec3 b = Utility::GPSToCartesian(waypoints[currentWaypoint]);
+	vec3 b = Utility::GPSToCartesian(waypoints[(currentWaypoint+1)%nbWaypoints]);
+	vec3 a = Utility::GPSToCartesian(waypoints[currentWaypoint]);
 
 	glm::vec3 n = glm::cross(a,b)/(glm::length(a)*glm::length(b));
 
