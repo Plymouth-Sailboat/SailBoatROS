@@ -28,11 +28,10 @@ void LineFollowing::setup(ros::NodeHandle* n){
 geometry_msgs::Twist LineFollowing::control(){
 	geometry_msgs::Twist cmd;
 	//Retrieve data
-	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
-	vec3 currentXYZ = Utility::GPSToCartesian(current.x, current.y);
-	float wind = windMsg.theta;
+	vec2 current = vec2(gpsMsg.latitude*M_PI/180.0, gpsMsg.longitude*M_PI/180.0);
+	vec3 currentXYZ = Utility::GPSToCartesian(gpsMsg.latitude, gpsMsg.longitude);
 	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
-	float windNorth = wind + heading.z;
+	float windNorth = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),heading.z,windMsg.theta,windMsg.x);
 	
 	//Parameters
 	float psi = M_PI/4.0;

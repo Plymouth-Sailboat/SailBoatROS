@@ -81,9 +81,11 @@ float Utility::GPSBearing(vec2 point1, vec2 point2){
 }
 
 glm::vec3 Utility::GPSToCartesian(float lat, float gpslong){
-	return glm::vec3(6371000*cos(lat)*cos(gpslong),
-			6371000*cos(lat)*sin(gpslong),
-			6371000*sin(lat));
+	float ksi1 = lat*M_PI/180.0;
+	float lam1 = gpslong*M_PI/180.0;
+	return glm::vec3(6371000*cos(ksi1)*cos(lam1),
+			6371000*cos(ksi1)*sin(lam1),
+			6371000*sin(ksi1));
 }
 
 glm::vec3 Utility::GPSToCartesian(glm::vec2 gpsposition){
