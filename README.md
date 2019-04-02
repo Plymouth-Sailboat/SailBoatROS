@@ -44,6 +44,7 @@ git remote add origin https://github.com/Plymouth-Sailboat/SailBoatROS.git
 git fetch
 git checkout master
 git pull
+cd ../
 catkin_make
 source devel/setup.bash
 ```
