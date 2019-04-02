@@ -42,7 +42,7 @@ Since the folders contain different nodes (and not a catkin workspace), the proj
 git init
 git remote add origin https://github.com/Plymouth-Sailboat/SailBoatROS.git
 git fetch
-gti checkout master
+git checkout master
 git pull
 catkin_make
 source devel/setup.bash
