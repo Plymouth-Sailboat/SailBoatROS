@@ -132,13 +132,12 @@ def RelativeToTrueWind(v, heading, windDirection, windAcc):
         return heading+windDirection
 
 def TackingStrategy(distanceToLine, lineBearing, windNorth, heading, corridor, psi, ksi){
-    q = 1;
     if(math.abs(distanceToLine) > corridor/2)
         q = 1 if distanceToLine >= 0 else -1
 
     if(math.cos(windNorth-heading)+math.cos(ksi) < 0 || (math.abs(distanceToLine) < corridor && (math.cos(windNorth-lineBearing)+math.cos(ksi) < 0)))
         heading = math.pi + windNorth - q*ksi;
-    return heading
+    return heading,q
 
 def StandardCommand(currentHeading, headaing, windNorth, max_sail, max_rudder):
     if(math.cos(currentHeading-heading)>=0):

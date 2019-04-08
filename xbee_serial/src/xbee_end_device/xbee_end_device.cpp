@@ -37,6 +37,11 @@ bool XbeeEndDevice::loopUnpublished(){
 	memcpy(buffer+pos,gps,size);
 	pos += size;
 
+	//size = 0;
+	//unsigned char* stringmsg = ((Xbee_Parser::XString*)parser.getParser(3))->build(logMsg,&size);
+	//memcpy(buffer+pos,stringmsg,size);
+	//pos += size;
+
 	buffer[pos++] = 125;
 	buffer[pos++] = 125;
 
@@ -44,6 +49,7 @@ bool XbeeEndDevice::loopUnpublished(){
 
 	delete quaternion;
 	delete gps;
+	//delete stringmsg;
 
 	if(serialXbee.isOpen()){
 		serialXbee.write(buffer, pos);

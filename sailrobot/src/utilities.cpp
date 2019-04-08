@@ -187,13 +187,12 @@ float Utility::RelativeToTrueWind(glm::vec2 v, float heading, float windDirectio
 }
 
 
-float Utility::TackingStrategy(float distanceToLine, float lineBearing, float windNorth, float heading, float corridor, float psi, float ksi){
-	int q = 1;
+float Utility::TackingStrategy(float distanceToLine, float lineBearing, float windNorth, float heading, float corridor, float psi, float ksi, int *q){
 	if(abs(distanceToLine) > corridor/2)
-		q = distanceToLine>=0?1:-1;
+		(*q) = distanceToLine>=0?1:-1;
 
 	if(cos(windNorth-heading)+cos(ksi) < 0 || (abs(distanceToLine) < corridor && (cos(windNorth-lineBearing)+cos(ksi) < 0)))
-		heading = M_PI + windNorth - q*ksi;
+		heading = M_PI + windNorth - (*q)*ksi;
 	return heading;
 }
 

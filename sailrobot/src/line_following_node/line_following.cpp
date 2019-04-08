@@ -64,7 +64,7 @@ geometry_msgs::Twist LineFollowing::control(){
 	float thetabar = phi - 2*psi/M_PI*atan(e/r);
 
 	//Check For Tacking	
-	thetabar = Utility::TackingStrategy(e,phi,windNorth,thetabar,r,psi,ksi);
+	thetabar = Utility::TackingStrategy(e,phi,windNorth,thetabar,r,psi,ksi,&q);
 
 	//Standard Command for rudder and sail
 	vec2 cmdv = Utility::StandardCommand(heading,thetabar, windNorth, M_PI/3.0);
