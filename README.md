@@ -83,11 +83,19 @@ This repo expects to have a working ROS Kinetic machine. If not, install it from
 
 #### ROS Dependencies
 We use the message [gps_common/GPSFix](http://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html) for our GPS, which you will need to install the dependency.
-To communicate with the Arduino we use the `rosserial-arduino` [node](http://wiki.ros.org/rosserial_arduino). To install them, execute
+To communicate with the Arduino we use the `rosserial-arduino` [node](http://wiki.ros.org/rosserial_arduino).
+Some dependencies are needed for specific modules :
+We use cv_bridge to use openCV with ROS. Related to the node Obstacle_avoidance.
+We use serial to use the XBee module. Related to the package xbee_serial.
+
+To install them, execute
 ```
 sudo apt-get install ros-kinetic-gps-common
 sudo apt-get install ros-kinetic-rosserial-arduino
 sudo apt-get install ros-kinetic-rosserial
+
+sudo apt-get install ros-kinetic-cv-bridge
+sudo apt-get install ros-kinetic-serial
 ```
 
 Because we use the raspberry pi camera, you will need [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node). There are multiple raspicam_node out there, either version should work. While not all our controls use the camera, you will need this for the complete sailboat to work.
