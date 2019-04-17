@@ -38,7 +38,7 @@ geometry_msgs::Twist LineFollowing::control(){
 	float ksi = M_PI/3.0;
 	
 	/// Calculate the distance to the next waypoint, if close, change to the next waypoint
-	float dist = Utility::GPSDist(current, waypoints[currentWaypoint]);
+	float dist = Utility::GPSDist(current, waypoints[(currentWaypoint+1)%nbWaypoints]);
 	if(dist < 5){
 		publishMSG("PArrived at waypoint " + std::to_string(currentWaypoint));
 		currentWaypoint++;
@@ -48,7 +48,7 @@ geometry_msgs::Twist LineFollowing::control(){
 	vec3 b = Utility::GPSToCartesian(waypoints[(currentWaypoint+1)%nbWaypoints]);
 	vec3 a = Utility::GPSToCartesian(waypoints[currentWaypoint]);
 
-	glm::vec3 n = glm::cross(a,b)/(glm::length(a)*glm::length(b));
+	vec3 n = glm::cross(a,b)/(glm::length(a)*glm::length(b));
 
 	float e = glm::dot(currentXYZ,n);
 	mat3x2 M;
