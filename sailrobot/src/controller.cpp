@@ -15,7 +15,6 @@ void Controller::init(int argc, char **argv){
 	n = new ros::NodeHandle("~");
 	loop_rate = new ros::Rate(looprate);
 
-	timer = n->createTimer(ros::Duration(30.0), &Controller::wakeup, this);
 
 	gpsSub = n->subscribe("/sailboat/GPS/fix", 100, &Controller::gpsCallback, this);
 	imuSub = n->subscribe("/sailboat/IMU", 100, &Controller::imuCallback, this);
@@ -38,8 +37,10 @@ void Controller::init(int argc, char **argv){
 
 	usleep(1000*1000);
 
-	if(!loopUnpublished())
+	if(!loopUnpublished()){
+		timer = n->createTimer(ros::Duration(30.0), &Controller::wakeup, this);
 		publishMSG("C" + std::to_string(controller));
+	}
 }
 
 void Controller::wakeup(const ros::TimerEvent& event){
