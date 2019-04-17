@@ -8,4 +8,5 @@
 			<param name="port" value="$(arg usb_port)"/>
 		</node>
 	</group>
+	<node pkg="rostopic" name="logger" type="rostopic" output="screen" arg="echo /sailboat/sailboat_log"/>
 </launch>

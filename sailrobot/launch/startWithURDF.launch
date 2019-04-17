@@ -11,4 +11,5 @@
 		</node>
 	</group>
 	<node name="fix_relay" pkg="topic_tools" type="relay" args="/sailboat/GPS /fix"/>
+	<node name="logger" pkg="rostopic" type="rostopic" output="screen" args="echo /sailboat/sailboat_log"/>
 </launch>
