@@ -1,4 +1,4 @@
-#include "line_following_node/line_following.hpp"
+#include "line_following_long_node/line_following_long.hpp"
 #include <math.h>
 #include <ros/package.h>
 #include <utilities.hpp>
@@ -47,28 +47,22 @@ geometry_msgs::Twist LineFollowing::control(){
 
 	vec3 b = Utility::GPSToCartesian(waypoints[(currentWaypoint+1)%nbWaypoints]);
 	vec3 a = Utility::GPSToCartesian(waypoints[currentWaypoint]);
-	float na = glm::length(a);
-	float nb = glm::length(b);
-
-	float lat1 = waypoints[currentWaypoint].x*M_PI/180.0;
-	float lat2 = waypoints[(currentWaypoint+1)%nbWaypoints].x*M_PI/180.0;
-	float long1 = waypoints[currentWaypoint].y*M_PI/180.0;
-	float long2 = waypoints[(currentWaypoint+1)%nbWaypoints].y*M_PI/180.0;
-
-  	double diflat = lat2-lat1;
-  	double diflong = long2 - long1;
-  	double leng = (diflat*(current.x-lat1)+diflong*(current.y-long1))/(diflat*diflat+diflong*diflong);
-  	vec2 currline(lat1+diflat*leng,long1+diflong*leng);	
-
-	double distToLine = Utility::GPSDist(currline,current);
 
 	vec3 n = glm::cross(a,b)/(glm::length(a)*glm::length(b));
 
-        float e = glm::dot(currentXYZ,n);
-	e = e>0?distToLine:-distToLine;
+	float e = glm::dot(currentXYZ,n);
+	mat3x2 M;
+	M[0][0]=-sin(current.y);
+	M[1][0]=cos(current.y);
+	M[2][0]=0;
+	M[0][1]=-cos(current.y)*sin(current.x);
+	M[1][1]=-sin(current.x)*sin(current.y);
+	M[2][1]=cos(current.x);
 
-	float phi = Utility::GPSBearing(waypoints[currentWaypoint],waypoints[(currentWaypoint+1)%nbWaypoints]);
+	vec2 ba = M*(b-a);
+	float phi = atan2(ba.x,ba.y);
 	float thetabar = phi - 2*psi/M_PI*atan(e/r);
+
 	//Check For Tacking	
 	thetabar = Utility::TackingStrategy(e,phi,windNorth,thetabar,r,psi,ksi,&q);
 
