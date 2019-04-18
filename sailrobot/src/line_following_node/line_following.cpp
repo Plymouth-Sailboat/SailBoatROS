@@ -60,7 +60,7 @@ geometry_msgs::Twist LineFollowing::control(){
 	M[2][1]=cos(current.x);
 
 	vec2 ba = M*(b-a);
-	float phi = atan2(ba.y,ba.x);
+	float phi = atan2(ba.x,ba.y);
 	float thetabar = phi - 2*psi/M_PI*atan(e/r);
 
 	//Check For Tacking	
