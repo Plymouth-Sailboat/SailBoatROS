@@ -9,7 +9,7 @@
 using namespace Sailboat;
 using namespace glm;
 
-void LineFollowing::setup(ros::NodeHandle* n){
+void LineFollowingLong::setup(ros::NodeHandle* n){
 	std::string waypointPath = "data/line_following.txt";
 	if(n->hasParam("waypoints"))
 		n->getParam("waypoints",waypointPath);
@@ -25,7 +25,7 @@ void LineFollowing::setup(ros::NodeHandle* n){
 	}
 }
 
-geometry_msgs::Twist LineFollowing::control(){
+geometry_msgs::Twist LineFollowingLong::control(){
 	geometry_msgs::Twist cmd;
 	//Retrieve data
 	vec2 current = vec2(gpsMsg.latitude*M_PI/180.0, gpsMsg.longitude*M_PI/180.0);

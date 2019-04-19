@@ -2,7 +2,7 @@
 
 int main(int argc, char **argv)
 {
-    Sailboat::LineFollowing controller("LineFollowing");
+    Sailboat::LineFollowingLong controller("LineFollowing");
     controller.init(argc, argv);
 
     std::cout << "Begin Line_Following" << std::endl;

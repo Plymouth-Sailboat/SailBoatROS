@@ -62,7 +62,7 @@ geometry_msgs::Twist LineFollowing::control(){
 
 	double distToLine = Utility::GPSDist(currline,current);
 
-	vec3 n = glm::cross(a,b)/(glm::length(a)*glm::length(b));
+	vec3 n = glm::cross(a,b)/(na*nb);
 
         float e = glm::dot(currentXYZ,n);
 	e = e>0?distToLine:-distToLine;
