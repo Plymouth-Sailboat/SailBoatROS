@@ -17,7 +17,7 @@ namespace Sailboat{
 		int nbWaypoints;
 		glm::vec2* waypoints;
 
-		static double costFunction(unsigned n, const double *x, double *grad, void *option);
+		static double costFunction(const std::vector<double> &x, std::vector<double> &grad, void *option);
 		static double constraintFunction(unsigned n, const double *x, double *grad, void *data);
 	};
 }
