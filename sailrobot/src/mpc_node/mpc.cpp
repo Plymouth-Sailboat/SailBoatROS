@@ -36,7 +36,7 @@ double MPC::costFunction(unsigned n, const double *x, double *grad, void *option
 	double daw = ((double*)option)[receding_n*5+8];
 	double atw = ((double*)option)[receding_n*5+9];
 	double dtw = ((double*)option)[receding_n*5+10];
-	double step = ((double*)option)[receding_n*5+11];
+	int step = ((double*)option)[receding_n*5+11];
 	double pconfig[11];
 	memcpy(pconfig,((double*)option)+receding_n*5+12,11*sizeof(double));
 	double Q[5];
@@ -49,7 +49,7 @@ double MPC::costFunction(unsigned n, const double *x, double *grad, void *option
 	//prediction
 	std::vector<double*> state_predict;
 	for(int i = 0; i < receding_n; ++i){
-		int input_i = (2*i/(int)step);
+		int input_i = (2*i/step);
 		double gs = pconfig[3]*aaw*sin(x[input_i+1]-daw);
 		double gr = pconfig[4]*state[3]*state[3]*sin(x[input_i]);
 
@@ -74,13 +74,25 @@ double MPC::costFunction(unsigned n, const double *x, double *grad, void *option
 	f += Q[4]*((*it)[4] - ((double*)option)[it_i+4])*((*it)[4] - ((double*)option)[it_i+4]);
 	it_i += 5;
 	}
-	state_predict.clear();
 	if(grad){
 		for(int i = 0; i < n; i+=2){
 			grad[i] = 0;
 			grad[i+1] = 0;
+			for(int j = 0; j < step; ++j){
+				int i_j = i*step+j;
+				grad[i] += (2*Q[3]*((state_predict[i_j])[3] - ((double*)option)[i_j*5+3])*((state_predict[i_j])[3] - ((double*)option)[i+3]))*
+					(-2*pconfig[10]*pconfig[4]/pconfig[9]*(state_predict[i_j])[3]*(state_predict[i_j])[3]*sin(x[i_j])*cos(x[i_j]));
+				grad[i] += (2*Q[4]*((state_predict[i_j])[4] - ((double*)option)[i_j*5+4])*((state_predict[i_j])[4] - ((double*)option)[i_j*5+4]))*
+					(-pconfig[4]*pconfig[7]/pconfig[9]*(1-2*sin(x[i_j])*sin(x[i_j])));
+			
+				grad[i+1] += (2*Q[3]*((state_predict[i_j])[3] - ((double*)option)[i_j*5+3])*((state_predict[i_j])[3] - ((double*)option)[i_j*5+3]))* 
+					(pconfig[3]/pconfig[8]*sin(2*x[i_j+1]-daw)*aaw);
+				grad[i+1] += (2*Q[4]*((state_predict[i_j])[4] - ((double*)option)[i_j*5+4])*((state_predict[i_j])[4] - ((double*)option)[i_j*5+4]))*
+					(pconfig[3]/pconfig[9]*aaw*(pconfig[5]*cos(x[i_j]-daw)-pconfig[7]*cos(2*x[i_j]-daw)));
+			}
 		}
 	}
+	state_predict.clear();
 	return f;
 }
 
@@ -93,7 +105,7 @@ geometry_msgs::Twist MPC::control(){
 	vec2 current(gpsMsg.latitude, gpsMsg.longitude);
 	float currentHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
 
-	vec3 gpsXY = GPSToCartesion(current);
+	vec3 gpsXY = Utility::GPSToCartesian(current);
 	float windNorth = windMsg.theta + currentHeading;
 
 	unsigned int receding_n = 20;
