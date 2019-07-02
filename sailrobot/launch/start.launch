@@ -1,12 +1,12 @@
 <launch>
 	<arg name="model" default="$(find sailrobot)/urdf/sailboat.urdf" />
 	<arg name="usb_port" default="/dev/ttyACM0" />
-	<node pkg="topic_tools" name="relay_GPS" type="relay" args="/sailboat/GPS /fix"/>	
 	<group ns="sailboat">
 		<node pkg="rosserial_python" name="serial" type="serial_node.py">
 			<param name="baud" value="115200"/>
 			<param name="port" value="$(arg usb_port)"/>
 		</node>
 	</group>
-	<node pkg="rostopic" name="logger" type="rostopic" output="screen" arg="echo /sailboat/sailboat_log"/>
+	<node pkg="topic_tools" name="fix_relay" type="relay" args="/sailboat/GPS /fix"/>	
+	<node pkg="rostopic" name="logger" type="rostopic" output="screen" args="echo /sailboat/sailboat_log"/>
 </launch>
