@@ -34,6 +34,23 @@ void TCPServer::setup(int port)
  	listen(sockfd,5);
 }
 
+int TCPServer::acceptsock(int timeout){
+	socklen_t sosize = sizeof(clientAddress);
+	fd_set rfds;
+	FD_ZERO(&rfds);
+	FD_SET(sockfd, &rfds);
+
+	struct timeval tv;
+	tv.tv_sec = (long)timeout;
+	tv.tv_usec = 0;
+
+	int res = select(sockfd+1, &rfds, (fd_set *)0, (fd_set *) 0, &tv);
+	if(res > 0)
+		return accept(sockfd,(struct sockaddr*)&clientAddress,&sosize);
+	else
+		return -1;
+}
+
 string TCPServer::receive()
 {
 	string str;
@@ -65,6 +82,23 @@ void TCPServer::clean()
 
 void TCPServer::detach()
 {
+	std::cout << "Closing Sockets" << std::endl;
+	if(sockfd > 0){
+		int err = 1;
+   		socklen_t len = sizeof err;
+   		if (-1 == getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char *)&err, &len))
+      			std::cerr << "getSO_ERROR" << std::endl;
+   		if (err)
+      			errno = err;              // set errno to the socket SO_ERROR
+	}
+	if(newsockfd > 0){
+		int err = 1;
+   		socklen_t len = sizeof err;
+   		if (-1 == getsockopt(newsockfd, SOL_SOCKET, SO_ERROR, (char *)&err, &len))
+      			std::cerr << "getSO_ERROR" << std::endl;
+   		if (err)
+      			errno = err;              // set errno to the socket SO_ERROR
+	}
 	close(sockfd);
 	close(newsockfd);
 } 

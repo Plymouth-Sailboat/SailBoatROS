@@ -21,6 +21,7 @@ using namespace std;
 class TCPServer
 {
 	public:
+	TCPServer() : sockfd(-1),newsockfd(-1){}
 	int sockfd, newsockfd, n, pid;
 	struct sockaddr_in serverAddress;
 	struct sockaddr_in clientAddress;
@@ -29,6 +30,7 @@ class TCPServer
 	static string Message;
 
 	void setup(int port);
+	int acceptsock(int timeout);
 	string receive();
 	string getMessage();
 	void Send(string msg);
