@@ -28,7 +28,8 @@ void LineFollowing::setup(ros::NodeHandle* n){
 geometry_msgs::Twist LineFollowing::control(){
 	geometry_msgs::Twist cmd;
 	//Retrieve data
-	vec2 current = vec2(gpsMsg.latitude*M_PI/180.0, gpsMsg.longitude*M_PI/180.0);
+	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
+	vec2 currentRad = vec2(gpsMsg.latitude*M_PI/180.0, gpsMsg.longitude*M_PI/180.0);
 	vec3 currentXYZ = Utility::GPSToCartesian(gpsMsg.latitude, gpsMsg.longitude);
 	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
 	float windNorth = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),heading.z,windMsg.theta,windMsg.x);
@@ -57,7 +58,7 @@ geometry_msgs::Twist LineFollowing::control(){
 
   	double diflat = lat2-lat1;
   	double diflong = long2 - long1;
-  	double leng = (diflat*(current.x-lat1)+diflong*(current.y-long1))/(diflat*diflat+diflong*diflong);
+  	double leng = (diflat*(currentRad.x-lat1)+diflong*(currentRad.y-long1))/(diflat*diflat+diflong*diflong);
   	vec2 currline(lat1+diflat*leng,long1+diflong*leng);	
 
 	double distToLine = Utility::GPSDist(currline,current);

@@ -28,8 +28,9 @@ void LineFollowingLong::setup(ros::NodeHandle* n){
 geometry_msgs::Twist LineFollowingLong::control(){
 	geometry_msgs::Twist cmd;
 	//Retrieve data
-	vec2 current = vec2(gpsMsg.latitude*M_PI/180.0, gpsMsg.longitude*M_PI/180.0);
-	vec3 currentXYZ = Utility::GPSToCartesian(gpsMsg.latitude, gpsMsg.longitude);
+	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
+	vec2 currentRad = vec2(gpsMsg.latitude*M_PI/180.0, gpsMsg.longitude*M_PI/180.0);
+	vec3 currentXYZ = Utility::GPSToCartesian(current);
 	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
 	float windNorth = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),heading.z,windMsg.theta,windMsg.x);
 	
@@ -52,12 +53,12 @@ geometry_msgs::Twist LineFollowingLong::control(){
 
 	float e = glm::dot(currentXYZ,n);
 	mat3x2 M;
-	M[0][0]=-sin(current.y);
-	M[1][0]=cos(current.y);
+	M[0][0]=-sin(currentRad.y);
+	M[1][0]=cos(currentRad.y);
 	M[2][0]=0;
-	M[0][1]=-cos(current.y)*sin(current.x);
-	M[1][1]=-sin(current.x)*sin(current.y);
-	M[2][1]=cos(current.x);
+	M[0][1]=-cos(currentRad.y)*sin(currentRad.x);
+	M[1][1]=-sin(currentRad.x)*sin(currentRad.y);
+	M[2][1]=cos(currentRad.x);
 
 	vec2 ba = M*(b-a);
 	float phi = atan2(ba.x,ba.y);
