@@ -3,6 +3,7 @@
 
 #include "controller.hpp"
 #include <glm/glm.hpp>
+#include <ctime>
 
 namespace Sailboat{
     class Identification : public Controller{
@@ -15,7 +16,9 @@ namespace Sailboat{
 	private:
 		unsigned int step;
 		glm::vec2 initPos;
+		glm::vec2 goal1;
 		float initWind;
+		std::clock_t start;
 	};
 }
 
