@@ -8,7 +8,7 @@
 namespace Sailboat{
     class MPC : public Controller{
 	public:
-        MPC(std::string name) : Controller(name,10, MODE::RUDDER_SAIL){}
+        MPC(std::string name) : Controller(name,2, MODE::RUDDER_SAIL){}
         ~MPC(){}
 		void setup(ros::NodeHandle* n);
 		virtual geometry_msgs::Twist control();
