@@ -3,6 +3,7 @@ project(sailrobot_modules)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
+catkin_python_setup()
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -202,7 +203,10 @@ target_link_libraries(gpsfix_tcp
 #   # myfile2
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
-
+install(PROGRAMS
+   scripts/gps_usb
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 #############
 ## Testing ##
 #############
