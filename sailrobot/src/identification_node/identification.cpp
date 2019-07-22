@@ -1,7 +1,5 @@
 #include "identification_node/identification.hpp"
 #include <math.h>
-#include <fstream>
-#include <iostream>
 #include <utilities.hpp>
 #include <ros/package.h>
 
@@ -18,10 +16,14 @@ void Identification::setup(ros::NodeHandle* n){
 	vec2 initPosXYZ = Utility::GPSToCartesian(current);
 	float distGPS = 500;
 	float rearth = 6371000;
-	float latdist = M_PI/180.0*6378137*cos(initPos.y);
-	float longdist = M_PI/180.0*6367449*cos(initPos.x);
+	float latdist = 11132.92-559.82*cos(2*initPos.x*180.0/M_PI)+1.175*cos(4*initPos.x*180.0/M_PI)-0.0023*cos(6*initPos.x*180.0/M_PI);
+	float longdist = M_PI/180.0*6367449*cos(initPos.x*180.0/M_PI);
 	goal1 = vec2(initPos.x + distGPS/latdist*cos(initWind+M_PI/2.0),initPos.y + distGPS/longdist*sin(initWind+M_PI/2.0));
 	start = std::clock();
+
+	std::string path = ros::package::getPath("sailrobot");
+	data.open(path+"/data/identification.txt");
+	data << "time,clock,step,dvx,dvy,dvz,ax,ay,az,heading,wind,cmdrudder,cmdsail,lat,long" << std::endl;
 }
 
 geometry_msgs::Twist Identification::control(){
@@ -109,6 +111,8 @@ geometry_msgs::Twist Identification::control(){
 		       }
 	}
 
+
+	data << std::to_string(ros::Time::now().toSec()) << "," << std::to_string((std::clock() - start) / (double) CLOCKS_PER_SEC) << "," << std::to_string(step) << "," << std::to_string(velMsg.linear.x) << "," << std::to_string(velMsg.linear.y) << "," << std::to_string(velMsg.linear.z) << "," << std::to_string(imuMsg.linear_acceleration.x) << "," << std::to_string(imuMsg.linear_acceleration.y) << "," << std::to_string(imuMsg.linear_acceleration.z) << "," << std::to_string(currentHeading) << "," << std::to_string(windNorth) << "," << std::to_string(ruddersail.x) << "," << std::to_string(ruddersail.y) << "," << std::to_string(current.x) << "," << std::to_string(current.y) << std::endl; 
 
 	cmd.angular.x = (double)ruddersail.x;
 	cmd.angular.y = (double)ruddersail.y;
