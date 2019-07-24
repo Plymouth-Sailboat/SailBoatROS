@@ -213,6 +213,13 @@ geometry_msgs::Twist Identification::control(){
 		double p9 = stod(Utility::Instance().config["p9"]);
 		double p10 = stod(Utility::Instance().config["p10"]);
 
+		s1.clear();
+		s2.clear();
+		s3.clear();
+		s4.clear();
+		s5.clear();
+		p1.clear();
+
 		//Regression step for parameters
 		nlopt::opt opt(nlopt::LD_SLSQP, 11);
 		opt.set_min_objective(costFunction, nullptr);
