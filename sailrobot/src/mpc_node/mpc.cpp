@@ -69,7 +69,7 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 		state[1] += state[3]*sin(state[2])+aaw*pconfig[0]*sin(dtw)*dt;
 		state[2] += state[4]*dt;
 		state[3] += (gs*sin(x[input_i+1])-gr*pconfig[10]*sin(x[input_i])-pconfig[1]*state[3]*state[3])/pconfig[8]*dt;
-		state[4] += (gs*(pconfig[6]-pconfig[7]*cos(x[input_i+1]))-gr*pconfig[7]*cos(x[input_i])-pconfig[2]*state[4]*state[3])/pconfig[9]*dt;
+		state[4] += (gs*(pconfig[5]-pconfig[6]*cos(x[input_i+1]))-gr*pconfig[7]*cos(x[input_i])-pconfig[2]*state[4]*state[3])/pconfig[9]*dt;
 		double* states = new double[5];
 		memcpy(states, state, 5*sizeof(double));
 		state_predict.push_back(states);

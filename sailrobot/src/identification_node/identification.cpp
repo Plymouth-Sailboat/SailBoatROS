@@ -25,14 +25,14 @@ double Identification::costFunction(const std::vector<double> &x, std::vector<do
 			double daw = state[i][5]+state[i][2];
 			double dtw = state[i][5];
 			double aaw = state[i][6];
-			double gs = x[3]*aaw*sin(state[i][7]-daw);
-			double gr = x[4]*x[3]*x[3]*sin(state[i][6]);
+			double gs = x[3]*aaw*sin(state[i][8]-daw);
+			double gr = x[4]*states[3]*states[3]*sin(state[i][7]);
 
 			states[0] += states[3]*cos(states[3])+aaw*x[0]*cos(dtw)*dt;
 			states[1] += states[3]*sin(states[3])+aaw*x[0]*sin(dtw)*dt;
 			states[2] += states[4]*dt;
 			states[3] += (gs*sin(state[i][8])-gr*x[6]*sin(state[i][7])-x[1]*states[3]*states[3])/p9*dt;
-			states[4] += (gs*(p7-p8*cos(state[i][8]))-gr*p6*cos(state[i][7])-x[2]*states[4]*states[3])/x[5]*dt;
+			states[4] += (gs*(p6-p7*cos(state[i][8]))-gr*p8*cos(state[i][7])-x[2]*states[4]*states[3])/x[5]*dt;
 
 			predicted.push_back(states);
 		}
@@ -267,14 +267,16 @@ geometry_msgs::Twist Identification::control(){
 		s4.clear();
 		s5.clear();
 		p1.clear();
-		state.push_back(new double[8]{p6,p7,p8,p9,0,0,0,0});
+		state.push_back(new double[9]{p6,p7,p8,p9,0,0,0,0,0});
 
 		//Regression step for parameters
-		nlopt::opt opt(nlopt::LD_SLSQP, 11);
+		nlopt::opt opt(nlopt::GN_DIRECT_L, 11);
 		opt.set_min_objective(costFunction, (void*)&state);
 
-		std::vector<double> lb(11,0.0);
+		std::vector<double> lb(7,0.0);
 		opt.set_lower_bounds(lb);
+		std::vector<double> ub(7,10000.0);
+		opt.set_upper_bounds(ub);
 		std::vector<double> x{p1p,s5p,s4p*p10,s1p*s5p,s3p,p10,(p9*s2p+2*s5p)/s3p};
 
 		double minf;
