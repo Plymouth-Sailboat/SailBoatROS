@@ -7,7 +7,7 @@
 namespace Sailboat{
     class LineFollowingLong : public Controller{
 	public:
-        	LineFollowingLong(std::string name) : Controller(name,2, MODE::RUDDER), r(10.0), currentWaypoint(0), nbWaypoints(0), q(1){}
+        	LineFollowingLong(std::string name) : Controller(name,2, MODE::RUDDER_SAIL), r(10.0), currentWaypoint(0), nbWaypoints(0), q(1){}
         	~LineFollowingLong(){}
 		void setup(ros::NodeHandle* n);
 		virtual geometry_msgs::Twist control();

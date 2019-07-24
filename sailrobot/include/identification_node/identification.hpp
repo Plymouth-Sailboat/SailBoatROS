@@ -20,7 +20,7 @@ namespace Sailboat{
 		glm::vec2 initPos;
 		glm::vec2 goal1;
 		float initWind;
-		std::clock_t start;
+		double start;
 
 		std::ofstream data;
 	};

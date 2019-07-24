@@ -43,32 +43,28 @@ geometry_msgs::Twist LineFollowing::control(){
 	if(dist < 5){
 		publishMSG("PArrived at waypoint " + std::to_string(currentWaypoint));
 		currentWaypoint++;
+		currentWaypoint %= nbWaypoints;
 	}
-	currentWaypoint %= nbWaypoints;
 
-	vec3 b = Utility::GPSToCartesian(waypoints[(currentWaypoint+1)%nbWaypoints]);
-	vec3 a = Utility::GPSToCartesian(waypoints[currentWaypoint]);
-	float na = glm::length(a);
-	float nb = glm::length(b);
-
-	float lat1 = waypoints[currentWaypoint].x*M_PI/180.0;
-	float lat2 = waypoints[(currentWaypoint+1)%nbWaypoints].x*M_PI/180.0;
-	float long1 = waypoints[currentWaypoint].y*M_PI/180.0;
-	float long2 = waypoints[(currentWaypoint+1)%nbWaypoints].y*M_PI/180.0;
+	//Find closest point on line
+	float lat1 = waypoints[currentWaypoint].x;
+	float lat2 = waypoints[(currentWaypoint+1)%nbWaypoints].x;
+	float long1 = waypoints[currentWaypoint].y;
+	float long2 = waypoints[(currentWaypoint+1)%nbWaypoints].y;
 
   	double diflat = lat2-lat1;
   	double diflong = long2 - long1;
-  	double leng = (diflat*(currentRad.x-lat1)+diflong*(currentRad.y-long1))/(diflat*diflat+diflong*diflong);
+  	double leng = (diflat*(current.x-lat1)+diflong*(current.y-long1))/(diflat*diflat+diflong*diflong);
   	vec2 currline(lat1+diflat*leng,long1+diflong*leng);	
 
 	double distToLine = Utility::GPSDist(currline,current);
-
-	vec3 n = glm::cross(a,b)/(na*nb);
-
-        float e = glm::dot(currentXYZ,n);
-	e = e>0?distToLine:-distToLine;
-
+	
 	float phi = Utility::GPSBearing(waypoints[currentWaypoint],waypoints[(currentWaypoint+1)%nbWaypoints]);
+	
+	//Which side of the line ?
+	float b = Utility::GPSBearing(waypoints[currentWaypoint],current);
+	float e = sin(b-phi)>0?distToLine:-distToLine;
+	
 	float thetabar = phi - 2*psi/M_PI*atan(e/r);
 	//Check For Tacking	
 	thetabar = Utility::TackingStrategy(e,phi,windNorth,thetabar,r,psi,ksi,&q);
@@ -79,7 +75,7 @@ geometry_msgs::Twist LineFollowing::control(){
 	cmd.angular.y = cmdv.y;
 
 	//LOG
-	publishLOG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y));
+	publishLOG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y)+ "\ne : " + std::to_string(e) +"\nTrue Wind : " + std::to_string(windNorth) );
 
 	return cmd;
 }
