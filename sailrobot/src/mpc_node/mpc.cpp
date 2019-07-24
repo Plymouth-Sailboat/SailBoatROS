@@ -38,7 +38,7 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 
 	//Reference State
 	//TODO
-	
+
 	//Actual State
 	double state[5];
 	memcpy(state,optionD+receding_n5,5*sizeof(double));
@@ -74,7 +74,7 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 		memcpy(states, state, 5*sizeof(double));
 		state_predict.push_back(states);
 	}
-	
+
 	//cost
 	double f = 0;
 	int it_i = 0;
@@ -86,7 +86,7 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 	f += Q[4]*((*it)[4] - ((double*)option)[it_i+4])*((*it)[4] - ((double*)option)[it_i+4]);
 	it_i += 5;
 	}
-	
+
 	if(grad.size()>0){
 		for(int i = 0; i < n; i+=2){
 			grad[i] = 0;
@@ -97,8 +97,8 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 					(-2*pconfig[10]*pconfig[4]/pconfig[8]*(state_predict[i_j])[3]*(state_predict[i_j])[3]*sin(x[i_j])*cos(x[i_j]));
 				grad[i] += (2*Q[4]*((state_predict[i_j])[4] - ((double*)option)[i_j*5+4])*((state_predict[i_j])[4] - ((double*)option)[i_j*5+4]))*
 					(-pconfig[4]*pconfig[7]/pconfig[9]*(1-2*sin(x[i_j])*sin(x[i_j])));
-			
-				grad[i+1] += (2*Q[3]*((state_predict[i_j])[3] - ((double*)option)[i_j*5+3])*((state_predict[i_j])[3] - ((double*)option)[i_j*5+3]))* 
+
+				grad[i+1] += (2*Q[3]*((state_predict[i_j])[3] - ((double*)option)[i_j*5+3])*((state_predict[i_j])[3] - ((double*)option)[i_j*5+3]))*
 					(pconfig[3]/pconfig[8]*sin(2*x[i_j+1]-daw)*aaw);
 				grad[i+1] += (2*Q[4]*((state_predict[i_j])[4] - ((double*)option)[i_j*5+4])*((state_predict[i_j])[4] - ((double*)option)[i_j*5+4]))*
 					(pconfig[3]/pconfig[9]*aaw*(pconfig[5]*cos(x[i_j]-daw)-pconfig[6]*cos(2*x[i_j]-daw)));
@@ -110,7 +110,7 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 }
 
 double MPC::constraintFunction(unsigned n, const double *x, double *grad, void*data){
-	
+
 }
 
 geometry_msgs::Twist MPC::control(){
@@ -127,7 +127,7 @@ geometry_msgs::Twist MPC::control(){
 
 	int receding_n5 = receding_n*5+2;
 	double optionData[receding_n5+26];
-	//Parameters	
+	//Parameters
 	optionData[0] = receding_n;
 	optionData[1] = step; //input step
 	//Rerence State
@@ -139,7 +139,7 @@ geometry_msgs::Twist MPC::control(){
 	optionData[receding_n5+2] = currentHeading; //theta
 	optionData[receding_n5+3] = 0.0; //v
 	optionData[receding_n5+4] = 0.0; //w
-	
+
 	//Data for MPC
 	optionData[receding_n5+5] = 0.01; //dt
 	optionData[receding_n5+6] = 1.0; //aaw
@@ -153,7 +153,7 @@ geometry_msgs::Twist MPC::control(){
 
 
 	nlopt::opt opt(nlopt::LD_SLSQP, inputs_n);
-	
+
 	std::vector<double> lb(inputs_n,-M_PI/4.0);
 	for(int i = 1; i < inputs_n; i+=2)
 		lb[i] = -M_PI/2.0;
@@ -171,7 +171,7 @@ geometry_msgs::Twist MPC::control(){
 	std::vector<double> x(inputs_n,rudderAngle);
 	for(int i = 1; i < inputs_n; i+=2)
 		x[i] = sailAngle;
-	
+
 	double minf;
 
 	try{
@@ -190,4 +190,3 @@ geometry_msgs::Twist MPC::control(){
 	publishMSG("MPC Controlling");
 	return cmd;
 }
-

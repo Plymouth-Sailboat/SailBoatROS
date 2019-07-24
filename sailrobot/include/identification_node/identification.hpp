@@ -6,6 +6,7 @@
 #include <ctime>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 namespace Sailboat{
     class Identification : public Controller{
@@ -23,6 +24,7 @@ namespace Sailboat{
 		double start;
 
 		std::ofstream data;
+    static double costFunction(const std::vector<double> &x, std::vector<double> &grad, void *option);
 	};
 }
 
