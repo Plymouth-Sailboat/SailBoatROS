@@ -162,7 +162,7 @@ add_executable(user_test ${basic_source} src/user_friendly_test_node/user_friend
 target_link_libraries(user_test ${catkin_LIBRARIES})
 
 add_executable(identification ${basic_source} src/identification_node/identification_node.cpp src/identification_node/identification.cpp)
-target_link_libraries(identification ${catkin_LIBRARIES})
+target_link_libraries(identification ${catkin_LIBRARIES} nlopt)
 
 add_executable(transform_broadcaster ${basic_source} src/transform_broadcaster_node/transform_broadcaster_node.cpp src/transform_broadcaster_node/transform_broadcaster.cpp)
 target_link_libraries(transform_broadcaster ${catkin_LIBRARIES})
