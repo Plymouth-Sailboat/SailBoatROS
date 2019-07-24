@@ -149,7 +149,7 @@ vec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
 
 std::map<std::string,std::string> Utility::ReadConfig(std::string filepath){
 	std::map<std::string,std::string> res;
-	
+
 	std::string path = ros::package::getPath("sailrobot");
 	if(filepath[0] != '/')
 		filepath = path + "/" + filepath;
@@ -165,7 +165,7 @@ std::map<std::string,std::string> Utility::ReadConfig(std::string filepath){
 		if( std::getline(is_line, key, '=') )
 		{
 			std::string value;
-			if( std::getline(is_line, value) ){ 
+			if( std::getline(is_line, value) ){
 				std::string val = value.substr(0,value.find(" "));
 				res[key]=val.substr(0,val.find("/"));
 			}
@@ -176,8 +176,9 @@ std::map<std::string,std::string> Utility::ReadConfig(std::string filepath){
 
 }
 
-float Utility::RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAcc){
+float Utility::RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAccx, float windAccy){
 	if(std::stoi(Utility::Instance().config["true_wind"])){
+		float windAcc = sqrt(windAccx*windAccx+windAccy*windAccy);
 		float dx = v.x*cos(heading)-v.y*sin(heading);
 		float dy = v.x*sin(heading)+v.y*cos(heading);
 		return atan2(dy,dx);
@@ -201,7 +202,7 @@ float Utility::TackingStrategy(float distanceToLine, float lineBearing, float wi
 }
 
 glm::vec2 Utility::StandardCommand(glm::vec3 currentHeading, float heading, float windNorth, float max_sail, float max_rudder){
-	glm::vec2 rudsail;	
+	glm::vec2 rudsail;
 	if(cos(currentHeading.z - heading) >= 0)
 		rudsail.x = max_rudder*sin(currentHeading.z-heading);
 	else
@@ -210,5 +211,3 @@ glm::vec2 Utility::StandardCommand(glm::vec3 currentHeading, float heading, floa
 	rudsail.y = max_sail*(cos(windNorth-heading)+1)/2.0;
 	return rudsail;
 }
-
-

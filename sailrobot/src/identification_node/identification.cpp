@@ -9,14 +9,54 @@ using namespace Sailboat;
 using namespace glm;
 
 double Identification::costFunction(const std::vector<double> &x, std::vector<double> &grad, void *option){
+		std::vector<double*> state = *(std::vector<double*>*)option;
+		double p6 = state.back()[0];
+		double p7 = state.back()[1];
+		double p8 = state.back()[2];
+		double p9 = state.back()[3];
+		double dt = 0.1;
+		//Reference State
+		//TODO
 
+		//Simulate State
+		std::vector<double*> predicted;
+		double states[5];
+		for(int i = 0; i< state.size()-1; ++i){
+			double daw = state[i][5]+state[i][2];
+			double dtw = state[i][5];
+			double aaw = state[i][6];
+			double gs = x[3]*aaw*sin(state[i][7]-daw);
+			double gr = x[4]*x[3]*x[3]*sin(state[i][6]);
+
+			states[0] += states[3]*cos(states[3])+aaw*x[0]*cos(dtw)*dt;
+			states[1] += states[3]*sin(states[3])+aaw*x[0]*sin(dtw)*dt;
+			states[2] += states[4]*dt;
+			states[3] += (gs*sin(state[i][8])-gr*x[6]*sin(state[i][7])-x[1]*states[3]*states[3])/p9*dt;
+			states[4] += (gs*(p7-p8*cos(state[i][8]))-gr*p6*cos(state[i][7])-x[2]*states[4]*states[3])/x[5]*dt;
+
+			predicted.push_back(states);
+		}
+
+		//cost
+		double f = 0;
+		int it_i = 0;
+		for(std::vector<double*>::iterator it=state.begin(); it != state.end(); it++){
+			f += 1*((*it)[0] - predicted[it_i][0])*((*it)[0] - predicted[it_i][0]);
+			f += 1*((*it)[1] - predicted[it_i][1])*((*it)[1] - predicted[it_i][1]);
+			f += 1*((*it)[2] - predicted[it_i][2])*((*it)[2] - predicted[it_i][2]);
+			f += 1*((*it)[3] - predicted[it_i][3])*((*it)[3] - predicted[it_i][3]);
+			f += 0.2*((*it)[4] - predicted[it_i][4])*((*it)[4] - predicted[it_i][4]);
+			it_i++;
+		}
+
+		return f;
 }
 
 void Identification::setup(ros::NodeHandle* n){
 	float currentHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
 	initPos = vec2(gpsMsg.latitude, gpsMsg.longitude);
 
-	initWind = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta,windMsg.x);
+	initWind = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y);
 
 	vec2 current(gpsMsg.latitude, gpsMsg.longitude);
 	vec2 initPosXYZ = Utility::GPSToCartesian(current);
@@ -29,7 +69,7 @@ void Identification::setup(ros::NodeHandle* n){
 
 	std::string path = ros::package::getPath("sailrobot");
 	data.open(path+"/data/identification.txt");
-	data << "time,clock,step,dvx,dvy,dvz,ax,ay,az,avx,avy,avz,heading,wind,cmdrudder,cmdsail,lat,long" << std::endl;
+	data << "time,clock,step,dvx,dvy,dvz,ax,ay,az,avx,avy,avz,heading,wind,windacc,cmdrudder,cmdsail,lat,long" << std::endl;
 }
 
 geometry_msgs::Twist Identification::control(){
@@ -39,11 +79,13 @@ geometry_msgs::Twist Identification::control(){
 
 	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
 	float currentHeading = heading.z;
-	float windNorth = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta,windMsg.x);
+	float windNorth = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y);
 
 	vec2 ruddersail;
 
 	float thetabar;
+
+	std::vector<double*> state;
 	switch(step){
 		case 0:{
 			float lat1 = initPos.x;
@@ -123,10 +165,14 @@ geometry_msgs::Twist Identification::control(){
 		std::to_string(imuMsg.angular_velocity.z) << "," <<
 		std::to_string(currentHeading) << "," <<
 		std::to_string(windNorth) << "," <<
+		std::to_string(sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y)) << "," <<
 		std::to_string(ruddersail.x) << "," <<
 		std::to_string(ruddersail.y) << "," <<
 		std::to_string(current.x) << "," <<
 		std::to_string(current.y) << std::endl;
+
+		double vnorm = sqrt(velMsg.linear.x*velMsg.linear.x+velMsg.linear.y*velMsg.linear.y);
+		state.push_back(new double[9]{current.x,current.y,currentHeading,vnorm,imuMsg.angular_velocity.z,windNorth,sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y),ruddersail.x,ruddersail.y});
 
 		cmd.angular.x = (double)ruddersail.x;
 		cmd.angular.y = (double)ruddersail.y;
@@ -166,7 +212,7 @@ geometry_msgs::Twist Identification::control(){
 			      ss.ignore();
 			}
 
-			double aaw = 1.0;
+			double aaw = datain[14];
 			double daw = datain[13]-datain[12];
 			double angacc = 0;
 			double angvel = datain[12];
@@ -189,7 +235,7 @@ geometry_msgs::Twist Identification::control(){
 					s2.push_back(anorm/(vnorm*vnorm));
 				break;
 				case 2://S3 S1
-					s1.push_back(maxv*maxv/(aaw*sin(datain[15]-daw)*sin(datain[15])));
+					s1.push_back(maxv*maxv/(aaw*sin(datain[16]-daw)*sin(datain[16])));
 					s3.push_back(2*(p10*angacc+p3*angvel*vnorm)/(vnorm*vnorm*p8));
 				break;
 				case 3://S4 S5
@@ -199,6 +245,8 @@ geometry_msgs::Twist Identification::control(){
 			}
 			datain.clear();
 		}
+		datain.clear();
+		infile.close();
 
 		float s1p = std::accumulate(std::begin(s1), std::end(s1), 0.0) / s1.size();
 		float s2p = std::accumulate(std::begin(s2), std::end(s2), 0.0) / s2.size();
@@ -219,23 +267,28 @@ geometry_msgs::Twist Identification::control(){
 		s4.clear();
 		s5.clear();
 		p1.clear();
+		state.push_back(new double[8]{p6,p7,p8,p9,0,0,0,0});
 
 		//Regression step for parameters
 		nlopt::opt opt(nlopt::LD_SLSQP, 11);
-		opt.set_min_objective(costFunction, nullptr);
+		opt.set_min_objective(costFunction, (void*)&state);
 
 		std::vector<double> lb(11,0.0);
 		opt.set_lower_bounds(lb);
-		std::vector<double> x{p1p,s5p,s4p*p10,s1p*s5p,s3p,p6,p7,p8,p9,p10,(p9*s2p+2*s5p)/s3p};
+		std::vector<double> x{p1p,s5p,s4p*p10,s1p*s5p,s3p,p10,(p9*s2p+2*s5p)/s3p};
 
 		double minf;
-		try{
-	    		nlopt::result result = opt.optimize(x, minf);
-	    		std::cout << "found minimum at f(" << x[0] << "," << x[1] << ") = "
-	        	<< std::setprecision(10) << minf << std::endl;
-		}
-		catch(std::exception &e) {
-	    		std::cout << "nlopt failed: " << e.what() << std::endl;
+		for(int i = 0; i < 10; i++){
+			try{
+		    		nlopt::result result = opt.optimize(x, minf);
+		    		std::cout << "found minimum at f(";
+						for(int i = 0; i < 11; ++i)
+						 	std::cout << x[i] << ",";
+						std::cout << ") = " << std::setprecision(10) << minf << std::endl;
+			}
+			catch(std::exception &e) {
+		    		std::cout << "nlopt failed: " << e.what() << std::endl;
+			}
 		}
 	}
 	return cmd;

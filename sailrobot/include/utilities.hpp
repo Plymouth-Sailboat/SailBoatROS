@@ -5,7 +5,7 @@
  * This class is used in conjunction with controllers. It is used for commonly used functions with sail robots.
  *
  * @author Ulysse Vautier
- * @version 
+ * @version
  * @date 2018-09-05
  */
 #ifndef UTILITY_HPP
@@ -30,7 +30,7 @@ class Utility{
 		static float GPSDist(float lat1, float lon1, float lat2, float lon2);
 		static float GPSDist(glm::vec2 point1, glm::vec2 point2);
 		static float GPSDistFast(float lat1, float lon1, float lat2, float lon2);
-		static float GPSDistFast(glm::vec2 point1, glm::vec2 point2);		
+		static float GPSDistFast(glm::vec2 point1, glm::vec2 point2);
 		/** @} */
 
 		/** Calculate the initial bearing between two GPS coordinates
@@ -45,13 +45,13 @@ class Utility{
 		 */
 		static glm::vec3 GPSToCartesian(float lat, float gpslong);
 		/** @} */
-		
+
 		/** Transforms GPS coordinates to Cartesian coordinates
 		 * @{
 		 */
 		static glm::vec3 GPSToCartesian(glm::vec2 gpsposition);
 		/** @} */
-		
+
 		static float CartesianToGPS(float x, float y);
 
 		/** Conversion between Quaternion to Euler and Euler to Quaternion
@@ -69,7 +69,7 @@ class Utility{
 
 		static std::map<std::string,std::string> ReadConfig(std::string filepath);
 
-		static float RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAcc);
+		static float RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAccx, float windAccy);
 
 		/** Tacking Strategy
 		 * @{
