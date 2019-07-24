@@ -47,10 +47,10 @@ geometry_msgs::Twist LineFollowingLong::control(){
 	currentWaypoint %= nbWaypoints;
 
 	vec3 b = Utility::GPSToCartesian(waypoints[(currentWaypoint+1)%nbWaypoints]);
+	b = b/glm::length(b);
 	vec3 a = Utility::GPSToCartesian(waypoints[currentWaypoint]);
-
-	vec3 n = glm::cross(a,b)/(glm::length(a)*glm::length(b));
-
+	a = a/glm::length(a);
+	vec3 n = glm::cross(a,b);
 	float e = glm::dot(currentXYZ,n);
 	mat3x2 M;
 	M[0][0]=-sin(currentRad.y);
@@ -73,7 +73,7 @@ geometry_msgs::Twist LineFollowingLong::control(){
 	cmd.angular.y = cmdv.y;
 
 	//LOG
-	publishLOG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y));
+	publishLOG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y)+ "\ne : " + std::to_string(e));
 
 	return cmd;
 }

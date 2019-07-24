@@ -19,7 +19,7 @@ void Identification::setup(ros::NodeHandle* n){
 	float latdist = 11132.92-559.82*cos(2*initPos.x*180.0/M_PI)+1.175*cos(4*initPos.x*180.0/M_PI)-0.0023*cos(6*initPos.x*180.0/M_PI);
 	float longdist = M_PI/180.0*6367449*cos(initPos.x*180.0/M_PI);
 	goal1 = vec2(initPos.x + distGPS/latdist*cos(initWind+M_PI/2.0),initPos.y + distGPS/longdist*sin(initWind+M_PI/2.0));
-	start = std::clock();
+	start = ros::Time::now().toSec();
 
 	std::string path = ros::package::getPath("sailrobot");
 	data.open(path+"/data/identification.txt");
@@ -69,50 +69,50 @@ geometry_msgs::Twist Identification::control(){
 
 			       //ruddersail = Utility::StandardCommand(currentHeading,thetabar, windNorth, M_PI/6.0);
 			       ruddersail = Utility::StandardCommand(heading,initWind+(float)(M_PI/2.0), windNorth, (float)(M_PI/6.0));
-			       double duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+				double duration  = ros::Time::now().toSec() - start;
 
-			       if(cos(currentHeading - (initWind+M_PI/2.0)) > 0.9 && duration > 60){
+			       if(cos(currentHeading - (initWind+M_PI/2.0)) > 0.7 && duration > 60){
 				       step++;
-				       start = std::clock();
+				       start = ros::Time::now().toSec();
 			       }
 			       break;
 		       }
 		case 1:{
 			       ruddersail = Utility::StandardCommand(heading,initWind+(float)(3.0*M_PI/4.0), windNorth, (float)(M_PI/2.0));
-			       double duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+				double duration  = ros::Time::now().toSec() - start;
 
 			       if(cos(currentHeading - (initWind+3.0*M_PI/4.0)) > 0.9 && duration > 30){
 				       step++;
-				       start = std::clock();
+				       start = ros::Time::now().toSec();
 			       }
 			       break;
 		       }
 		case 2:{
 			       ruddersail.x = M_PI/4.0;
 			       ruddersail.y = 0;
-			       double duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+				double duration  = ros::Time::now().toSec() - start;
 
 			       if(duration > 10){
 				       step++;
-				       start = std::clock();
+				       start = ros::Time::now().toSec();
 			       }
 			       break;
 		       }
 		case 3:{
 			       ruddersail.x = 0;
 			       ruddersail.y = 0;
-			       double duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+				double duration  = ros::Time::now().toSec() - start;
 
 			       if(duration > 10){
 				       step++;
-				       start = std::clock();
+				       start = ros::Time::now().toSec();
 			       }
 			       break;
 		       }
 	}
 
 
-	data << std::to_string(ros::Time::now().toSec()) << "," << std::to_string((std::clock() - start) / (double) CLOCKS_PER_SEC) << "," << std::to_string(step) << "," << std::to_string(velMsg.linear.x) << "," << std::to_string(velMsg.linear.y) << "," << std::to_string(velMsg.linear.z) << "," << std::to_string(imuMsg.linear_acceleration.x) << "," << std::to_string(imuMsg.linear_acceleration.y) << "," << std::to_string(imuMsg.linear_acceleration.z) << "," << std::to_string(currentHeading) << "," << std::to_string(windNorth) << "," << std::to_string(ruddersail.x) << "," << std::to_string(ruddersail.y) << "," << std::to_string(current.x) << "," << std::to_string(current.y) << std::endl; 
+	data << std::to_string(ros::Time::now().toSec()) << "," << std::to_string(ros::Time::now().toSec() - start) << "," << std::to_string(step) << "," << std::to_string(velMsg.linear.x) << "," << std::to_string(velMsg.linear.y) << "," << std::to_string(velMsg.linear.z) << "," << std::to_string(imuMsg.linear_acceleration.x) << "," << std::to_string(imuMsg.linear_acceleration.y) << "," << std::to_string(imuMsg.linear_acceleration.z) << "," << std::to_string(currentHeading) << "," << std::to_string(windNorth) << "," << std::to_string(ruddersail.x) << "," << std::to_string(ruddersail.y) << "," << std::to_string(current.x) << "," << std::to_string(current.y) << std::endl; 
 
 	cmd.angular.x = (double)ruddersail.x;
 	cmd.angular.y = (double)ruddersail.y;
