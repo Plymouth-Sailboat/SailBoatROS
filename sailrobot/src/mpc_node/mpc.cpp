@@ -65,8 +65,8 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 		double gs = pconfig[3]*aaw*sin(x[input_i+1]-daw);
 		double gr = pconfig[4]*state[3]*state[3]*sin(x[input_i]);
 
-		state[0] += state[3]*cos(state[2])+aaw*pconfig[0]*cos(dtw)*dt;
-		state[1] += state[3]*sin(state[2])+aaw*pconfig[0]*sin(dtw)*dt;
+		state[0] += state[3]*cos(state[2])+aaw*pconfig[0]*cos(dtw)*dt; //Change to GPS
+		state[1] += state[3]*sin(state[2])+aaw*pconfig[0]*sin(dtw)*dt; //Change to GPS
 		state[2] += state[4]*dt;
 		state[3] += (gs*sin(x[input_i+1])-gr*pconfig[10]*sin(x[input_i])-pconfig[1]*state[3]*state[3])/pconfig[8]*dt;
 		state[4] += (gs*(pconfig[5]-pconfig[6]*cos(x[input_i+1]))-gr*pconfig[7]*cos(x[input_i])-pconfig[2]*state[4]*state[3])/pconfig[9]*dt;

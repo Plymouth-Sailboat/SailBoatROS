@@ -14,25 +14,27 @@ double Identification::costFunction(const std::vector<double> &x, std::vector<do
 		double p7 = state.back()[1];
 		double p8 = state.back()[2];
 		double p9 = state.back()[3];
+		double atw = state.back()[4];
 		double dt = 0.1;
-		//Reference State
+		//Reference State gps.x gps.y heading v w dtw aaw daw rud sail
 		//TODO
 
 		//Simulate State
 		std::vector<double*> predicted;
-		double states[5];
+		double states[5] = {0,0,0,0,0};
 		for(int i = 0; i< state.size()-1; ++i){
-			double daw = state[i][5]+state[i][2];
-			double dtw = state[i][5];
+			double daw = state[i][7];
+			double dtw = state[i][5]+M_PI/2.0;
 			double aaw = state[i][6];
-			double gs = x[3]*aaw*sin(state[i][8]-daw);
-			double gr = x[4]*states[3]*states[3]*sin(state[i][7]);
+			double atw = 0;
+			double gs = x[3]*aaw*sin(state[i][9]-daw);
+			double gr = x[4]*states[3]*states[3]*sin(state[i][8]);
 
-			states[0] += states[3]*cos(states[3])+aaw*x[0]*cos(dtw)*dt;
-			states[1] += states[3]*sin(states[3])+aaw*x[0]*sin(dtw)*dt;
+			states[0] += states[3]*cos(states[2])+atw*x[0]*cos(dtw)*dt;
+			states[1] += states[3]*sin(states[2])+atw*x[0]*sin(dtw)*dt;
 			states[2] += states[4]*dt;
-			states[3] += (gs*sin(state[i][8])-gr*x[6]*sin(state[i][7])-x[1]*states[3]*states[3])/p9*dt;
-			states[4] += (gs*(p6-p7*cos(state[i][8]))-gr*p8*cos(state[i][7])-x[2]*states[4]*states[3])/x[5]*dt;
+			states[3] += (gs*sin(state[i][9])-gr*x[6]*sin(state[i][8])-x[1]*states[3]*states[3])/p9*dt;
+			states[4] += (gs*(p6-p7*cos(state[i][9]))-gr*p8*cos(state[i][8])-x[2]*states[4]*states[3])/x[5]*dt;
 
 			predicted.push_back(states);
 		}
@@ -40,10 +42,13 @@ double Identification::costFunction(const std::vector<double> &x, std::vector<do
 		//cost
 		double f = 0;
 		int it_i = 0;
-		for(std::vector<double*>::iterator it=state.begin(); it != state.end(); it++){
-			f += 1*((*it)[0] - predicted[it_i][0])*((*it)[0] - predicted[it_i][0]);
-			f += 1*((*it)[1] - predicted[it_i][1])*((*it)[1] - predicted[it_i][1]);
-			f += 1*((*it)[2] - predicted[it_i][2])*((*it)[2] - predicted[it_i][2]);
+		for(std::vector<double*>::iterator it=state.begin(); it != state.end()-1; it++){
+			double gpsdist = Utility::GPSDist((*it)[0], (*it)[1], 0, 0);
+			double xpos = gpsdist*sin((*it)[2]);
+			double ypos = -gpsdist*cos((*it)[2]);
+			f += 1*(xpos - predicted[it_i][0])*(xpos - predicted[it_i][0]);
+			f += 1*(ypos - predicted[it_i][1])*(ypos - predicted[it_i][1]);
+			f += 1*sin((*it)[2]-M_PI/2.0 - predicted[it_i][2])*sin((*it)[2]-M_PI/2.0 - predicted[it_i][2]);
 			f += 1*((*it)[3] - predicted[it_i][3])*((*it)[3] - predicted[it_i][3]);
 			f += 0.2*((*it)[4] - predicted[it_i][4])*((*it)[4] - predicted[it_i][4]);
 			it_i++;
@@ -57,7 +62,7 @@ void Identification::setup(ros::NodeHandle* n){
 	initPos = vec2(gpsMsg.latitude, gpsMsg.longitude);
 
 	initWind = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y);
-
+	initWindA = sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y);
 	vec2 current(gpsMsg.latitude, gpsMsg.longitude);
 	vec2 initPosXYZ = Utility::GPSToCartesian(current);
 	float distGPS = 500;
@@ -69,7 +74,7 @@ void Identification::setup(ros::NodeHandle* n){
 
 	std::string path = ros::package::getPath("sailrobot");
 	data.open(path+"/data/identification.txt");
-	data << "time,clock,step,dvx,dvy,dvz,ax,ay,az,avx,avy,avz,heading,wind,windacc,cmdrudder,cmdsail,lat,long" << std::endl;
+	data << "time,clock,step,dvx,dvy,dvz,ax,ay,az,avx,avy,avz,heading,twind,windacc,awind,cmdrudder,cmdsail,lat,long" << std::endl;
 }
 
 geometry_msgs::Twist Identification::control(){
@@ -166,13 +171,14 @@ geometry_msgs::Twist Identification::control(){
 		std::to_string(currentHeading) << "," <<
 		std::to_string(windNorth) << "," <<
 		std::to_string(sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y)) << "," <<
+		std::to_string(windMsg.theta) << "," <<
 		std::to_string(ruddersail.x) << "," <<
 		std::to_string(ruddersail.y) << "," <<
 		std::to_string(current.x) << "," <<
 		std::to_string(current.y) << std::endl;
 
 		double vnorm = sqrt(velMsg.linear.x*velMsg.linear.x+velMsg.linear.y*velMsg.linear.y);
-		state.push_back(new double[9]{current.x,current.y,currentHeading,vnorm,imuMsg.angular_velocity.z,windNorth,sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y),ruddersail.x,ruddersail.y});
+		state.push_back(new double[10]{current.x-initPos.x,current.y-initPos.y,currentHeading,vnorm,imuMsg.angular_velocity.z,windNorth,sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y),windMsg.theta,ruddersail.x,ruddersail.y});
 
 		cmd.angular.x = (double)ruddersail.x;
 		cmd.angular.y = (double)ruddersail.y;
@@ -180,7 +186,6 @@ geometry_msgs::Twist Identification::control(){
 		std::string message = "";
 
 		publishLOG("step " + std::to_string(step));
-
 	}
 
 
@@ -213,7 +218,7 @@ geometry_msgs::Twist Identification::control(){
 			}
 
 			double aaw = datain[14];
-			double daw = datain[13]-datain[12];
+			double daw = datain[15];
 			double angacc = 0;
 			double angvel = datain[12];
 			if(prevheading != 0)
@@ -235,7 +240,7 @@ geometry_msgs::Twist Identification::control(){
 					s2.push_back(anorm/(vnorm*vnorm));
 				break;
 				case 2://S3 S1
-					s1.push_back(maxv*maxv/(aaw*sin(datain[16]-daw)*sin(datain[16])));
+					s1.push_back(maxv*maxv/(aaw*sin(datain[17]-daw)*sin(datain[17])));
 					s3.push_back(2*(p10*angacc+p3*angvel*vnorm)/(vnorm*vnorm*p8));
 				break;
 				case 3://S4 S5
@@ -245,7 +250,6 @@ geometry_msgs::Twist Identification::control(){
 			}
 			datain.clear();
 		}
-		datain.clear();
 		infile.close();
 
 		float s1p = std::accumulate(std::begin(s1), std::end(s1), 0.0) / s1.size();
@@ -267,10 +271,10 @@ geometry_msgs::Twist Identification::control(){
 		s4.clear();
 		s5.clear();
 		p1.clear();
-		state.push_back(new double[9]{p6,p7,p8,p9,0,0,0,0,0});
+		state.push_back(new double[10]{p6,p7,p8,p9,0,0,0,0,0,0});
 
 		//Regression step for parameters
-		nlopt::opt opt(nlopt::GN_DIRECT_L, 11);
+		nlopt::opt opt(nlopt::GN_DIRECT_L, 7);
 		opt.set_min_objective(costFunction, (void*)&state);
 
 		std::vector<double> lb(7,0.0);
@@ -284,7 +288,7 @@ geometry_msgs::Twist Identification::control(){
 			try{
 		    		nlopt::result result = opt.optimize(x, minf);
 		    		std::cout << "found minimum at f(";
-						for(int i = 0; i < 11; ++i)
+						for(int i = 0; i < 7; ++i)
 						 	std::cout << x[i] << ",";
 						std::cout << ") = " << std::setprecision(10) << minf << std::endl;
 			}

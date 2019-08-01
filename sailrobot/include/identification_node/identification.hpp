@@ -20,6 +20,7 @@ namespace Sailboat{
 		unsigned int step;
 		glm::vec2 initPos;
 		glm::vec2 goal1;
+    float initWindA;
 		float initWind;
 		double start;
 
