@@ -36,12 +36,16 @@ import sys
 import rospy
 
 from libnmea_navsat_driver.driver import RosNMEADriver
-
+import pyudev
 
 def main():
     rospy.init_node('nmea_serial_driver')
 
-    serial_port = rospy.get_param('~port', '/dev/ttyUSB0')
+    serial_port = "/dev/ttyUSB0"
+    for device in context.list_devices(subsystem='tty'):
+        if 'ID_VENDOR' in device and device['ID_VENDOR'] == 'Prolific_Technology_Inc.':
+            serial_port = device['DEVNAME']
+
     serial_baud = rospy.get_param('~baud', 4800)
     frame_id = RosNMEADriver.get_frame_id()
 
