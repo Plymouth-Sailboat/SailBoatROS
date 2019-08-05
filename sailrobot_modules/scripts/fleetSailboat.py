@@ -168,9 +168,13 @@ if __name__ == "__main__":
     context = pyudev.Context()
     usbPort = 'No XBee found'
 
-    for device in context.list_devices(subsystem='tty'):
-        if 'ID_VENDOR' in device and device['ID_VENDOR'] == 'FTDI':
-            usbPort = device['DEVNAME']
+    if(rospy.has_param('/xbee/port')):
+        usbPort = rospy.get_param('/xbee/port')
+    else:
+        for device in context.list_devices(subsystem='tty'):
+            if 'ID_VENDOR' in device and device['ID_VENDOR'] == 'FTDI':
+                usbPort = device['DEVNAME']
+    rospy.loginfo(usbPort)
 
     #Initialise data transmission with the XBee
     ser = serial.Serial(usbPort,baudrate=57600, timeout = 0.02)
