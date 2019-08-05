@@ -34,6 +34,7 @@ import math
 
 import rospy
 
+from std_msgs.msg import String
 from sensor_msgs.msg import TimeReference
 from gps_common.msg import GPSFix,GPSStatus
 from geometry_msgs.msg import TwistStamped, QuaternionStamped

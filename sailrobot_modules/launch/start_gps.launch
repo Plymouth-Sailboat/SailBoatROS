@@ -1,0 +1,5 @@
+<launch>
+	<group ns="sailboat">
+	<node pkg="sailrobot_modules" name="gps" type="gps_usb" />
+	</group>
+</launch>
