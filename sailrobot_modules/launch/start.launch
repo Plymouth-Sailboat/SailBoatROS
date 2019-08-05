@@ -1,0 +1,6 @@
+<launch>
+	<arg name="xbeeport" default="/dev/ttyUSB0" />
+	<node pkg="sailrobot_modules" name="xbee" type="fleetSailboat.py">
+		<param name="port" value="$(arg xbeeport)"/>
+	</node>
+</launch>
