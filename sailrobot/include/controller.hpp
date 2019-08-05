@@ -69,6 +69,8 @@ namespace Sailboat{
 			ros::Subscriber rudderSub;
 			ros::Subscriber rudder2Sub;
 			ros::Subscriber velSub;
+			ros::Subscriber xbeeSub;
+			ros::Subscriber xbeeCSub;
 
 			ros::Publisher odomMsg;
 			ros::Publisher pubCmd;
@@ -101,11 +103,15 @@ namespace Sailboat{
 			void rudder2Callback(const std_msgs::Float32::ConstPtr& msg){rudder(msg);}
 			void velCallback(const geometry_msgs::Twist::ConstPtr& msg){vel(msg);}
 
+			void xbeeCallback(const std_msgs::Float32::ConstPtr& msg);
+			void xbeeRudSailCallback(const geometry_msgs::Twist::ConstPtr& msg);
 			void publishOdom();
 
 			int looprate;
 			int controller;
 			std::vector<float> windAvg;
+			float xbeeMode;
+			geometry_msgs::Twist xbeeControl;
 	};
 }
 

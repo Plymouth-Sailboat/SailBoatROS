@@ -1,0 +1,10 @@
+<launch>
+
+    <node name="operator" pkg="sailrobot_modules" type="operator.py" output='screen'/>
+    <node name="fleetCoordinator" pkg="sailrobot_modules" type="fleetCoordinator.py" output='screen'/>
+    <node type="rviz" name="rviz" pkg="rviz" />
+    <node pkg="rostopic" type="rostopic" name="gps_origin" args="pub /launch_send_gps_origin geometry_msgs/Vector3 -- 50.375471 -4.138836 0" output="screen"/>
+    <node pkg="WRSC_plymouth_JEGAT" type="rviz_displayer_fleet.py" name="rviz_displayer_fleet" />
+</launch>
+
+
