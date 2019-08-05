@@ -83,7 +83,7 @@ def sub_IMU(data):
     data.orientation.y,
     data.orientation.z,
     data.orientation.w)
-    euler = tf.transformations.euler_from_quaternion(roll, pitch, yaw)
+    euler = tf.transformations.euler_from_quaternion(quaternion)
     eulerAnglesString = str(euler[0])+','+str(euler[1])+','+str(euler[2])
 
 def sub_lineBegin(data):

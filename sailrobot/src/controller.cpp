@@ -5,7 +5,7 @@
 
 using namespace Sailboat;
 
-Controller::Controller(std::string name, int looprate, int controller) : name(name), looprate(looprate), controller(controller), rudderAngle(0), sailAngle(0){
+Controller::Controller(std::string name, int looprate, int controller) : name(name), looprate(looprate), controller(controller), rudderAngle(0), sailAngle(0), xbeeMode(0){
 
 }
 
@@ -23,6 +23,8 @@ void Controller::init(int argc, char **argv){
 	rudderSub = n->subscribe("/sailboat/rudder", 100, &Controller::rudderCallback, this);
 	rudder2Sub = n->subscribe("/sailboat/rudder2", 100, &Controller::rudder2Callback, this);
 	velSub = n->subscribe("/sailboat/IMU_Dv", 100, &Controller::velCallback, this);
+	xbeeSub = n->subscribe("/xbee_send_mode", 100, &Controller::xbeeCallback, this);
+	xbeeCSub = n->subscribe("/xbee_send_rudder_sail", 100, &Controller::xbeeRudSailCallback, this);
 
 	odomMsg = n->advertise<nav_msgs::Odometry>("/sailboat/odom", 100);
 	pubCmd = n->advertise<geometry_msgs::Twist>("/sailboat/sailboat_cmd", 100);
@@ -57,7 +59,10 @@ void Controller::loop(){
 }
 
 void Controller::controlPublished(){
-	publishCMD(control());
+	if(xbeeMode != 1)
+		publishCMD(control());
+	else
+		publishCMD(xbeeControl);
 }
 
 
@@ -140,3 +145,10 @@ void Controller::vel(const geometry_msgs::Twist::ConstPtr& msg){
 	velMsg = *msg;
 }
 
+void Controller::xbeeCallback(const std_msgs::Float32::ConstPtr& msg){
+	xbeeMode = msg->data;
+}
+
+void Controller::xbeeRudSailCallback(const geometry_msgs::Twist::ConstPtr& msg){
+	xbeeControl = *msg;
+}
