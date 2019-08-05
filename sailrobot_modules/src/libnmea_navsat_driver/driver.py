@@ -46,11 +46,13 @@ import libnmea_navsat_driver.parser
 class RosNMEADriver(object):
 
     def __init__(self):
-        self.fix_pub = rospy.Publisher('sailboat/GPS/fix', GPSFix, queue_size=1)
+        self.fix_pub = rospy.Publisher('GPS/fix', GPSFix, queue_size=1)
+        self.nmea_pub = rospy.Publisher('GPS/NMEA', String, queue_size=1)
 
         self.valid_fix = False
 	self.use_RMC = rospy.get_param('~useRMC', False)
 	self.current_fix = GPSFix()
+        self.current_nmea = String()
 
         # epe = estimated position error
         self.default_epe_quality0 = rospy.get_param('~epe_quality0', 1000000)
@@ -128,6 +130,8 @@ class RosNMEADriver(object):
                 "Failed to parse NMEA sentence. Sentence was: %s" %
                 nmea_string)
             return False
+
+        self.current_nmea.data = nmea_string
 
         if timestamp:
             current_time = timestamp
@@ -259,6 +263,7 @@ class RosNMEADriver(object):
 #        else:
 #            return False
 	self.fix_pub.publish(self.current_fix)
+        self.nmea_pub.publish(self.current_nmea)
 
     """Helper method for getting the frame_id with the correct TF prefix"""
 

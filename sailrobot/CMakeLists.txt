@@ -167,6 +167,9 @@ target_link_libraries(identification ${catkin_LIBRARIES} nlopt)
 add_executable(transform_broadcaster ${basic_source} src/transform_broadcaster_node/transform_broadcaster_node.cpp src/transform_broadcaster_node/transform_broadcaster.cpp)
 target_link_libraries(transform_broadcaster ${catkin_LIBRARIES})
 
+add_executable(relay ${basic_source} src/relay_node/relay_node.cpp src/relay_node/relay.cpp)
+target_link_libraries(relay ${catkin_LIBRARIES})
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
