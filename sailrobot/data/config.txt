@@ -1,4 +1,4 @@
-true_wind=0 //1 if real true wind calculated or else 0
+true_wind=1 //1 if real true wind calculated or else 0
 p1=0 //drift coefficient
 p2=0 //tangential friction
 p3=0 //angular friction

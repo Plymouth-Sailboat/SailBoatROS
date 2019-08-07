@@ -75,6 +75,7 @@ class Utility{
 		 * @{
 		 */
 		static float TackingStrategy(float distanceToLine, float lineBearing, float windNorth, float heading, float corridor, float psi, float ksi, int *q);
+		static float TackingStrategy(float distanceToLine, float lineBearing, float windNorth, float heading, float corridor, float psi, float ksi, int *q, bool *check);
 		/** @} */
 
 		/** Standard rudder and sail control from Heading

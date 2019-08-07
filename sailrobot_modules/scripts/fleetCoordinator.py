@@ -51,6 +51,7 @@ from gps_common.msg import GPSFix
 
 import serial
 from time import time, sleep
+import numpy
 
 import pyudev
 
@@ -84,7 +85,7 @@ def is_valid(line):
             msg = msg.replace('=','')
 
             try :
-                size = int(msg.split('_')[0])
+                size = int(msg.split('@')[0])
 
                 if size == len(msg):
                     msg = msg[5:]
@@ -110,14 +111,14 @@ def is_valid(line):
 
 
 
-if __name__ == '__main__':
+def run():
     expected_fleet_size = 1
     receiving_freq = 10. #Set the speed of the transmission loops
 
 ###################################################################################################
 #    Look for XBee USB port, to avoid conflicts with other USB devices
 ###################################################################################################
-    rospy.init_node('coordinator', anonymous=True)
+    rospy.init_node('fleetCoordinator', anonymous=True)
     rospy.loginfo("Looking for XBee...")
 
     context = pyudev.Context()
@@ -189,7 +190,7 @@ if __name__ == '__main__':
     #link each ID to a minimal line number in the data storing structure
     linkDict = {connected[i]:i for i in range(fleetSize)}
 
-    ser.write(str(fleetSize)+'_'+str(connected)+'_Connected'+ '\n')
+    ser.write(str(fleetSize)+'@'+str(connected)+'@Connected'+ '\n')
     rospy.loginfo("Got boats " + str(connected)+' connected\n')
 
     sleep(5)
@@ -200,7 +201,8 @@ if __name__ == '__main__':
 ###################################################################################################
     #Variables storing the data received by the subscribers
     global targetString, modeString
-    targetString, modeString = 'nan, nan', '0'
+    targetString = str({boat:(0,numpy.pi/2) for boat in connected})
+    modeString = str({boat:0 for boat in connected})
 
 
     emission_freq = receiving_freq/fleetSize #Frequency of emission for the Coordinator
@@ -208,6 +210,11 @@ if __name__ == '__main__':
     ser.timeout = 0.1
 
     compteur = 0
+
+    pub_send_connected = rospy.Publisher("xbee_send_connected", String, queue_size = 1)
+    for i in range(2):
+        pub_send_connected.publish(String(data = str(connected)))
+        sleep(2)
 
     pub_send_gps = [rospy.Publisher("xbee_send_gps_"+str(i), GPSFix, queue_size = 0) for i in connected]
 
@@ -244,7 +251,7 @@ if __name__ == '__main__':
     emission = -1
 
     #Data storing structure
-    received = ['ID_nothing_nothing_nothing_nothing_nothing_nothing']*fleetSize
+    received = ['ID@nothing@nothing@nothing@nothing@nothing@nothing']*fleetSize
 
 
     while not rospy.is_shutdown():
@@ -255,7 +262,7 @@ if __name__ == '__main__':
 ####################################################################################################
 # Receive useful data from the sailboats
 # Frame received:
-# "#####msgSize_ID_windForceString_windDirectionString_gpsString_eulerAnglesString_lineBeginString_lineEndString=====\n"
+# "#####msgSize@ID@windForceString@windDirectionString@gpsString@eulerAnglesString@lineBeginString@lineEndString=====\n"
 ####################################################################################################
 
         #If available, read a line from the XBee
@@ -281,7 +288,7 @@ if __name__ == '__main__':
             compteur += 1
 
             #Organise the incoming data in the storing structure
-            msgData = msgReceived.split('_')
+            msgData = msgReceived.split('@')
 
             IDboat = int(msgData[0])
             received[linkDict[IDboat]-1] = msgReceived
@@ -325,7 +332,7 @@ if __name__ == '__main__':
                 frame_type = float(data[6])
                 nbSat = float(data[7])
 		if data[8] != '':                
-		 hdop = float(data[8])
+                    hdop = float(data[8])
                 altitude = float(data[9].split(',')[0])
 
 
@@ -373,29 +380,29 @@ if __name__ == '__main__':
 ##########################################################################################################################################
 # Send useful data to the sailboats
 # Frame emitted:
-# "#####msgSize_ID1_windForceString1_windDirectionString1_gpsString1_eulerAnglesString1_lineBeginString1_lineEndString1_ID2_..._targetString_modeString=====\n"
+# "#####msgSize@ID1@windForceString1@windDirectionString1@gpsString1@eulerAnglesString1@lineBeginString1@lineEndString1@ID2@...@targetString@modeString=====\n"
 ##########################################################################################################################################
 
             #Collect the data from each boat and the operator and gather them in one string
             #Creating the core message
             receivedLines = ''
             for line in received:
-                receivedLines += line+'_'
+                receivedLines += line+'@'
 
-            msg = receivedLines+targetString+'_'+modeString
+            msg = receivedLines+targetString+'@'+modeString
 
             #Generating the checkSum message control
             size = str(len(msg)+5)
             for i in range(len(size),4):
                 size = '0'+size
 
-            msg = "#####"+size+'_'+msg+"=====\n"
+            msg = "#####"+size+'@'+msg+"=====\n"
 
             #Emit the message
             ser.write(msg)
 #            rospy.loginfo("Emitted\n|" + msg + '|')
 
-            received = ['ID_nothing_nothing_nothing_nothing_nothing_nothing']*fleetSize
+            received = ['ID@nothing@nothing@nothing@nothing@nothing@nothing']*fleetSize
 
 
 #            rospy.loginfo("Emission " + str(emission//fleetSize))

@@ -50,17 +50,15 @@
 import rospy
 
 from std_msgs.msg import Float32, String
-from geometry_msgs.msg import Pose2D, Vector3, Twist
-from sensor_msgs.msg import Imu
-import tf
+from geometry_msgs.msg import Pose2D, Vector3
 
 import serial
 from time import time, sleep
-import math
 import numpy as np
 
 import pyudev
 import sys
+import subprocess as s
 
 ###################################################################################################
 #    To execute when a message to transmit is received by the subscribers.
@@ -94,7 +92,6 @@ def sub_lineEnd(data):
     global endString
     endString = str(data.x)+','+str(data.y)+','+str(data.theta)
 
-
 ###################################################################################################
 #    Check message validity and clean it for downstream use (remove begin and end signals + size)
 ###################################################################################################
@@ -111,7 +108,7 @@ def is_valid(line):
             msg = msg.replace('=','')
 
             try :
-                size = int(msg.split('_')[0])
+                size = int(msg.split('@')[0])
 
                 if size == len(msg):
                     msg = msg[5:]
@@ -151,7 +148,7 @@ if __name__ == "__main__":
 
 
     #Initialisation of the ROS node, endPoint refers to XBee network structure
-    rospy.init_node('endPoint', anonymous=True)
+    rospy.init_node('fleetSailboat', anonymous=True)
 
     # Data coming from the sailboats
     windForceData, windDirectionData, GPSdata, eulerAnglesData, lineStartData, lineEndData = Float32(), Float32(), String(), Vector3(), Pose2D(), Pose2D()
@@ -168,13 +165,9 @@ if __name__ == "__main__":
     context = pyudev.Context()
     usbPort = 'No XBee found'
 
-    if(rospy.has_param('/xbee/port')):
-        usbPort = rospy.get_param('/xbee/port')
-    else:
-        for device in context.list_devices(subsystem='tty'):
-            if 'ID_VENDOR' in device and device['ID_VENDOR'] == 'FTDI':
-                usbPort = device['DEVNAME']
-    rospy.loginfo(usbPort)
+    for device in context.list_devices(subsystem='tty'):
+        if 'ID_VENDOR' in device and device['ID_VENDOR'] == 'FTDI':
+            usbPort = device['DEVNAME']
 
     #Initialise data transmission with the XBee
     ser = serial.Serial(usbPort,baudrate=57600, timeout = 0.02)
@@ -218,13 +211,18 @@ if __name__ == "__main__":
         for i in range(len(size),4):
             size = '0'+size
 
-        msg = "#####"+size+'_'+msg+"====="
+        msg = "#####"+size+'@'+msg+"====="
         ser.write(msg)
         fleetInitMessage = ser.readline()
 
     #Every sailboat is connected, Coordinator sent the message
-    fleetSize = int(fleetInitMessage.split('_')[0])
-    fleetIDs = eval(fleetInitMessage.split('_')[1])
+    fleetSize = int(fleetInitMessage.split('@')[0])
+    fleetIDs = eval(fleetInitMessage.split('@')[1])
+
+    #Organise data to create a link between topics names and boats IDs
+    #By doing this, you can be sure that the data relative to one boat
+    #will always be published in the same publishers, allowing therefore
+    #to keep a track of each boat.
     dictLink = {fleetIDs[i]:(i) for i in range(len(fleetIDs))} #give local minimal IDs to the connected boats
     rospy.loginfo("DICT = "+str(dictLink))
 
@@ -256,7 +254,6 @@ if __name__ == "__main__":
 #    Receive the data relative to line following
     rospy.Subscriber('regulator_send_lineBegin', Pose2D, sub_lineBegin)
     rospy.Subscriber('regulator_send_lineEnd', Pose2D, sub_lineEnd)
-
 
 
 ###################################################################################################
@@ -299,6 +296,7 @@ if __name__ == "__main__":
     #For statistics
     compteur = 0
     emission = 0
+    commandMode = False
 
     #Message begin signal: '#####'
     #Message end signal: '=====\n'
@@ -317,7 +315,7 @@ if __name__ == "__main__":
 ##########################################################################################################################################
 # Receive useful data from the coordinator
 # Frame received:
-# "#####msgSize_ID1_windForceString1_windDirectionString1_gpsString1_eulerAnglesString1_lineBeginString1_lineEndString1_ID2_..._targetString_modeString=====\n"
+# "#####msgSize@ID1@windForceString1@windDirectionString1@gpsString1@eulerAnglesString1@lineBeginString1@lineEndString1@ID2@...@targetString@modeString=====\n"
 ##########################################################################################################################################
 
         # Read what is in the buffer, start and stop with specific signals.
@@ -343,13 +341,13 @@ if __name__ == "__main__":
 
             #Organise the data by separating the data from each boat and the data from the operator
 
-            data = msgReceived.split('_')
+            data = msgReceived.split('@')
 
-            data_log = "Read\n"
-            for boat in range(fleetSize):
-                data_log += str(data[7*boat:7*(boat+1)])+'\n'
-            data_log += str(data[-2:])
-            rospy.loginfo(data_log+'\n')
+#            data_log = "Read\n"
+#            for boat in range(fleetSize):
+#                data_log += str(data[7*boat:7*(boat+1)])+'\n'
+#            data_log += str(data[-2:])
+#            rospy.loginfo(data_log+'\n')
 
 
             #Collect the data from boats and store it the corresponding variables
@@ -411,44 +409,86 @@ if __name__ == "__main__":
             #Collect the data from the operator and store it the corresponding variables
             #that will be sent by the publishers.
 
-            targetString = data[cursor]
-            targetData = targetString.split(',')
-            rudder_sail.angular.x = float(targetData[0])
-            rudder_sail.angular.y = float(targetData[1])
+## BEGIN UPDATE   (+ import subprocess as s) +(initMode => fleetSailboat) +( _ => @ )
 
-            mode.data = int(data[cursor+1])
+            userInputDict = eval(data[cursor])
+            userInput = userInputDict[ID]
 
-            #Organise data to create a link between topics names and boats IDs
-            #By doing this, you can be sure that the data relative to one boat
-            #will always be published in the same publishers, allowing therefore
-            #to keep a track of each boat.
+            modeDict = eval(data[cursor+1])
+            mode.data = modeDict[ID]
+
+            if mode.data == 2:
+                if not commandMode:
+                    try:
+                        commandMode = True
+                        if userInput.split()[0] in ["kill", "Kill"]:
+                            runningNodes = s.check_output("rosnode list".split()).split('\n')[:-1]
+
+                            if userInput.split()[1] in ["-a", "--all"]:
+                                for node in runningNodes:
+                                    if node != '' and "ros" not in node and "fleetSailboat" not in node:
+                                        killCommand = "rosnode kill "+node
+                                        rospy.loginfo("Launched command "+killCommand)
+                                        killProcess = s.Popen(killCommand.split())
+                                        rospy.loginfo("Success")
+                            else:
+                                for node in runningNodes:
+                                    if userInput.split()[1] in node:
+                                        killCommand = "rosnode kill "+node
+                                        rospy.loginfo("Launched command "+killCommand)
+                                        killProcess = s.Popen(killCommand.split())
+                                        rospy.loginfo("Success")
+
+                        else:
+                            if userInput.split()[-1] == "--relaunch":
+                                runningNodes = s.check_output("rosnode list".split()).split('\n')[:-1]
+                                userInput = userInput[:userInput.index("--relaunch")]
+                                for node in runningNodes:
+                                    if node != '' and "ros" not in node and "fleetSailboat" not in node:
+                                        killCommand = "rosnode kill "+node
+                                        rospy.loginfo("Launched command "+killCommand)
+                                        killProcess = s.Popen(killCommand.split())
+                                        rospy.loginfo("Success")
+
+                        rospy.loginfo("Launched command "+userInput)
+                        process = s.Popen(userInput.split())
+                        rospy.loginfo("Success")
+
+                    except Exception as e:
+                        rospy.loginfo('Error launching command: \n{0}'.format(e))
 
 
-            #Publish the data for internal use (controllers, kalman filters, ...)
+            else:
+                commandMode = False
+                #Publish the data for internal use (controllers, kalman filters, ...)
+                rudder_sail.angular.x = userInput[0]
+                rudder_sail.angular.y = userInput[1]
 
-            pub_send_control_mode.publish(mode)
-            pub_send_u_rudder_sail.publish(rudder_sail)
+                pub_send_control_mode.publish(mode)
+                pub_send_u_rudder_sail.publish(rudder_sail)
 
 
-        elif not check:
-            rospy.loginfo("Could not read\n"+ '|'+line+'|\n')
+## END UPDATE
+
+#        elif not check:
+#            rospy.loginfo("Could not read\n"+ '|'+line+'|\n')
 
 
 ####################################################################################################
 # Send useful data to the coordinator
 # Frame emitted:
-# "#####msgSize_ID_windForceString_windDirectionString_gpsString_eulerAnglesString_lineBeginString_lineEndString=====\n"
+# "#####msgSize@ID@windForceString@windDirectionString@gpsString@eulerAnglesString@lineBeginString@lineEndString=====\n"
 ####################################################################################################
 
         #Creating the core message
-        msg = str(ID)+'_'+windForceString+'_'+windDirectionString+'_'+gpsString+'_'+eulerAnglesString+'_'+beginString+'_'+endString
+        msg = str(ID)+'@'+windForceString+'@'+windDirectionString+'@'+gpsString+'@'+eulerAnglesString+'@'+beginString+'@'+endString
 
         #Generating the checkSum message control
         size = str(len(msg)+5)
         for i in range(len(size),4):
             size = '0'+size
 
-        msg = "#####"+size+'_'+msg+"=====\n"
+        msg = "#####"+size+'@'+msg+"=====\n"
 
 
         #Sleep while others are talking
@@ -466,7 +506,7 @@ if __name__ == "__main__":
         #Clean the line to check wether it corresponds to the shutdown signal.
         line = line.replace('#','')
         line = line.replace('=','')
-        rospy.loginfo("processFreq = "+str(1/(time()-loopTime)))
+#        rospy.loginfo("processFreq = "+str(1/(time()-loopTime)))
 
 
 
@@ -486,6 +526,9 @@ if __name__ == "__main__":
     rospy.loginfo("End mission\n")
     rospy.loginfo("Emitted "+str(emission))
     rospy.loginfo("Received "+str(compteur))
+
+
+
 
 
 

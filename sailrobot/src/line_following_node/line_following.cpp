@@ -67,7 +67,8 @@ geometry_msgs::Twist LineFollowing::control(){
 
 	float thetabar = phi - 2*psi/M_PI*atan(e/r);
 	//Check For Tacking
-	thetabar = Utility::TackingStrategy(e,phi,windNorth,thetabar,r,psi,ksi,&q);
+	bool check = false;
+	thetabar = Utility::TackingStrategy(e,phi,windNorth,thetabar,r,psi,ksi,&q, &check);
 
 	//Standard Command for rudder and sail
 	vec2 cmdv = Utility::StandardCommand(heading,thetabar, windNorth, M_PI/3.0);
@@ -75,7 +76,10 @@ geometry_msgs::Twist LineFollowing::control(){
 	cmd.angular.y = cmdv.y;
 
 	//LOG
-	publishLOG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y)+ "\ne : " + std::to_string(e) +"\nTrue Wind : " + std::to_string(windNorth) );
+	std::string checkTacking = "";
+	if(check)
+		checkTacking = " Tacking! " + std::to_string(q);
+	publishLOG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y)+ "\ne : " + std::to_string(e) +"\nTrue Wind : " + std::to_string(windNorth) + " dist : " + std::to_string(dist) + checkTacking);
 
 	return cmd;
 }
