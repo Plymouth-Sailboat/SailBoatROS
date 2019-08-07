@@ -178,9 +178,16 @@ std::map<std::string,std::string> Utility::ReadConfig(std::string filepath){
 
 float Utility::RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAccx, float windAccy){
 	if(std::stoi(Utility::Instance().config["true_wind"])){
+		float angle = heading+windDirection;
+		angle = fmod(angle + M_PI, 2.0 * M_PI);
+		float s = glm::length(v);
 		float windAcc = sqrt(windAccx*windAccx+windAccy*windAccy);
-		float dx = v.x*cos(heading)-v.y*sin(heading);
-		float dy = v.x*sin(heading)+v.y*cos(heading);
+		//float T = sqrt(s*s+windAcc*windAcc-(2*s*windAcc*cos(windDirection)));
+		//float b = (windAcc*windAcc-T*T-s*s)/(2*T*s);
+		//float the = acos(b);
+		float dx = s*cos(heading)-windAcc*cos(angle);
+		float dy = s*sin(heading)-windAcc*sin(angle);
+		//return heading+the;
 		return atan2(dy,dx);
 	}else{
 		float angle = heading+windDirection;
@@ -198,6 +205,17 @@ float Utility::TackingStrategy(float distanceToLine, float lineBearing, float wi
 
 	if(cos(windNorth-heading)+cos(ksi) < 0 || (abs(distanceToLine) < corridor && (cos(windNorth-lineBearing)+cos(ksi) < 0)))
 		heading = M_PI + windNorth - (*q)*ksi;
+	return heading;
+}
+
+float Utility::TackingStrategy(float distanceToLine, float lineBearing, float windNorth, float heading, float corridor, float psi, float ksi, int *q, bool *check){
+	if(abs(distanceToLine) > corridor/2)
+		(*q) = distanceToLine>=0?1:-1;
+
+	if(cos(windNorth-heading)+cos(ksi) < 0 || (abs(distanceToLine) < corridor && (cos(windNorth-lineBearing)+cos(ksi) < 0))){
+		heading = M_PI + windNorth - (*q)*ksi;
+		*check = true;
+	}
 	return heading;
 }
 

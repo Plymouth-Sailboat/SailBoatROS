@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   gps_common
   tf
+  tf2
+  tf2_ros
   roslib
 )
 
@@ -170,6 +172,10 @@ target_link_libraries(transform_broadcaster ${catkin_LIBRARIES})
 add_executable(relay ${basic_source} src/relay_node/relay_node.cpp src/relay_node/relay.cpp)
 target_link_libraries(relay ${catkin_LIBRARIES})
 
+add_executable(simuBoat src/simulation_node/simuBoat.cpp)
+add_executable(displayBoat src/simulation_node/displayBoat.cpp)
+target_link_libraries(simuBoat ${catkin_LIBRARIES})
+target_link_libraries(displayBoat ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
