@@ -7,25 +7,31 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <array>
 
 namespace Sailboat{
-    class Identification : public Controller{
-	public:
-        Identification(std::string name) : Controller(name,10, MODE::RUDDER_SAIL), step(0){}
-        ~Identification(){if(data.is_open())data.close();}
-	void setup(ros::NodeHandle* n);
-	virtual geometry_msgs::Twist control();
+	class Identification : public Controller{
+		public:
+			Identification(std::string name) : Controller(name,10, MODE::RUDDER_SAIL), step(0), doSimu(0) {}
+			~Identification(){if(data.is_open())data.close();}
+			void setup(ros::NodeHandle* n);
+			virtual geometry_msgs::Twist control();
 
-	private:
-		unsigned int step;
-		glm::vec2 initPos;
-		glm::vec2 goal1;
-    float initWindA;
-		float initWind;
-		double start;
+		private:
+			unsigned int step;
+			glm::vec2 initPos;
+			glm::vec2 goal1;
+			float initWindA;
+			float initWind;
+			float initTheta;
+			float initV;
+			double start;
 
-		std::ofstream data;
-    static double costFunction(const std::vector<double> &x, std::vector<double> &grad, void *option);
+			int doSimu;
+
+			std::ofstream data;
+			std::vector<std::array<double, 10>> state;
+			static double costFunction(const std::vector<double> &x, std::vector<double> &grad, void *option);
 	};
 }
 

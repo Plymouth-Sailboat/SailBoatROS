@@ -27,11 +27,12 @@ geometry_msgs::Pose2D windN;
 geometry_msgs::Twist cmd;
 
 double delta_s;
-double p[10] = {0.1,1,6000,1000,2000,1,1,2,300,10000};
+double p[11] = {0.03,40,6000,200,1500,0.5,0.5,2,300,400,0.2};
 
 //x,y,cap,v,w: vitesse rotation
 double x[5] = {0,0,0,0,0};
 double xdot[5] = {0,0,0,0,0};
+double accel = 0;
 
 
 double t0;
@@ -76,10 +77,10 @@ void f(){
 	}
 	double fr = p[4]*v*sin(cmd.angular.x);
 	double fs = p[3]*a_ap*sin(delta_s-psi_ap);
-	xdot[0] = v*cos(theta) + p[0]*awind*cos(wind.theta);
-	xdot[1] = v*sin(theta) + p[0]*awind*sin(wind.theta);
+	xdot[0] = v*cos(theta) + p[0]*awind*cos(windN.theta);
+	xdot[1] = v*sin(theta) + p[0]*awind*sin(windN.theta);
 	xdot[2] = w;
-	xdot[3] = (fs*sin(delta_s) - fr*sin(cmd.angular.x) - p[1]*v*v)/p[8];
+	xdot[3] = (fs*sin(delta_s) - fr*sin(cmd.angular.x)*p[10] - p[1]*v*v)/p[8];
 	xdot[4] = (fs*(p[5]-p[6]*cos(delta_s))- p[7]*fr*cos(cmd.angular.x)-p[2]*w*v)/p[9];
 
 }
@@ -107,19 +108,20 @@ void set_imu(ros::Publisher pub_imu, sensor_msgs::Imu msgImu, double x[5]){
 	msgImu.orientation.z=quat.z;
 	msgImu.orientation.w=quat.w;
 
-	msgImu.linear_acceleration.x = 0;
-	msgImu.linear_acceleration.y = 0;
+	msgImu.linear_acceleration.x = xdot[3]*cos(x[2]);
+	msgImu.linear_acceleration.y = xdot[3]*sin(x[2]);
 	msgImu.linear_acceleration.z = 0;
 
 	msgImu.angular_velocity.x  = 0;
 	msgImu.angular_velocity.y  = 0;
-	msgImu.angular_velocity.z  = 0;
+	msgImu.angular_velocity.z  = xdot[2];
 	pub_imu.publish(msgImu);
 }
 
 void set_gps(ros::Publisher pub_gps, gps_common::GPSFix msgGps, double x[5]){
-	msgGps.latitude = x[0]/(111.11*1000)+ xRef[0];
-	msgGps.longitude = -x[1]/(111.11*1000*cos(xRef[0]*M_PI/180))+xRef[1];
+	msgGps.latitude = x[0]/(111132.92)+ xRef[0];
+	double latpi = msgGps.latitude*M_PI/180.0;
+	msgGps.longitude = -x[1]/(111412.84*cos(latpi)-93.5*cos(3*latpi)+0.118*cos(5*latpi))+xRef[1];
 	msgGps.track = x[2];
 	msgGps.speed = x[3];
 	pub_gps.publish(msgGps);
@@ -185,7 +187,7 @@ int main(int argc, char **argv)
 	nh.param<double>("posy", x[1],0);
 	nh.param<double>("/simuBoat/xRefY", xRef[1],0);
 	nh.param<double>("theta", x[2],0);
-	x[3] = 1;
+	x[3] = 0.5;
 	x[4] = 0;
 	wind = geometry_msgs::Pose2D();
 	windN = geometry_msgs::Pose2D();
@@ -193,7 +195,7 @@ int main(int argc, char **argv)
 	cmd = geometry_msgs::Twist();
 	msgImu_Dv = geometry_msgs::Twist();
 
-	ros::Rate loop_rate(25);
+	ros::Rate loop_rate(100);
 	while (ros::ok()){
 		ros::spinOnce();
 		f();
