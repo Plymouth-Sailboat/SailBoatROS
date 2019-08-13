@@ -13,7 +13,7 @@ void Relay::twistMsg_callback(const geometry_msgs::Twist::ConstPtr& msg){
 }
 
 void Relay::setup(ros::NodeHandle* n){
-	std::string topic = "xbee_send_rudder_sail";
+	std::string topic = "/xbee_send_rudder_sail";
 	if (n->hasParam("topic"))
 		n->getParam("topic",topic);
 

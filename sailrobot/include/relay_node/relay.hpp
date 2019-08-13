@@ -7,7 +7,7 @@
 namespace Sailboat{
     class Relay : public Controller{
 	public:
-        	Relay(std::string name) : Controller(name,2, MODE::RUDDER_SAIL){}
+        	Relay(std::string name) : Controller(name,10, MODE::RUDDER_SAIL){}
         	~Relay(){}
 		void setup(ros::NodeHandle* n);
 		virtual geometry_msgs::Twist control();
