@@ -5,7 +5,7 @@
 
 using namespace Sailboat;
 
-Controller::Controller(std::string name, int looprate, int controller) : name(name), looprate(looprate), controller(controller), rudderAngle(0), sailAngle(0), xbeeMode(0){
+Controller::Controller(std::string name, int looprate, int controller) : name(name), looprate(looprate), controller(controller), rudderAngle(0), sailAngle(0), xbeeMode(0), isSetup(false), beginLoop(false){
 
 }
 
@@ -35,9 +35,8 @@ void Controller::init(int argc, char **argv){
 	if(n->hasParam("config"))
 		n->getParam("config",configPath);
 	Utility::Instance().config = Utility::ReadConfig(configPath);
-	setup(n);
 
-	usleep(1000*1000);
+	ros::Duration(0.1).sleep();
 
 	if(!loopUnpublished()){
 		timer = n->createTimer(ros::Duration(30.0), &Controller::wakeup, this);
@@ -50,10 +49,17 @@ void Controller::wakeup(const ros::TimerEvent& event){
 }
 
 void Controller::loop(){
-	if(!loopUnpublished())
-		controlPublished();
-	publishOdom();
+	if(isSetup && !beginLoop){
+		setup(n);
+		beginLoop = true;
+	}
 
+	if(beginLoop){
+		if(!loopUnpublished())
+			controlPublished();
+		publishOdom();
+
+	}
 	ros::spinOnce();
 	loop_rate->sleep();
 }
@@ -105,6 +111,7 @@ void Controller::publishLOG(std::string msg){
 
 void Controller::gps(const gps_common::GPSFix::ConstPtr& msg){
 	gpsMsg = *msg;
+	isSetup = true;
 }
 
 void Controller::imu(const sensor_msgs::Imu::ConstPtr& msg){

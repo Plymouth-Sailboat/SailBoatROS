@@ -59,6 +59,9 @@ namespace Sailboat{
 		protected:
 			ros::NodeHandle* n;
 			ros::Rate* loop_rate;
+			
+			bool isSetup;
+			bool beginLoop;
 
 			ros::Timer timer;
 
