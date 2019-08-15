@@ -188,7 +188,7 @@ float Utility::RelativeToTrueWind(glm::vec2 v, float heading, float windDirectio
 		float dx = s*cos(heading)-windAcc*cos(angle);
 		float dy = s*sin(heading)-windAcc*sin(angle);
 		//return heading+the;
-		return atan2(dy,dx);
+		return (dx==0&dy==0)?angle:atan2(dy,dx);
 	}else{
 		float angle = heading+windDirection;
 		angle = fmod(angle + M_PI, 2.0 * M_PI);

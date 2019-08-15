@@ -421,6 +421,7 @@ if __name__ == "__main__":
             mode.data = modeDict[ID]
 
             if mode.data == 2:
+		userInput = userInput.replace(":",":=")
                 if not commandMode:
                     try:
                         commandMode = True
