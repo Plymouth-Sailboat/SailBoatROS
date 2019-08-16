@@ -41,11 +41,13 @@ geometry_msgs::Twist LineFollowing::control(){
 	/// Calculate the distance to the next waypoint, if close, change to the next waypoint
 	float dist = Utility::GPSDist(current, waypoints[(currentWaypoint+1)%nbWaypoints]);
 	if(dist < 5){
-		publishMSG("PArrived at waypoint " + std::to_string(currentWaypoint));
-		currentWaypoint++;
-		currentWaypoint %= nbWaypoints;
+		publishLOG("PArrived at waypoint " + std::to_string(currentWaypoint));
 		if(waypoints.size() > nbWaypoints)
 			waypoints.erase(waypoints.begin());
+		else{
+			currentWaypoint++;
+			currentWaypoint %= nbWaypoints;
+		}
 	}
 
 	//Find closest point on line
