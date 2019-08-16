@@ -13,9 +13,9 @@ void LineFollowing::setup(ros::NodeHandle* n){
 	std::string waypointPath = "data/line_following.txt";
 	if(n->hasParam("waypoints"))
 		n->getParam("waypoints",waypointPath);
-
-	waypoints = Utility::ReadGPSCoordinates(waypointPath, nbWaypoints);
-	if(waypoints == NULL){
+	waypoints.push_back(glm::vec2(gpsMsg.latitude, gpsMsg.longitude));
+	waypoints = Utility::AppendGPSCoordinates(waypointPath, nbWaypoints, &waypoints);
+	if(nbWaypoints == 0){
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
 		exit(0);
 	}
@@ -44,6 +44,8 @@ geometry_msgs::Twist LineFollowing::control(){
 		publishMSG("PArrived at waypoint " + std::to_string(currentWaypoint));
 		currentWaypoint++;
 		currentWaypoint %= nbWaypoints;
+		if(waypoints.size() > nbWaypoints)
+			waypoints.erase(waypoints.begin());
 	}
 
 	//Find closest point on line

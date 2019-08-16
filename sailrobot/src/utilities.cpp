@@ -147,6 +147,70 @@ vec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
 	return coordinates;
 }
 
+
+vec2* Utility::AppendGPSCoordinates(std::string filepath, int& size, glm::vec2* list, int sizeList){
+	vec2* coordinates = NULL;
+	std::string path = ros::package::getPath("sailrobot");
+	if(filepath[0] != '/')
+		filepath = path + "/" + filepath;
+	std::fstream file(filepath);
+	if(!file){
+		std::cerr << "GPS Reading : Couldn't open file" << std::endl;
+		return coordinates;
+	}
+	std::string line;
+	int nbLines = std::count(std::istreambuf_iterator<char>(file),
+			std::istreambuf_iterator<char>(), '\n');
+	size = nbLines;
+	coordinates = new vec2[nbLines+sizeList];
+	for(int i = 0; i < sizeList; ++i)
+		coordinates[i] = list[i];
+	file.clear();
+	file.seekg(0, std::ios::beg);
+	int i = 0;
+	while (std::getline(file, line)) {
+		std::string coords;
+		std::stringstream stream(line);
+		std::getline(stream, coords, ',');
+		coordinates[i+sizeList].x = std::atof(coords.c_str());
+		std::getline(stream, coords, ',');
+		coordinates[i+sizeList].y = std::atof(coords.c_str());
+		i++;
+	}
+	file.close();
+	return coordinates;
+}
+
+std::vector<vec2> Utility::AppendGPSCoordinates(std::string filepath, int& size, std::vector<glm::vec2>* list){
+	std::string path = ros::package::getPath("sailrobot");
+	if(filepath[0] != '/')
+		filepath = path + "/" + filepath;
+	std::fstream file(filepath);
+	if(!file){
+		std::cerr << "GPS Reading : Couldn't open file" << std::endl;
+		return *list;
+	}
+	std::string line;
+	int nbLines = std::count(std::istreambuf_iterator<char>(file),
+			std::istreambuf_iterator<char>(), '\n');
+	size = nbLines;
+	file.clear();
+	file.seekg(0, std::ios::beg);
+	int i = 0;
+	while (std::getline(file, line)) {
+		std::string coords;
+		std::stringstream stream(line);
+		std::getline(stream, coords, ',');
+		float x = std::atof(coords.c_str());
+		std::getline(stream, coords, ',');
+		float y = std::atof(coords.c_str());
+		list->push_back(glm::vec2(x,y));	
+		i++;
+	}
+	file.close();
+	return *list;
+}
+
 std::map<std::string,std::string> Utility::ReadConfig(std::string filepath){
 	std::map<std::string,std::string> res;
 

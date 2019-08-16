@@ -17,6 +17,7 @@
 #include <geometry_msgs/Quaternion.h>
 #include <string>
 #include <map>
+#include <vector>
 
 class Utility{
 	public:
@@ -66,6 +67,8 @@ class Utility{
 
 		/// Read a GPS file. The GPS file must have each GPS coordinates (latitude, longitude) separated by an end line.
 		static glm::vec2* ReadGPSCoordinates(std::string filepath, int& size);
+		static glm::vec2* AppendGPSCoordinates(std::string filepath, int& size, glm::vec2* list, int sizeList);
+		static std::vector<glm::vec2> AppendGPSCoordinates(std::string filepath, int& size, std::vector<glm::vec2>* list);
 
 		static std::map<std::string,std::string> ReadConfig(std::string filepath);
 
