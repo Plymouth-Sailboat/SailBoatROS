@@ -1,4 +1,4 @@
-[![Current version on ROS](https://img.shields.io/badge/ROS-Kinetic-blue.svg)](http://wiki.ros.org/kinetic)
+[![Current version on ROS](https://img.shields.io/badge/ROS-Melodic-blue.svg)](http://wiki.ros.org/melodic)
 ![C++ Wrapper](https://img.shields.io/badge/C%2B%2B-100%25-green.svg)
 ![Python Wrapper](https://img.shields.io/badge/Python-100%25-green.svg)
 [![Current version of release](https://img.shields.io/github/release/Plymouth-Sailboat/SailBoatROS/all.svg)](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest)
@@ -95,14 +95,15 @@ Some dependencies are needed for specific modules :
 We use cv_bridge to use openCV with ROS. Related to the node Obstacle_avoidance.
 We use serial to use the XBee module. Related to the package xbee_serial.
 
-To install them, execute
+To install them, execute, with [distro] being the ROS distro used (in this case __melodic__)
 ```
-sudo apt-get install ros-kinetic-gps-common
-sudo apt-get install ros-kinetic-rosserial-arduino
-sudo apt-get install ros-kinetic-rosserial
+sudo apt-get install ros-[distro]-gps-common
+sudo apt-get install ros-[distro]-visualization-msgs
+sudo apt-get install ros-[distro]-rosserial-arduino
+sudo apt-get install ros-[distro]-rosserial
 
-sudo apt-get install ros-kinetic-cv-bridge
-sudo apt-get install ros-kinetic-serial
+sudo apt-get install ros-[distro]-cv-bridge
+sudo apt-get install ros-[distro]-serial
 ```
 
 Because we use the raspberry pi camera, you will need [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node). There are multiple raspicam_node out there, either version should work. While not all our controls use the camera, you will need this for the complete sailboat to work.
