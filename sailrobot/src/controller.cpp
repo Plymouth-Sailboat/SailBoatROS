@@ -31,7 +31,7 @@ void Controller::init(int argc, char **argv){
 	pubMsg = n->advertise<std_msgs::String>("/sailboat/sailboat_msg", 10);
 	pubLog = n->advertise<std_msgs::String>("/sailboat/pc_log", 10);
 
-	std::string configPath = "data/config.txt";
+	std::string configPath = "config/config.txt";
 	if(n->hasParam("config"))
 		n->getParam("config",configPath);
 	Utility::Instance().config = Utility::ReadConfig(configPath);

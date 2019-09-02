@@ -1,1 +1,0 @@
-../../sailrobot/scripts/utilities.py

@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/UInt32.h>
 #include <sensor_msgs/Imu.h>
 #include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/Vector3.h>
@@ -34,7 +35,7 @@ glm::vec3 eulerA;
 vec2 cubeA = {-10,0};
 vec2 cubeB = {10,0};
 
-double watchRc = 0;
+int mode_sailboat = 0;
 
 string numberId;
 string boatId, rudderId, sailId, windId, aId, bId, lineId;
@@ -95,28 +96,8 @@ void gpsCB(const gps_common::GPSFix msgGps){
 	x[3] = msgGps.speed;
 }
 
-
-void rcCB(const geometry_msgs::Vector3 msgRc){
-	watchRc = msgRc.z;
-	if (watchRc == 1){
-		cmd.angular.x = msgRc.x;
-		cmd.angular.y = msgRc.y;
-		double theta = eulerA.z;
-		double v = x[3];
-		vec2 w_ap;
-		float awind = sqrt(wind.x*wind.x+wind.y*wind.y);
-		w_ap[0] = awind*cos(wind.theta-theta)-v;
-		w_ap[1] = awind*sin(wind.theta-theta);
-		double psi_ap = atan2(w_ap[1],w_ap[0]);
-		double a_ap = glm::length(w_ap);
-		double sigma = cos(psi_ap)+cos(cmd.angular.y);
-		if (sigma<0){
-			delta_s = M_PI + psi_ap;
-		}
-		else{
-			delta_s = -sign(sin(psi_ap))*cmd.angular.y;
-		}
-	}
+void modeCB(const std_msgs::UInt32 msgMode){
+	mode_sailboat = msgMode.data;
 }
 /***************************************************************************/
 
@@ -136,10 +117,32 @@ void set_marker_boat(ros::Publisher vis_pub, visualization_msgs::Marker marker){
 	marker.scale.x = 0.001;
 	marker.scale.y = 0.001;
 	marker.scale.z = 0.001;
-	marker.color.a = 1.0; // Don't forget to set the alpha!
-	marker.color.r = 1.0;
-	marker.color.g = 1.0;
-	marker.color.b = 1.0;
+	switch(mode_sailboat){
+		case 0:
+			marker.color.a = 1.0; // Don't forget to set the alpha!
+			marker.color.r = 1.0;
+			marker.color.g = 1.0;
+			marker.color.b = 1.0;
+		break;
+		case 1:
+			marker.color.a = 1.0; // Don't forget to set the alpha!
+			marker.color.r = 0.0;
+			marker.color.g = 1.0;
+			marker.color.b = 0.0;
+		break;
+		case 4:
+			marker.color.a = 1.0; // Don't forget to set the alpha!
+			marker.color.r = 1.0;
+			marker.color.g = 0.0;
+			marker.color.b = 0.0;
+		break;
+		default:
+			marker.color.a = 1.0; // Don't forget to set the alpha!
+			marker.color.r = 1.0;
+			marker.color.g = 1.0;
+			marker.color.b = 1.0;
+		break;
+	}
 	//only if using a MESH_RESOURCE marker type:
 	marker.mesh_resource = "package://sailrobot/meshs/boat.STL";
 	vis_pub.publish( marker );
@@ -478,4 +481,3 @@ int main(int argc, char **argv)
 	ROS_INFO("FIN");
 	return 0;
 }
-

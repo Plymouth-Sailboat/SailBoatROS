@@ -3,8 +3,10 @@ import math
 import numpy as np
 import os
 import rospkg
+import sys
 
-config = {}
+this = sys.modules[__name__]
+this.config = {}
 
 def GPSDist(lat1, lon1, lat2, lon2):
         R = 6371000
@@ -42,20 +44,20 @@ def GPSBearing(lat1, lon1, lat2, lon2):
         return bearing
 
 def QuaternionToEuler(x,y,z,w):
-        ysqr = y * y	
+        ysqr = y * y
         t0 = +2.0 * (x * w + z * y)
         t1 = +1.0 - 2.0 * (x * x + ysqr)
         X = math.atan2(t0, t1)
-	
+
         t2 = +2.0 * (w * y - z * x)
         t2 = +1.0 if t2 > +1.0 else t2
         t2 = -1.0 if t2 < -1.0 else t2
         Y = math.asin(t2)
-	
+
         t3 = +2.0 * (w * z + x * y)
         t4 = +1.0 - 2.0 * (ysqr + z * z)
         Z = math.atan2(t3, t4)
-	
+
         return X, Y, Z
 
 def EulerToQuaternion(x, y, z):
@@ -70,7 +72,7 @@ def EulerToQuaternion(x, y, z):
         qx = cy * sr * cp - sy * cr * sp
         qy = cy * cr * sp + sy * sr * cp
         qz = sy * cr * cp - cy * sr * sp
-	
+
         return qx,qy,qz,qw
 
 def readGPSCoordinates(filepath):
@@ -82,6 +84,30 @@ def readGPSCoordinates(filepath):
                 with open(filepath, 'r') as file:
                         try:
                                 res = []
+                                problem = False
+                                for line in file:
+                                        coords = line.split(",")
+                                        try:
+                                                res.append([float(coords[0]),float(coords[1])])
+                                        except:
+                                                problem = True
+                                if problem:
+                                        print("Reading GPS : Wrong File Format for some lines")
+                                return res
+                        except:
+                                print("Reading GPS : File not opened")
+        else:
+                print("Reading GPS : File does not exist")
+        return []
+
+def appendGPSCoordinates(filepath, res):
+	rospack = rospkg.RosPack()
+	rospath = rospack.get_path('sailrobot')
+	if filepath[0] is not '/':
+		filepath = rospath + "/" + filepath
+        if os.path.exists(filepath):
+                with open(filepath, 'r') as file:
+                        try:
                                 problem = False
                                 for line in file:
                                         coords = line.split(",")
@@ -116,6 +142,7 @@ def ReadConfig(filepath):
                         problem = True
                 if problem:
                     print("Reading Config : Wrong File Format for some lines")
+                this.config = res
                 return res
             except:
                 print("Reading Config : File not opened")
@@ -125,11 +152,17 @@ def ReadConfig(filepath):
 
 def RelativeToTrueWind(v, heading, windDirection, windAcc):
     if(int(config["true_wind"])):
-        dx = v[0]*math.cos(heading)-v[1]*math.sin(heading)
-        dy = v[0]*math.sin(heading)+v[1]*math.cos(heading)
+        angle = heading+windDirection
+        angle = (angle + np.pi) % (2 * np.pi) - np.pi
+        s = np.linalg.norm(v)
+        windA = np.linalg.norm(windA)
+        dx = s*math.cos(heading)-windA*math.cos(heading)
+        dy = s*math.sin(heading)-windA*math.sin(heading)
         return math.atan2(dx,dy)
     else
-        return heading+windDirection
+        angle = heading+windDirection
+        angle = (angle + np.pi) % (2 * np.pi) - np.pi
+        return angle
 
 def TackingStrategy(distanceToLine, lineBearing, windNorth, heading, corridor, psi, ksi){
     if(math.abs(distanceToLine) > corridor/2)
@@ -142,7 +175,7 @@ def TackingStrategy(distanceToLine, lineBearing, windNorth, heading, corridor, p
 def StandardCommand(currentHeading, headaing, windNorth, max_sail, max_rudder):
     if(math.cos(currentHeading-heading)>=0):
         rudder=max_rudder*math.sin(currentHeading-heading)
-    else 
+    else
         rudder=max_rudder*math.copysign(1,sin(currentHeading-heading))
 
     sail = math.abs(max_sail*(math.cos(windNorth-heading)+1)/2.0)

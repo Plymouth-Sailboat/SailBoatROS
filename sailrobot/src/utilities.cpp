@@ -204,7 +204,7 @@ std::vector<vec2> Utility::AppendGPSCoordinates(std::string filepath, int& size,
 		float x = std::atof(coords.c_str());
 		std::getline(stream, coords, ',');
 		float y = std::atof(coords.c_str());
-		list->push_back(glm::vec2(x,y));	
+		list->push_back(glm::vec2(x,y));
 		i++;
 	}
 	file.close();

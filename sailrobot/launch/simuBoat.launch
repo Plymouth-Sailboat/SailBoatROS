@@ -2,8 +2,8 @@
 
 <node type="rviz" name="rviz" pkg="rviz" />
 <node pkg="sailrobot" type="simuBoat" name="simuBoat" output="screen">
-	<param name="xRefX" value="50.6950706" />
-	<param name="xRefY" value="-4.2341043" />
+	<param name="xRefX" value="50.3597200" />
+	<param name="xRefY" value="-4.1149167" />
 </node>
 <node pkg="sailrobot" type="displayBoat" name="displayBoat" />
 
