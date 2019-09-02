@@ -128,8 +128,12 @@ sudo apt-install python-numpy
 
 ## Authors
 
-* **Ulysse VAUTIER** - *Initial work* - [UlysseVautier](https://ulyssevautier.github.io/)
-* **Christophe Viel** - [Christophe Viel](https://www.researchgate.net/profile/Christophe_Viel)
+* [**Ulysse VAUTIER**](https://ulyssevautier.github.io/) - *Main Author*
+* [**Christophe VIEL**](https://www.researchgate.net/profile/Christophe_Viel)
+
+## Contributors
+* [**Alexandre COURJAUD**](https://github.com/AlexandreCourjaud/Stage2APlymouth)
+* [**Corentin JEGAT**](https://github.com/corentin-j/wrsc_plymouth_2019)
 
 ## License
 
