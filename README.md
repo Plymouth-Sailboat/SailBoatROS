@@ -36,6 +36,8 @@ catkin_make
 
 Clone the project and catkin_make in the workspace. Source the catkin workspace to have access to the nodes. It is considered here that you are already in the catkin workspace (`cd catkin_ws/src`).
 
+Make sure you have all the [dependencies](https://github.com/Plymouth-Sailboat/SailBoatROS#dependencies) for the build to work.
+
 Since the folders contain different nodes (and not a catkin workspace), the project needs to be cloned inside the catkin src folder. Cloning a project in an unempty folder is not allowed. As such we need to tell github that the src folder is a git folder.
 
 ```
@@ -81,6 +83,11 @@ We use standard messages as much as possible and try to have as less dependencie
 
 This repo expects to have a working ROS Kinetic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation). If you are on a raspberry pi 3 we suggest installing the [Ubiquity Robotics image](https://downloads.ubiquityrobotics.com/) which already has ROS Kinetic installed.
 
+One particular third-party library is used for control optimization. NLOpt. To install it, type :  
+```
+sudo apt-get install libnlopt-dev
+```
+
 #### ROS Dependencies
 We use the message [gps_common/GPSFix](http://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html) for our GPS, which you will need to install the dependency.
 To communicate with the Arduino we use the `rosserial-arduino` [node](http://wiki.ros.org/rosserial_arduino).
@@ -110,6 +117,10 @@ For python controllers, the only dependencies used is [NumPy](http://www.numpy.o
 ```
 pip install --upgrade pip
 pip install numpy
+```
+Numpy installation might not work on the Raspberry Pi as expected. In that case, instead of running the above commands, run :  
+```
+sudo apt-install python-numpy
 ```
 
 ## Authors
