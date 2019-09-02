@@ -19,7 +19,7 @@ You can either install the image from the [latest release](https://github.com/Pl
 
 ### Prerequisites
 
-- [ROS Kinetic](http://wiki.ros.org/kinetic)
+- [ROS Kinetic](http://wiki.ros.org/kinetic) OR [ROS Melodic](http://wiki.ros.org/melodic)
 - Raspberry Pi 3 connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface)
 - [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node)
 - [Rosserial-Arduino Node](http://wiki.ros.org/rosserial_arduino)
@@ -81,7 +81,9 @@ roslaunch sailrobot start.launch usb_port:=<port>
 
 We use standard messages as much as possible and try to have as less dependencies as possible.
 
-This repo expects to have a working ROS Kinetic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation). If you are on a raspberry pi 3 we suggest installing the [Ubiquity Robotics image](https://downloads.ubiquityrobotics.com/) which already has ROS Kinetic installed.
+This repo expects to have a working ROS Kinetic/ROS Melodic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation)/[ROS Melodic](http://wiki.ros.org/melodic/Installation).  
+If you are on a raspberry pi 3 we suggest installing the [Ubiquity Robotics image](https://downloads.ubiquityrobotics.com/) which already has ROS Kinetic installed.  
+If you are on a raspberry pi 3 b+, you can install Ubuntu Mate 18.04 and then install ROS Melodic.
 
 One particular third-party library is used for control optimization. NLOpt. To install it, type :  
 ```
