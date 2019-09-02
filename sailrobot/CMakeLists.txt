@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   gps_common
+  visualization_msgs
   tf
   tf2
   tf2_ros
