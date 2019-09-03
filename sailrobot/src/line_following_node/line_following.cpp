@@ -84,6 +84,7 @@ geometry_msgs::Twist LineFollowing::control(){
 	if(check)
 		checkTacking = " Tacking! " + std::to_string(q);
 	publishLOG("PLine following Thetabar : " + std::to_string(thetabar) + " Obj : " + std::to_string(waypoints[1].x) + ", " + std::to_string(waypoints[1].y)+ "\ne : " + std::to_string(e) +"\nTrue Wind : " + std::to_string(windNorth) + " dist : " + std::to_string(dist) + checkTacking);
-
+	publishMarkerA(lat1,long1);
+	publishMarkerB(lat2,long2);
 	return cmd;
 }

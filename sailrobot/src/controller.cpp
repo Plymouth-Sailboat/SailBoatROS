@@ -30,6 +30,8 @@ void Controller::init(int argc, char **argv){
 	pubCmd = n->advertise<geometry_msgs::Twist>("/sailboat/sailboat_cmd", 100);
 	pubMsg = n->advertise<std_msgs::String>("/sailboat/sailboat_msg", 10);
 	pubLog = n->advertise<std_msgs::String>("/sailboat/pc_log", 10);
+	pubMarkerA = n->advertise<geometry_msgs::Point>("/control_send_A", 10);
+	pubMarkerB = n->advertise<geometry_msgs::Point>("/control_send_B", 10);
 
 	std::string configPath = "config/config.txt";
 	if(n->hasParam("config"))
@@ -109,6 +111,20 @@ void Controller::publishLOG(std::string msg){
 	pubLog.publish(msgD);
 }
 
+void Controller::publishMarkerA(float latitude, float longitude){
+	geometry_msgs::Point point;
+	point.x = latitude;
+	point.y = longitude;
+	pubMarkerA.publish(point);
+}
+
+void Controller::publishMarkerB(float latitude, float longitude){
+	geometry_msgs::Point point;
+	point.x = latitude;
+	point.y = longitude;
+	pubMarkerB.publish(point);
+}
+
 void Controller::gps(const gps_common::GPSFix::ConstPtr& msg){
 	gpsMsg = *msg;
 	isSetup = true;
@@ -146,6 +162,10 @@ void Controller::rudder(const std_msgs::Float32::ConstPtr& msg){
 
 void Controller::rudder2(const std_msgs::Float32::ConstPtr& msg){
 	rudder2Angle = msg->data;
+}
+
+void Controller::mode(const std_msgs::UInt32::ConstPtr& msg){
+	modeControl = msg->data;
 }
 
 void Controller::vel(const geometry_msgs::Twist::ConstPtr& msg){

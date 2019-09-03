@@ -1,9 +1,13 @@
 <launch>
+	<arg name="windNAarg" default="2" />
+	<arg name="windNTarg" default="0" />
 
 <node type="rviz" name="rviz" pkg="rviz" />
 <node pkg="sailrobot" type="simuBoat" name="simuBoat" output="screen">
 	<param name="xRefX" value="50.3597200" />
 	<param name="xRefY" value="-4.1149167" />
+	<param name="windNT" value="$(arg windNTarg)" />
+	<param name="windNA" value="$(arg windNAarg)" />
 </node>
 <node pkg="sailrobot" type="displayBoat" name="displayBoat" />
 

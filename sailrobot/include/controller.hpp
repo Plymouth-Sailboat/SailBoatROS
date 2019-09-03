@@ -17,11 +17,13 @@
 
 #include <gps_common/GPSFix.h>
 #include <geometry_msgs/Pose2D.h>
+#include <geometry_msgs/Point.h>
 #include <sensor_msgs/Imu.h>
 #include <gps_common/GPSFix.h>
 #include <std_msgs/String.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/UInt32.h>
 #include <nav_msgs/Odometry.h>
 #include <string>
 #include <vector>
@@ -54,12 +56,13 @@ namespace Sailboat{
 			virtual void sail(const std_msgs::Float32::ConstPtr& msg);
 			virtual void rudder(const std_msgs::Float32::ConstPtr& msg);
 			virtual void rudder2(const std_msgs::Float32::ConstPtr& msg);
+			virtual void mode(const std_msgs::UInt32::ConstPtr& msg);
 			virtual void vel(const geometry_msgs::Twist::ConstPtr& msg);
 			/** @} */
 		protected:
 			ros::NodeHandle* n;
 			ros::Rate* loop_rate;
-			
+
 			bool isSetup;
 			bool beginLoop;
 
@@ -71,6 +74,7 @@ namespace Sailboat{
 			ros::Subscriber sailSub;
 			ros::Subscriber rudderSub;
 			ros::Subscriber rudder2Sub;
+			ros::Subscriber modeSub;
 			ros::Subscriber velSub;
 			ros::Subscriber xbeeSub;
 			ros::Subscriber xbeeCSub;
@@ -79,6 +83,8 @@ namespace Sailboat{
 			ros::Publisher pubCmd;
 			ros::Publisher pubMsg;
 			ros::Publisher pubLog;
+			ros::Publisher pubMarkerA;
+			ros::Publisher pubMarkerB;
 
 			std::string name;
 
@@ -89,12 +95,15 @@ namespace Sailboat{
 			float sailAngle;
 			float rudderAngle;
 			float rudder2Angle;
+			int modeControl;
 
 			void publishCMD(geometry_msgs::Twist cmd);
 			void publishMSG(std_msgs::String msg);
 			void publishMSG(std::string msg);
 			void publishLOG(std_msgs::String msg);
 			void publishLOG(std::string msg);
+			void publishMarkerA(float latitude, float longitude);
+			void publishMarkerB(float latitude, float longitude);
 			template <class T>
 				T getParam(std::string name){T tmp; if(ros::param::get(name,tmp)) return tmp; return T();}
 		private:
@@ -104,6 +113,7 @@ namespace Sailboat{
 			void sailCallback(const std_msgs::Float32::ConstPtr& msg){sail(msg);}
 			void rudderCallback(const std_msgs::Float32::ConstPtr& msg){rudder(msg);}
 			void rudder2Callback(const std_msgs::Float32::ConstPtr& msg){rudder(msg);}
+			void modeCallback(const std_msgs::UInt32::ConstPtr& msg){mode(msg);}
 			void velCallback(const geometry_msgs::Twist::ConstPtr& msg){vel(msg);}
 
 			void xbeeCallback(const std_msgs::Float32::ConstPtr& msg);
@@ -119,4 +129,3 @@ namespace Sailboat{
 }
 
 #endif
-

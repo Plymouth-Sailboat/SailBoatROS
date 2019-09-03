@@ -42,11 +42,6 @@ vec2 cubeB = {10,0};
 
 double buoy[2] = {50.691,-4.235};
 
-
-void windCB(const geometry_msgs::Pose2D::ConstPtr& msg){
-	windN = *msg;
-}
-
 void rudder_sail_CB(const geometry_msgs::Twist::ConstPtr& msg){
 	cmd = *msg;
 }
@@ -101,7 +96,7 @@ void act(){
 /********************************************************************************************************************/
 
 void set_imu(ros::Publisher pub_imu, sensor_msgs::Imu msgImu, double x[5]){
-	glm::quat quat(glm::vec3(0, 0, x[2])); 
+	glm::quat quat(glm::vec3(0, 0, x[2]));
 
 	msgImu.orientation.x=quat.x;
 	msgImu.orientation.y=quat.y;
@@ -161,7 +156,7 @@ void set_buoy(ros::Publisher pub_buoy, geometry_msgs::Vector3 msgBuoy){
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "simuBoat");
-	ros::NodeHandle nh;
+	ros::NodeHandle nh("~");
 
 	ros::Subscriber sub_rudder = nh.subscribe("/sailboat/sailboat_cmd",0,rudder_sail_CB);
 	ros::Subscriber sub_ref = nh.subscribe("control_send_ref",0,refCB);
@@ -182,16 +177,22 @@ int main(int argc, char **argv)
 
 
 	t0 = ros::Time::now().toSec();
+	double wa = 2.0;
+	double wt = 0.0;
 	nh.param<double>("posx", x[0],0);
-	nh.param<double>("/simuBoat/xRefX", xRef[0],0);
+	nh.param<double>("xRefX", xRef[0],0);
 	nh.param<double>("posy", x[1],0);
-	nh.param<double>("/simuBoat/xRefY", xRef[1],0);
+	nh.param<double>("xRefY", xRef[1],0);
 	nh.param<double>("theta", x[2],0);
+	nh.param<double>("windNA", wa,2.0);
+	nh.param<double>("windNT", wt,0.0);
 	x[3] = 0.5;
 	x[4] = 0;
 	wind = geometry_msgs::Pose2D();
 	windN = geometry_msgs::Pose2D();
-	windN.x = 2;
+	windN.x = cos(wt)*wa;
+	windN.y = sin(wt)*wa;
+	windN.theta = wt;
 	cmd = geometry_msgs::Twist();
 	msgImu_Dv = geometry_msgs::Twist();
 
