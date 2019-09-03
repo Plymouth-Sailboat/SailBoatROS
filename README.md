@@ -1,4 +1,4 @@
-[![Current version on ROS](https://img.shields.io/badge/ROS-Kinetic-blue.svg)](http://wiki.ros.org/kinetic)
+[![Current version on ROS](https://img.shields.io/badge/ROS-Melodic-blue.svg)](http://wiki.ros.org/melodic)
 ![C++ Wrapper](https://img.shields.io/badge/C%2B%2B-100%25-green.svg)
 ![Python Wrapper](https://img.shields.io/badge/Python-100%25-green.svg)
 [![Current version of release](https://img.shields.io/github/release/Plymouth-Sailboat/SailBoatROS/all.svg)](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest)
@@ -19,7 +19,7 @@ You can either install the image from the [latest release](https://github.com/Pl
 
 ### Prerequisites
 
-- [ROS Kinetic](http://wiki.ros.org/kinetic)
+- [ROS Kinetic](http://wiki.ros.org/kinetic) OR [ROS Melodic](http://wiki.ros.org/melodic)
 - Raspberry Pi 3 connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface)
 - [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node)
 - [Rosserial-Arduino Node](http://wiki.ros.org/rosserial_arduino)
@@ -81,7 +81,9 @@ roslaunch sailrobot start.launch usb_port:=<port>
 
 We use standard messages as much as possible and try to have as less dependencies as possible.
 
-This repo expects to have a working ROS Kinetic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation). If you are on a raspberry pi 3 we suggest installing the [Ubiquity Robotics image](https://downloads.ubiquityrobotics.com/) which already has ROS Kinetic installed.
+This repo expects to have a working ROS Kinetic/ROS Melodic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation)/[ROS Melodic](http://wiki.ros.org/melodic/Installation).  
+If you are on a raspberry pi 3 we suggest installing the [Ubiquity Robotics image](https://downloads.ubiquityrobotics.com/) which already has ROS Kinetic installed.  
+If you are on a raspberry pi 3 b+, you can install Ubuntu Mate 18.04 and then install ROS Melodic.
 
 One particular third-party library is used for control optimization. NLOpt. To install it, type :  
 ```
@@ -95,14 +97,15 @@ Some dependencies are needed for specific modules :
 We use cv_bridge to use openCV with ROS. Related to the node Obstacle_avoidance.
 We use serial to use the XBee module. Related to the package xbee_serial.
 
-To install them, execute
+To install them, execute, with [distro] being the ROS distro used (in this case __melodic__)
 ```
-sudo apt-get install ros-kinetic-gps-common
-sudo apt-get install ros-kinetic-rosserial-arduino
-sudo apt-get install ros-kinetic-rosserial
+sudo apt-get install ros-[distro]-gps-common
+sudo apt-get install ros-[distro]-visualization-msgs
+sudo apt-get install ros-[distro]-rosserial-arduino
+sudo apt-get install ros-[distro]-rosserial
 
-sudo apt-get install ros-kinetic-cv-bridge
-sudo apt-get install ros-kinetic-serial
+sudo apt-get install ros-[distro]-cv-bridge
+sudo apt-get install ros-[distro]-serial
 ```
 
 Because we use the raspberry pi camera, you will need [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node). There are multiple raspicam_node out there, either version should work. While not all our controls use the camera, you will need this for the complete sailboat to work.
@@ -125,8 +128,12 @@ sudo apt-install python-numpy
 
 ## Authors
 
-* **Ulysse VAUTIER** - *Initial work* - [UlysseVautier](https://ulyssevautier.github.io/)
-* **Christophe Viel** - [Christophe Viel](https://www.researchgate.net/profile/Christophe_Viel)
+* [**Ulysse VAUTIER**](https://ulyssevautier.github.io/) - *Main Author*
+* [**Christophe VIEL**](https://www.researchgate.net/profile/Christophe_Viel)
+
+## Contributors
+* [**Alexandre COURJAUD**](https://github.com/AlexandreCourjaud/Stage2APlymouth)
+* [**Corentin JEGAT**](https://github.com/corentin-j/wrsc_plymouth_2019)
 
 ## License
 
