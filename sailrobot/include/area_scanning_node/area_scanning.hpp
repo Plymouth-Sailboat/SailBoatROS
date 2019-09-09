@@ -15,9 +15,9 @@ namespace Sailboat{
 	private:
 		int currentWaypoint;
 		int nbWaypoints;
-		glm::vec2* waypoints;
+		glm::dvec2* waypoints;
 		int* waypointsOrder;
-		glm::vec2* tackingStart;
+		glm::dvec2* tackingStart;
 		float rmax;
 		float closeHauled;
 		int q;

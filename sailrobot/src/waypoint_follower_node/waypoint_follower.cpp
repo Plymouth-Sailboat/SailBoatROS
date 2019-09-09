@@ -33,7 +33,7 @@ geometry_msgs::Twist WaypointFollower::control(){
 	geometry_msgs::Twist cmd;
 
 	/// Getting the necessary data for the control
-	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
+	dvec2 current = dvec2(gpsMsg.latitude, gpsMsg.longitude);
 	float wind = windMsg.theta;
 	float boatHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
 
@@ -45,22 +45,22 @@ geometry_msgs::Twist WaypointFollower::control(){
 		currentWaypoint++;
 	}
 	currentWaypoint %= nbWaypoints;
-	
+
 	/// Check the tacking and change the heading accordingly
 	if(tackingStart == NULL){
-		tackingStart = new vec2(current.x,current.y);
+		tackingStart = new dvec2(current.x,current.y);
 	}
 
 	float heading = Utility::GPSBearing(current, waypoints[currentWaypoint]);
 	float windNorth = wind + boatHeading;
 	bool isTacking = false;
 	if(cos(windNorth - heading) + cos(closeHauled) < 0){
-		vec2 line = normalize(waypoints[currentWaypoint] - (*tackingStart));
-		vec2 currentLine = current - *tackingStart;
+		dvec2 line = normalize(waypoints[currentWaypoint] - (*tackingStart));
+		dvec2 currentLine = current - *tackingStart;
 		float e = line.x*currentLine.y - line.y*currentLine.x;
 		if(abs(e) > rmax/2.0)
 			q = sign(e);
-		heading = windNorth + M_PI - q*closeHauled;	
+		heading = windNorth + M_PI - q*closeHauled;
 		isTacking = true;
 	}
 
@@ -69,7 +69,7 @@ geometry_msgs::Twist WaypointFollower::control(){
 	if(isTacking)
 		message += "TACKING\n";
 	publishLOG(message);
-	
+
 	/// Send a command of heading to let the Arduino take care of the sail and rudder angle
 	cmd.angular.z = heading;
 	return cmd;

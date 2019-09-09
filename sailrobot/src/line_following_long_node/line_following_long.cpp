@@ -28,11 +28,11 @@ void LineFollowingLong::setup(ros::NodeHandle* n){
 geometry_msgs::Twist LineFollowingLong::control(){
 	geometry_msgs::Twist cmd;
 	//Retrieve data
-	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
-	vec2 currentRad = vec2(gpsMsg.latitude*M_PI/180.0, gpsMsg.longitude*M_PI/180.0);
-	vec3 currentXYZ = Utility::GPSToCartesian(current);
-	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
-	float windNorth = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),heading.z,windMsg.theta, windMsg.x, windMsg.y);
+	dvec2 current = dvec2(gpsMsg.latitude, gpsMsg.longitude);
+	dvec2 currentRad = dvec2(gpsMsg.latitude*M_PI/180.0, gpsMsg.longitude*M_PI/180.0);
+	dvec3 currentXYZ = Utility::GPSToCartesian(current);
+	dvec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
+	float windNorth = Utility::RelativeToTrueWind(dvec2(velMsg.linear.x,velMsg.linear.y),heading.z,windMsg.theta, windMsg.x, windMsg.y);
 
 	//Parameters
 	float psi = M_PI/4.0;
@@ -46,11 +46,11 @@ geometry_msgs::Twist LineFollowingLong::control(){
 	}
 	currentWaypoint %= nbWaypoints;
 
-	vec3 b = Utility::GPSToCartesian(waypoints[(currentWaypoint+1)%nbWaypoints]);
+	dvec3 b = Utility::GPSToCartesian(waypoints[(currentWaypoint+1)%nbWaypoints]);
 	b = b/glm::length(b);
-	vec3 a = Utility::GPSToCartesian(waypoints[currentWaypoint]);
+	dvec3 a = Utility::GPSToCartesian(waypoints[currentWaypoint]);
 	a = a/glm::length(a);
-	vec3 n = glm::cross(a,b);
+	dvec3 n = glm::cross(a,b);
 	float e = glm::dot(currentXYZ,n);
 	mat3x2 M;
 	M[0][0]=-sin(currentRad.y);
@@ -60,7 +60,7 @@ geometry_msgs::Twist LineFollowingLong::control(){
 	M[1][1]=-sin(currentRad.x)*sin(currentRad.y);
 	M[2][1]=cos(currentRad.x);
 
-	vec2 ba = M*(b-a);
+	dvec2 ba = M*(b-a);
 	float phi = atan2(ba.x,ba.y);
 	float thetabar = phi - 2*psi/M_PI*atan(e/r);
 
@@ -68,7 +68,7 @@ geometry_msgs::Twist LineFollowingLong::control(){
 	thetabar = Utility::TackingStrategy(e,phi,windNorth,thetabar,r,psi,ksi,&q);
 
 	//Standard Command for rudder and sail
-	vec2 cmdv = Utility::StandardCommand(heading,thetabar, windNorth, M_PI/3.0);
+	dvec2 cmdv = Utility::StandardCommand(heading,thetabar, windNorth, M_PI/3.0);
 	cmd.angular.x = cmdv.x;
 	cmd.angular.y = cmdv.y;
 

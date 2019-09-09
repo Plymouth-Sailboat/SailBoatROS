@@ -15,9 +15,9 @@ namespace Sailboat{
 	private:
 		int nbWaypoints;
 		int nbObstacles;
-		glm::vec2* waypoints;
-		glm::vec2* obstacles;
-		glm::vec2 distanceVector(glm::vec2 dest, glm::vec2 pos);
+		glm::dvec2* waypoints;
+		glm::dvec2* obstacles;
+		glm::dvec2 distanceVector(glm::dvec2 dest, glm::dvec2 pos);
 
 		float closeHauled;
 	};

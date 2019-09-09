@@ -39,19 +39,19 @@ void PotentialField::setup(ros::NodeHandle* n){
 }
 
 
-vec2 PotentialField::distanceVector(vec2 pos, vec2 dest){
+dvec2 PotentialField::distanceVector(dvec2 pos, dvec2 dest){
 	double d = Utility::GPSDist(pos, dest);
 	double bearing = Utility::GPSBearing(pos, dest);
 
-	return vec2(-d*sin(bearing), d*cos(bearing));
+	return dvec2(-d*sin(bearing), d*cos(bearing));
 }
 
 geometry_msgs::Twist PotentialField::control(){
 	geometry_msgs::Twist cmd;
-	vec2 current(gpsMsg.latitude, gpsMsg.longitude);
+	dvec2 current(gpsMsg.latitude, gpsMsg.longitude);
 	float currentHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
 
-	vec2 heading;
+	dvec2 heading;
 
 	for(int i = 0; i < nbWaypoints; ++i){
 		heading += distanceVector(current, waypoints[i]);
@@ -60,7 +60,7 @@ geometry_msgs::Twist PotentialField::control(){
 	bool isInObstacle = false;
 
 	for(int i = 0; i < nbObstacles; ++i){
-		vec2 res = distanceVector(current,obstacles[i]);
+		dvec2 res = distanceVector(current,obstacles[i]);
 
 		if(float dist = length(res) < 10){
 			res /= dist*dist;
@@ -69,19 +69,19 @@ geometry_msgs::Twist PotentialField::control(){
 		}
 	}
 
-	vec2 windPotential;
+	dvec2 windPotential;
 	float windNorth = windMsg.theta + currentHeading;
 	for(int i = -3; i < 3; ++i){
 		for(int j = -3; j < 3; ++j){
 			float pangle = cos(atan2(j,i)+M_PI/2.0);
 			if(cos(pangle-windNorth) < cos(closeHauled)){
-				windPotential -= length(vec2(i,j))*vec2(-sin(pangle - currentHeading), cos(pangle - currentHeading)); 
+				windPotential -= length(dvec2(i,j))*dvec2(-sin(pangle - currentHeading), cos(pangle - currentHeading));
 			}
 		}
 	}
 	heading += windPotential;
 
-	
+
 
 	cmd.linear.x = (double)heading.x;
 	cmd.linear.y = (double)heading.y;
@@ -95,4 +95,3 @@ geometry_msgs::Twist PotentialField::control(){
 	publishMSG(message + "PAttracted by : " + std::to_string(waypoints[0].x) + " " + std::to_string(waypoints[0].y) + " heading of : (" + std::to_string(heading.x) + "," + std::to_string(heading.y) + ")");
 	return cmd;
 }
-

@@ -6,7 +6,7 @@
  * This is the implementation for a waypoint follower for an autonomous sailboat
  *
  * @author Ulysse Vautier
- * @version 
+ * @version
  * @date 2018-09-05
  */
 #ifndef WAYPOINTFOLLOWER_HPP
@@ -26,8 +26,8 @@ namespace Sailboat{
 	private:
 		int currentWaypoint;
 		int nbWaypoints;
-		glm::vec2* waypoints;
-		glm::vec2* tackingStart;
+		glm::dvec2* waypoints;
+		glm::dvec2* tackingStart;
 		float rmax;
 		float closeHauled;
 		int q;

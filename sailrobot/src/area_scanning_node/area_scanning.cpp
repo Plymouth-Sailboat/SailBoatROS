@@ -12,7 +12,7 @@ using namespace glm;
 
 void AreaScanning::setup(ros::NodeHandle* n){
 	std::string path = ros::package::getPath("sailrobot");
-	
+
 	std::string areaPath = "data/area_scanning.txt";
 	if(n->hasParam("area"))
 		n->getParam("area", areaPath);
@@ -35,12 +35,12 @@ void AreaScanning::buildLKHFiles(){
 	std::ofstream params(path + "/bin/LKHData/area_scanning.par");
 	if(params.is_open()){
 		params << "PROBLEM_FILE = " + path + "/bin/LKHData/area_scanning.tsp\n";
-		params << "OPTIMUM = 1000 \n"; 
-		params << "MOVE_TYPE = 5 \n"; 
-		params << "PATCHING_C = 3 \n"; 
-		params << "PATCHING_A = 2 \n"; 
+		params << "OPTIMUM = 1000 \n";
+		params << "MOVE_TYPE = 5 \n";
+		params << "PATCHING_C = 3 \n";
+		params << "PATCHING_A = 2 \n";
 		params << "RUNS = 10 \n";
-		params << "OUTPUT_TOUR_FILE = " + path + "/bin/LKHData/area_scanning.tour\n"; 
+		params << "OUTPUT_TOUR_FILE = " + path + "/bin/LKHData/area_scanning.tour\n";
 		params.close();
 	}else{
 		std::cerr << "Couldn't write param file" << std::endl;
@@ -108,14 +108,14 @@ void AreaScanning::readResults(){
 geometry_msgs::Twist AreaScanning::control(){
 	geometry_msgs::Twist cmd;
 
-	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
+	dvec2 current = dvec2(gpsMsg.latitude, gpsMsg.longitude);
 	float wind = windMsg.theta;
 	float boatHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
 	float heading = Utility::GPSBearing(current, waypoints[waypointsOrder[currentWaypoint]]);
 
-	
+
 	if(tackingStart == NULL){
-		tackingStart = new vec2(current.x,current.y);
+		tackingStart = new dvec2(current.x,current.y);
 	}
 
 	float dist = Utility::GPSDist(current, waypoints[waypointsOrder[currentWaypoint]]);
@@ -125,21 +125,21 @@ geometry_msgs::Twist AreaScanning::control(){
 		currentWaypoint++;
 	}
 	currentWaypoint %= nbWaypoints;
-	
+
 	//Tacking CHECK
 	float windNorth = wind + boatHeading;
 	bool isTacking = false;
 	if(cos(windNorth - heading) + cos(closeHauled) < 0){
-		vec2 line = normalize(waypoints[waypointsOrder[currentWaypoint]] - (*tackingStart));
-		vec2 currentLine = current - *tackingStart;
+		dvec2 line = normalize(waypoints[waypointsOrder[currentWaypoint]] - (*tackingStart));
+		dvec2 currentLine = current - *tackingStart;
 		float e = line.x*currentLine.y - line.y*currentLine.x;
 		if(abs(e) > rmax/2.0)
 			q = sign(e);
 		heading = windNorth + M_PI - q*closeHauled;
-		
+
 		isTacking = true;
 	}
-	
+
 	cmd.angular.z = heading;
 
 	return cmd;

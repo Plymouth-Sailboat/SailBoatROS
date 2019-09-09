@@ -24,7 +24,7 @@ float Utility::GPSDist(float lat1, float lon1, float lat2, float lon2){
 	return R*c;
 }
 
-float Utility::GPSDist(vec2 point1, vec2 point2){
+float Utility::GPSDist(dvec2 point1, dvec2 point2){
 	float R = 6371000;
 	float ksi1 = point1.x*M_PI/180.0;
 	float ksi2 = point2.x*M_PI/180.0;
@@ -47,7 +47,7 @@ float Utility::GPSDistFast(float lat1, float lon1, float lat2, float lon2){
 	return sqrt(x*x + y*y) * 6371000;
 }
 
-float Utility::GPSDistFast(vec2 point1, vec2 point2){
+float Utility::GPSDistFast(dvec2 point1, dvec2 point2){
 	float ksi1 = point1.x*M_PI/180.0;
 	float ksi2 = point2.x*M_PI/180.0;
 	float lam1 = point1.y*M_PI/180.0;
@@ -69,7 +69,7 @@ float Utility::GPSBearing(float lat1, float lon1, float lat2, float lon2){
 	return -atan2(y,x);
 }
 
-float Utility::GPSBearing(vec2 point1, vec2 point2){
+float Utility::GPSBearing(dvec2 point1, dvec2 point2){
 	float ksi1 = point1.x*M_PI/180.0;
 	float ksi2 = point2.x*M_PI/180.0;
 	float lam1 = point1.y*M_PI/180.0;
@@ -80,15 +80,15 @@ float Utility::GPSBearing(vec2 point1, vec2 point2){
 	return -atan2(y,x);
 }
 
-glm::vec3 Utility::GPSToCartesian(float lat, float gpslong){
+glm::dvec3 Utility::GPSToCartesian(float lat, float gpslong){
 	float ksi1 = lat*M_PI/180.0;
 	float lam1 = gpslong*M_PI/180.0;
-	return glm::vec3(6371000*cos(ksi1)*cos(lam1),
+	return glm::dvec3(6371000*cos(ksi1)*cos(lam1),
 			6371000*cos(ksi1)*sin(lam1),
 			6371000*sin(ksi1));
 }
 
-glm::vec3 Utility::GPSToCartesian(glm::vec2 gpsposition){
+glm::dvec3 Utility::GPSToCartesian(glm::dvec2 gpsposition){
 	return GPSToCartesian((float)gpsposition.x,(float)gpsposition.y);
 }
 
@@ -96,28 +96,28 @@ float Utility::CartesianToGPS(float x, float y){
 
 }
 
-vec3 Utility::QuaternionToEuler(geometry_msgs::Quaternion q){
+dvec3 Utility::QuaternionToEuler(geometry_msgs::Quaternion q){
 	return eulerAngles(quat(q.w, q.x, q.y, q.z));
 }
 
-vec3 Utility::QuaternionToEuler(quat q){
+dvec3 Utility::QuaternionToEuler(quat q){
 	return eulerAngles(q);
 }
 
-vec3 Utility::QuaternionToEuler(float x, float y, float z, float w){
+dvec3 Utility::QuaternionToEuler(float x, float y, float z, float w){
 	return eulerAngles(quat(w,x,y,z));
 }
 
-quat Utility::EulerToQuaternion(vec3 v){
+quat Utility::EulerToQuaternion(dvec3 v){
 	return quat(v);
 }
 
 quat Utility::EulerToQuaternion(float x, float y, float z){
-	return quat(vec3(x,y,z));
+	return quat(dvec3(x,y,z));
 }
 
-vec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
-	vec2* coordinates = NULL;
+dvec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
+	dvec2* coordinates = NULL;
 	std::string path = ros::package::getPath("sailrobot");
 	if(filepath[0] != '/')
 		filepath = path + "/" + filepath;
@@ -130,7 +130,7 @@ vec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
 	int nbLines = std::count(std::istreambuf_iterator<char>(file),
 			std::istreambuf_iterator<char>(), '\n');
 	size = nbLines;
-	coordinates = new vec2[nbLines];
+	coordinates = new dvec2[nbLines];
 	file.clear();
 	file.seekg(0, std::ios::beg);
 	int i = 0;
@@ -148,8 +148,8 @@ vec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
 }
 
 
-vec2* Utility::AppendGPSCoordinates(std::string filepath, int& size, glm::vec2* list, int sizeList){
-	vec2* coordinates = NULL;
+dvec2* Utility::AppendGPSCoordinates(std::string filepath, int& size, glm::dvec2* list, int sizeList){
+	dvec2* coordinates = NULL;
 	std::string path = ros::package::getPath("sailrobot");
 	if(filepath[0] != '/')
 		filepath = path + "/" + filepath;
@@ -162,7 +162,7 @@ vec2* Utility::AppendGPSCoordinates(std::string filepath, int& size, glm::vec2* 
 	int nbLines = std::count(std::istreambuf_iterator<char>(file),
 			std::istreambuf_iterator<char>(), '\n');
 	size = nbLines;
-	coordinates = new vec2[nbLines+sizeList];
+	coordinates = new dvec2[nbLines+sizeList];
 	for(int i = 0; i < sizeList; ++i)
 		coordinates[i] = list[i];
 	file.clear();
@@ -181,7 +181,7 @@ vec2* Utility::AppendGPSCoordinates(std::string filepath, int& size, glm::vec2* 
 	return coordinates;
 }
 
-std::vector<vec2> Utility::AppendGPSCoordinates(std::string filepath, int& size, std::vector<glm::vec2>* list){
+std::vector<dvec2> Utility::AppendGPSCoordinates(std::string filepath, int& size, std::vector<glm::dvec2>* list){
 	std::string path = ros::package::getPath("sailrobot");
 	if(filepath[0] != '/')
 		filepath = path + "/" + filepath;
@@ -204,7 +204,7 @@ std::vector<vec2> Utility::AppendGPSCoordinates(std::string filepath, int& size,
 		float x = std::atof(coords.c_str());
 		std::getline(stream, coords, ',');
 		float y = std::atof(coords.c_str());
-		list->push_back(glm::vec2(x,y));
+		list->push_back(glm::dvec2(x,y));
 		i++;
 	}
 	file.close();
@@ -254,7 +254,7 @@ void Utility::SaveConfig(std::string filepath){
 	file.close();
 }
 
-float Utility::RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAccx, float windAccy, float* windNorthAcc){
+float Utility::RelativeToTrueWind(glm::dvec2 v, float heading, float windDirection, float windAccx, float windAccy, float* windNorthAcc){
 	if(std::stoi(Utility::Instance().config["true_wind"])){
 		float angle = heading+windDirection;
 		angle = fmod(angle + M_PI, 2.0 * M_PI);
@@ -299,8 +299,8 @@ float Utility::TackingStrategy(float distanceToLine, float lineBearing, float wi
 	return heading;
 }
 
-glm::vec2 Utility::StandardCommand(glm::vec3 currentHeading, float heading, float windNorth, float max_sail, float max_rudder){
-	glm::vec2 rudsail;
+glm::dvec2 Utility::StandardCommand(glm::dvec3 currentHeading, float heading, float windNorth, float max_sail, float max_rudder){
+	glm::dvec2 rudsail;
 	if(cos(currentHeading.z - heading) >= 0)
 		rudsail.x = max_rudder*sin(currentHeading.z-heading);
 	else

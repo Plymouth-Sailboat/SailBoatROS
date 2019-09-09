@@ -15,20 +15,15 @@ void MPC::setup(ros::NodeHandle* n){
 	if (n->hasParam("goal"))
 		n->getParam("goal",goalPath);
 
-	waypoints = Utility::ReadGPSCoordinates(goalPath, nbWaypoints);
-	if(waypoints == NULL){
+	waypoints.push_back(dvec2(gpsMsg.latitude, gpsMsg.longitude));
+	waypoints = Utility::AppendGPSCoordinates(goalPath, nbWaypoints, &waypoints);
+	if(nbWaypoints == 0){
 		std::cerr << "Goals empty" << std::endl;
-		exit(0);
-	}
-
-	if(nbWaypoints < 1){
-		std::cerr << "No Waypoints" << std::endl;
 		exit(0);
 	}
 	initXRef = gpsMsg.latitude;
 	initYRef = gpsMsg.longitude;
 	currentWaypoint = 0;
-
 
   std::string configPath = "config/config.txt";
   Utility::Instance().config = Utility::ReadConfig(configPath);
@@ -41,7 +36,7 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 	//Parameters
 	unsigned int receding_n = optionD[0];
 	int step = optionD[1];
-	int receding_n5 = receding_n*5+2;
+	int receding_n5 = 9;
 
 	//Reference State
 	//TODO
@@ -91,6 +86,7 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 	}
 
 	//cost
+	double r = 10.0;
 	double f = 0;
 	int it_i = 2;
 	for(std::vector<double*>::iterator it=state_predict.begin(); it != state_predict.end(); it++){
@@ -99,8 +95,32 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 	f += Q[2]*sin((*it)[2] - (optionD)[4])*sin((*it)[2] - (optionD)[4]);
 	f += Q[3]*((*it)[3] - (optionD)[5])*((*it)[3] - (optionD)[5]);
 	//f += Q[4]*((*it)[4] - (optionD)[6])*((*it)[4] - (optionD)[6]);
+
+	//TackingStrategy
+	double nogo = 0.0;
+	double tacking_phi = M_PI/4.0;
+
+
+	dvec2 toWaypoints = dvec2(optionD[2] - optionD[7],optionD[3] - optionD[8]);
+	toWaypoints /= glm::length(toWaypoints);
+	dvec2 distWaypoints = dvec2(optionD[receding_n5] - optionD[7], optionD[receding_n5+1] - optionD[8]);
+	double e = toWaypoints.x*distWaypoints.y-toWaypoints.y*distWaypoints.x;
+
+
+	if(cos(dtw-(*it)[2])+cos(tacking_phi)<0.0){
+		if(abs(e) < r/2.0){
+			nogo = abs(cos(dtw-(*it)[2])+cos(tacking_phi))*8;
+		}else{
+			nogo = abs(cos(dtw-(*it)[2])+cos(tacking_phi))*2;
+		}
+	}
+	f += nogo*nogo;
+
 	it_i += 5;
 	}
+
+
+
 	/*if(grad.size()>0){
 		for(int i = 0; i < n; i+=2){
 			grad[i] = 0;
@@ -129,36 +149,39 @@ double MPC::constraintFunction(unsigned n, const double *x, double *grad, void*d
 
 geometry_msgs::Twist MPC::control(){
 	geometry_msgs::Twist cmd;
-	vec2 current(gpsMsg.latitude, gpsMsg.longitude);
+	dvec2 current(gpsMsg.latitude, gpsMsg.longitude);
 	float currentHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
 
 	double vnorm = sqrt(velMsg.linear.x*velMsg.linear.x+velMsg.linear.y*velMsg.linear.y);
 	float windNorthA = 0.0;
-	float windNorth = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y, &windNorthA);
-
-	vec3 gpsXY = Utility::GPSToCartesian(current);
+	float windNorth = Utility::RelativeToTrueWind(dvec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y, &windNorthA);
 
 	/// Calculate the distance to the next waypoint, if close, change to the next waypoint
-	float dist = Utility::GPSDist(current, waypoints[(currentWaypoint)%nbWaypoints]);
+	float dist = Utility::GPSDist(current, waypoints[(currentWaypoint+1)%nbWaypoints]);
 	if(dist < 10){
-		publishLOG("PArrived at waypoint " + std::to_string(currentWaypoint));
-		currentWaypoint++;
-		currentWaypoint %= nbWaypoints;
+		publishLOG("PArrived at waypoint " + std::to_string((currentWaypoint+1)%nbWaypoints));
+		if(waypoints.size() > nbWaypoints)
+			waypoints.erase(waypoints.begin());
+		else{
+			currentWaypoint++;
+			currentWaypoint %= nbWaypoints;
+		}
 	}
 
 	unsigned int receding_n = 10;
 	unsigned int step = 1;
 	unsigned int inputs_n = receding_n/step*2;
 
-	int receding_n5 = receding_n*5+2;
+	//int receding_n5 = receding_n*5+2;
+	int receding_n5 = 9;
 	double optionData[receding_n5+26];
 	//Parameters
 	optionData[0] = receding_n;
 	optionData[1] = step; //input step
 	//Rerence State
-	double gpsdist = Utility::GPSDist(waypoints[currentWaypoint].x,waypoints[currentWaypoint].y, initXRef, initYRef);
-  double bearing = Utility::GPSBearing(initXRef,initYRef,waypoints[currentWaypoint].x,waypoints[currentWaypoint].y);
-  double bearingBoat = Utility::GPSBearing(current.x,current.y,waypoints[currentWaypoint].x,waypoints[currentWaypoint].y);
+	double gpsdist = Utility::GPSDist(waypoints[(currentWaypoint+1)%nbWaypoints].x,waypoints[(currentWaypoint+1)%nbWaypoints].y, initXRef, initYRef);
+  double bearing = Utility::GPSBearing(initXRef,initYRef,waypoints[(currentWaypoint+1)%nbWaypoints].x,waypoints[(currentWaypoint+1)%nbWaypoints].y);
+  double bearingBoat = Utility::GPSBearing(gpsMsg.latitude,gpsMsg.longitude,waypoints[(currentWaypoint+1)%nbWaypoints].x,waypoints[(currentWaypoint+1)%nbWaypoints].y);
   double xpos = gpsdist*cos(bearing);
   double ypos = gpsdist*sin(bearing);
 	optionData[2] = xpos; //x
@@ -166,6 +189,13 @@ geometry_msgs::Twist MPC::control(){
 	optionData[4] = bearingBoat; //theta
 	optionData[5] = 2; //v
 	optionData[6] = 0; //w
+
+	gpsdist = Utility::GPSDist(waypoints[currentWaypoint].x,waypoints[currentWaypoint].y, initXRef, initYRef);
+	bearing = Utility::GPSBearing(initXRef,initYRef,waypoints[currentWaypoint].x,waypoints[currentWaypoint].y);
+  xpos = gpsdist*cos(bearing);
+  ypos = gpsdist*sin(bearing);
+	optionData[7] = xpos;
+	optionData[8] = ypos;
 
 	//Actual State
 	gpsdist = Utility::GPSDist(gpsMsg.latitude, gpsMsg.longitude, initXRef, initYRef);
@@ -185,17 +215,17 @@ geometry_msgs::Twist MPC::control(){
 	optionData[receding_n5+8] = windNorthA; //atw;
 	optionData[receding_n5+9] = windNorth; //dtw
 	double pconfig[11] = {
-		stod(Utility::Instance().config["p1"]),
-		stod(Utility::Instance().config["p2"]),
-		stod(Utility::Instance().config["p3"]),
-		stod(Utility::Instance().config["p4"]),
-		stod(Utility::Instance().config["p5"]),
+		stod(Utility::Instance().config["p1est"]),
+		stod(Utility::Instance().config["p2est"]),
+		stod(Utility::Instance().config["p3est"]),
+		stod(Utility::Instance().config["p4est"]),
+		stod(Utility::Instance().config["p5est"]),
 		stod(Utility::Instance().config["p6"]),
 		stod(Utility::Instance().config["p7"]),
 		stod(Utility::Instance().config["p8"]),
 		stod(Utility::Instance().config["p9"]),
 		stod(Utility::Instance().config["p10"]),
-		stod(Utility::Instance().config["p11"])
+		stod(Utility::Instance().config["p11est"])
 	};
 	memcpy(optionData+receding_n5+10,pconfig,11*sizeof(double)); //parameters
 	double Q[5] = {1.0,1.0,0.1,0.2,0.0};
@@ -243,5 +273,6 @@ geometry_msgs::Twist MPC::control(){
 
 	publishMSG("MPC Controlling");
 	publishMarkerA(waypoints[currentWaypoint].x,waypoints[currentWaypoint].y);
+	publishMarkerB(waypoints[(currentWaypoint+1)%nbWaypoints].x,waypoints[(currentWaypoint+1)%nbWaypoints].y);
 	return cmd;
 }

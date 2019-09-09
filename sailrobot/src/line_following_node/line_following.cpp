@@ -13,7 +13,7 @@ void LineFollowing::setup(ros::NodeHandle* n){
 	std::string waypointPath = "data/line_following.txt";
 	if(n->hasParam("waypoints"))
 		n->getParam("waypoints",waypointPath);
-	waypoints.push_back(glm::vec2(gpsMsg.latitude, gpsMsg.longitude));
+	waypoints.push_back(dvec2(gpsMsg.latitude, gpsMsg.longitude));
 	waypoints = Utility::AppendGPSCoordinates(waypointPath, nbWaypoints, &waypoints);
 	if(nbWaypoints == 0){
 		std::cerr << "Waypoints Coordinates File not Found" << std::endl;
@@ -28,11 +28,11 @@ void LineFollowing::setup(ros::NodeHandle* n){
 geometry_msgs::Twist LineFollowing::control(){
 	geometry_msgs::Twist cmd;
 	//Retrieve data
-	vec2 current = vec2(gpsMsg.latitude, gpsMsg.longitude);
-	vec2 currentRad = vec2(gpsMsg.latitude*M_PI/180.0, gpsMsg.longitude*M_PI/180.0);
+	dvec2 current = dvec2(gpsMsg.latitude, gpsMsg.longitude);
+	dvec2 currentRad = dvec2(gpsMsg.latitude*M_PI/180.0, gpsMsg.longitude*M_PI/180.0);
 	vec3 currentXYZ = Utility::GPSToCartesian(gpsMsg.latitude, gpsMsg.longitude);
 	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
-	float windNorth = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),heading.z,windMsg.theta, windMsg.x, windMsg.y);
+	float windNorth = Utility::RelativeToTrueWind(dvec2(velMsg.linear.x,velMsg.linear.y),heading.z,windMsg.theta, windMsg.x, windMsg.y);
 
 	//Parameters
 	float psi = M_PI/4.0;
@@ -65,7 +65,7 @@ geometry_msgs::Twist LineFollowing::control(){
 	double diflat = lat2-lat1;
 	double diflong = long2 - long1;
 	double leng = (diflat*(current.x-lat1)+diflong*(current.y-long1))/(diflat*diflat+diflong*diflong);
-	vec2 currline(lat1+diflat*leng,long1+diflong*leng);
+	dvec2 currline(lat1+diflat*leng,long1+diflong*leng);
 
 	double distToLine = Utility::GPSDist(currline,current);
 
@@ -81,7 +81,7 @@ geometry_msgs::Twist LineFollowing::control(){
 	thetabar = Utility::TackingStrategy(e,phi,windNorth,thetabar,r,psi,ksi,&q, &check);
 
 	//Standard Command for rudder and sail
-	vec2 cmdv = Utility::StandardCommand(heading,thetabar, windNorth, M_PI/3.0);
+	dvec2 cmdv = Utility::StandardCommand(heading,thetabar, windNorth, M_PI/3.0);
 	cmd.angular.x = cmdv.x;
 	cmd.angular.y = cmdv.y;
 

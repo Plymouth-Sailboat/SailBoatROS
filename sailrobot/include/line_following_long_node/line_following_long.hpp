@@ -15,7 +15,7 @@ namespace Sailboat{
 		int currentWaypoint;
 		int nbWaypoints;
 
-		glm::vec2* waypoints;
+		glm::dvec2* waypoints;
 		float r;
 		int q;
     };
