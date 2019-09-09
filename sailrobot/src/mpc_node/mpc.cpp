@@ -28,6 +28,10 @@ void MPC::setup(ros::NodeHandle* n){
 	initXRef = gpsMsg.latitude;
 	initYRef = gpsMsg.longitude;
 	currentWaypoint = 0;
+
+
+  std::string configPath = "config/config.txt";
+  Utility::Instance().config = Utility::ReadConfig(configPath);
 }
 
 double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad, void *option){
@@ -92,7 +96,7 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 	for(std::vector<double*>::iterator it=state_predict.begin(); it != state_predict.end(); it++){
 	f += Q[0]*((*it)[0] - (optionD)[2])*((*it)[0] - (optionD)[2]);
 	f += Q[1]*((*it)[1] - (optionD)[3])*((*it)[1] - (optionD)[3]);
-	//f += Q[2]*((*it)[2] - (optionD)[4])*((*it)[2] - (optionD)[4]);
+	f += Q[2]*sin((*it)[2] - (optionD)[4])*sin((*it)[2] - (optionD)[4]);
 	f += Q[3]*((*it)[3] - (optionD)[5])*((*it)[3] - (optionD)[5]);
 	//f += Q[4]*((*it)[4] - (optionD)[6])*((*it)[4] - (optionD)[6]);
 	it_i += 5;
@@ -135,14 +139,14 @@ geometry_msgs::Twist MPC::control(){
 	vec3 gpsXY = Utility::GPSToCartesian(current);
 
 	/// Calculate the distance to the next waypoint, if close, change to the next waypoint
-	float dist = Utility::GPSDist(current, waypoints[(currentWaypoint+1)%nbWaypoints]);
+	float dist = Utility::GPSDist(current, waypoints[(currentWaypoint)%nbWaypoints]);
 	if(dist < 10){
 		publishLOG("PArrived at waypoint " + std::to_string(currentWaypoint));
 		currentWaypoint++;
 		currentWaypoint %= nbWaypoints;
 	}
 
-	unsigned int receding_n = 20;
+	unsigned int receding_n = 10;
 	unsigned int step = 1;
 	unsigned int inputs_n = receding_n/step*2;
 
@@ -152,13 +156,14 @@ geometry_msgs::Twist MPC::control(){
 	optionData[0] = receding_n;
 	optionData[1] = step; //input step
 	//Rerence State
-	double gpsdist = Utility::GPSDist(waypoints[0].x,waypoints[0].y, initXRef, initYRef);
-  double bearing = Utility::GPSBearing(initXRef,initYRef,waypoints[0].x,waypoints[0].y);
+	double gpsdist = Utility::GPSDist(waypoints[currentWaypoint].x,waypoints[currentWaypoint].y, initXRef, initYRef);
+  double bearing = Utility::GPSBearing(initXRef,initYRef,waypoints[currentWaypoint].x,waypoints[currentWaypoint].y);
+  double bearingBoat = Utility::GPSBearing(current.x,current.y,waypoints[currentWaypoint].x,waypoints[currentWaypoint].y);
   double xpos = gpsdist*cos(bearing);
   double ypos = gpsdist*sin(bearing);
 	optionData[2] = xpos; //x
 	optionData[3] = ypos; //y
-	optionData[4] = 0; //theta
+	optionData[4] = bearingBoat; //theta
 	optionData[5] = 2; //v
 	optionData[6] = 0; //w
 
@@ -179,20 +184,33 @@ geometry_msgs::Twist MPC::control(){
 	optionData[receding_n5+7] = windMsg.theta; //daw
 	optionData[receding_n5+8] = windNorthA; //atw;
 	optionData[receding_n5+9] = windNorth; //dtw
-	double pconfig[11];
+	double pconfig[11] = {
+		stod(Utility::Instance().config["p1"]),
+		stod(Utility::Instance().config["p2"]),
+		stod(Utility::Instance().config["p3"]),
+		stod(Utility::Instance().config["p4"]),
+		stod(Utility::Instance().config["p5"]),
+		stod(Utility::Instance().config["p6"]),
+		stod(Utility::Instance().config["p7"]),
+		stod(Utility::Instance().config["p8"]),
+		stod(Utility::Instance().config["p9"]),
+		stod(Utility::Instance().config["p10"]),
+		stod(Utility::Instance().config["p11"])
+	};
 	memcpy(optionData+receding_n5+10,pconfig,11*sizeof(double)); //parameters
-	double Q[5] = {1.0,1.0,0.0,0.5,0.0};
+	double Q[5] = {1.0,1.0,0.1,0.2,0.0};
 	memcpy(optionData+receding_n5+21,Q,5*sizeof(double)); //Gain
 
 
-	nlopt::opt opt(nlopt::LN_BOBYQA, inputs_n);
+	//nlopt::opt opt(nlopt::LN_BOBYQA, inputs_n);
 	//nlopt::opt opt(nlopt::LN_NEWUOA_BOUND, inputs_n);
 	//nlopt::opt opt(nlopt::LN_PRAXIS, inputs_n);
-	//nlopt::opt opt(nlopt::LN_NELDERMEAD, inputs_n);
+	nlopt::opt opt(nlopt::LN_NELDERMEAD, inputs_n);
 
 	std::vector<double> lb(inputs_n,-M_PI/4.0);
 	for(int i = 1; i < inputs_n; i+=2)
 		lb[i] = -M_PI/2.0;
+		//lb[i] = 0;
 	std::vector<double> ub(inputs_n,M_PI/4.0);
 	for(int i = 1; i < inputs_n; i+=2)
 		ub[i] = M_PI/2.0;
@@ -203,7 +221,7 @@ geometry_msgs::Twist MPC::control(){
 	//my_constraint_data data[2] = { {2,0}, {-1,1} };
 	//opt.add_inequality_constraint(myconstraint, &data[0], 1e-8);
 	//opt.add_inequality_constraint(myconstraint, &data[1], 1e-8);
-	opt.set_xtol_rel(1e-4);
+	opt.set_xtol_rel(1e-6);
 	std::vector<double> x(inputs_n,rudderAngle);
 	for(int i = 1; i < inputs_n; i+=2)
 		x[i] = sailAngle;
@@ -224,6 +242,6 @@ geometry_msgs::Twist MPC::control(){
 	cmd.angular.y = sign(x[1])*x[1];
 
 	publishMSG("MPC Controlling");
-	publishMarkerA(waypoints[0].x,waypoints[0].y);
+	publishMarkerA(waypoints[currentWaypoint].x,waypoints[currentWaypoint].y);
 	return cmd;
 }

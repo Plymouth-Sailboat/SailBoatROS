@@ -71,6 +71,7 @@ class Utility{
 		static std::vector<glm::vec2> AppendGPSCoordinates(std::string filepath, int& size, std::vector<glm::vec2>* list);
 
 		static std::map<std::string,std::string> ReadConfig(std::string filepath);
+		static void SaveConfig(std::string filepath);
 
 		static float RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAccx, float windAccy, float* windNorthAcc = NULL);
 

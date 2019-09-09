@@ -143,7 +143,7 @@ geometry_msgs::Twist Identification::control(){
 			ruddersail.x = M_PI/4.0;
 			ruddersail.y = 0.0;
 
-			if(duration > 2){
+			if(duration > 5){
 				step++;
 				start = ros::Time::now().toSec();
 			}
@@ -153,7 +153,7 @@ geometry_msgs::Twist Identification::control(){
 			ruddersail.x = 0;
 			ruddersail.y = 0;
 
-			if(duration > 1){
+			if(duration > 5){
 				step++;
 				start = ros::Time::now().toSec();
 			}

@@ -202,6 +202,17 @@ std::cout << "[0:default] LN_NEWUOA_BOUND,\n\
   std::vector<double> dtwv;
   double maxv = 0;
   double prevheading = 0;
+  double prevprevheading = 0;
+
+  std::string configPath = "config/config.txt";
+  Utility::Instance().config = Utility::ReadConfig(configPath);
+  double p10 = stod(Utility::Instance().config["p10"]);
+  double p3 = stod(Utility::Instance().config["p3"]);
+  double p8 = stod(Utility::Instance().config["p8"]);
+  double p9 = stod(Utility::Instance().config["p9"]);
+  double p6 = stod(Utility::Instance().config["p6"]);
+  double p7 = stod(Utility::Instance().config["p7"]);
+
   std::getline(infile,line);
   while(std::getline(infile,line)){
     std::stringstream ss(line);
@@ -217,7 +228,11 @@ std::cout << "[0:default] LN_NEWUOA_BOUND,\n\
     double daw = datain[16];
     double dtw = datain[13];
     double angacc = 0;
-    double angvel = datain[12];
+    double angvel = datain[11];
+    double heading = datain[12];
+    //if(prevprevheading != 0)
+    //  angvel = (heading - prevprevheading)/0.01;
+    //prevprevheading = heading;
     if(prevheading != 0)
       angacc = (angvel-prevheading)/0.01;
     prevheading = angvel;
@@ -225,14 +240,8 @@ std::cout << "[0:default] LN_NEWUOA_BOUND,\n\
     double vnorm = sqrt(datain[3]*datain[3]+datain[4]*datain[4]);
     if(vnorm == 0)
       vnorm = 0.01;
-    //	double anorm = sqrt(datain[6]*datain[6]+datain[7]*datain[7]);
-    double anorm = datain[7];
-    std::string configPath = "config/config.txt";
-    Utility::Instance().config = Utility::ReadConfig(configPath);
-    double p10 = stod(Utility::Instance().config["p10"]);
-    double p3 = stod(Utility::Instance().config["p3"]);
-    double p8 = stod(Utility::Instance().config["p8"]);
-    double p9 = stod(Utility::Instance().config["p9"]);
+    double anorm = sqrt(datain[6]*datain[6]+datain[7]*datain[7]);
+    //double anorm = datain[7];
 
     switch((int)datain[2]){
       case 0://S2 p1
@@ -241,14 +250,14 @@ std::cout << "[0:default] LN_NEWUOA_BOUND,\n\
       s1.push_back((aaw*sin(datain[18]-daw)*sin(datain[18])));
       break;
       case 1:
-      s2.push_back(-anorm/(vnorm*vnorm));
-      s3.push_back(2*(p10*angacc+p3*angvel*vnorm)/(vnorm*vnorm*p8));
+      s2.push_back(anorm/(vnorm*vnorm));
       break;
       case 2://S3 S1
       s4.push_back(-angacc/(angvel*vnorm));
+      s3.push_back(-2*(p10*angacc+p3*angvel*vnorm)/(vnorm*vnorm*p8));
       break;
       case 3://S4 S5
-      s5.push_back(-anorm/(vnorm*vnorm)*p9);
+      s5.push_back(anorm/(vnorm*vnorm)*p9);
       break;
     }
     atwv.push_back(atw);
@@ -281,7 +290,7 @@ std::cout << "[0:default] LN_NEWUOA_BOUND,\n\
   s1p = s1p>0?s1p:0.01;
   float s2p = std::accumulate(s2.begin(), s2.end(), 0.0) / s2.size();
   s2p = s2p>0?s2p:0.01;
-  float s3p = std::accumulate(s3.begin(), s3.end(), 0.0) / s3.size();
+  float s3p = std::accumulate(s3.begin()+s3.size()/2.0, s3.end(), 0.0) / s3.size()*2.0;
   s3p = s3p>0?s3p:0.01;
   float s4p = std::accumulate(s4.begin()+s4.size()/2.0, s4.end(), 0.0) / s4.size()*2.0;
   s4p = s4p>0?s4p:0.01;
@@ -291,11 +300,6 @@ std::cout << "[0:default] LN_NEWUOA_BOUND,\n\
   float p1p = std::accumulate(p1.begin(), p1.end(), 0.0) / p1.size();
   float atw = std::accumulate(atwv.begin(), atwv.end(), 0.0) / atwv.size();
   float dtw = std::accumulate(dtwv.begin(), dtwv.end(), 0.0) / dtwv.size();
-  double p6 = stod(Utility::Instance().config["p6"]);
-  double p7 = stod(Utility::Instance().config["p7"]);
-  double p8 = stod(Utility::Instance().config["p8"]);
-  double p9 = stod(Utility::Instance().config["p9"]);
-  double p10 = stod(Utility::Instance().config["p10"]);
   state.back()[0] = p6;
   state.back()[1] = p7;
   state.back()[2] = p8;
@@ -352,6 +356,13 @@ std::cout << "[0:default] LN_NEWUOA_BOUND,\n\
     for(int i = 0; i < 6; ++i)
       std::cout << x[i] << ",";
     std::cout << x[6] << ") = " << std::setprecision(10) << minf << std::endl;
+    Utility::Instance().config["p1est"] = std::to_string(x[0]);
+    Utility::Instance().config["p2est"] = std::to_string(x[1]);
+    Utility::Instance().config["p3est"] = std::to_string(x[2]);
+    Utility::Instance().config["p4est"] = std::to_string(x[3]);
+    Utility::Instance().config["p5est"] = std::to_string(x[4]);
+    Utility::Instance().config["p11est"] = std::to_string(x[6]);
+    Utility::SaveConfig("config/config.txt");
   }
   catch(std::exception &e) {
     std::cout << "nlopt failed: " << e.what() << std::endl;

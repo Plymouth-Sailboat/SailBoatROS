@@ -237,7 +237,21 @@ std::map<std::string,std::string> Utility::ReadConfig(std::string filepath){
 	}
 	file.close();
 	return res;
+}
 
+void Utility::SaveConfig(std::string filepath){
+	std::string path = ros::package::getPath("sailrobot");
+	if(filepath[0] != '/')
+		filepath = path + "/" + filepath;
+	std::ofstream file(filepath, std::ios::out | std::ios::trunc);
+	if(!file){
+		std::cerr << "Config Writing : Couldn't open file" << std::endl;
+		return;
+	}
+	std::string line;
+	for(std::map<std::string,std::string>::iterator it = Utility::Instance().config.begin(); it != Utility::Instance().config.end(); it++)
+		file << it->first << "=" << it->second << std::endl;
+	file.close();
 }
 
 float Utility::RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAccx, float windAccy, float* windNorthAcc){
