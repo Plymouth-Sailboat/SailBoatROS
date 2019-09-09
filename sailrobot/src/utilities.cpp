@@ -240,7 +240,7 @@ std::map<std::string,std::string> Utility::ReadConfig(std::string filepath){
 
 }
 
-float Utility::RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAccx, float windAccy){
+float Utility::RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAccx, float windAccy, float* windNorthAcc){
 	if(std::stoi(Utility::Instance().config["true_wind"])){
 		float angle = heading+windDirection;
 		angle = fmod(angle + M_PI, 2.0 * M_PI);
@@ -251,6 +251,8 @@ float Utility::RelativeToTrueWind(glm::vec2 v, float heading, float windDirectio
 		//float the = acos(b);
 		float dx = s*cos(heading)-windAcc*cos(angle);
 		float dy = s*sin(heading)-windAcc*sin(angle);
+		if(windNorthAcc != NULL)
+			*windNorthAcc = sqrt(dx*dx+dy*dy);
 		//return heading+the;
 		return (dx==0&dy==0)?angle:atan2(dy,dx);
 	}else{

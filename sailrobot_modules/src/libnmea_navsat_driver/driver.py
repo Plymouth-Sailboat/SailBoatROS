@@ -39,6 +39,7 @@ from sensor_msgs.msg import TimeReference
 from gps_common.msg import GPSFix,GPSStatus
 from geometry_msgs.msg import TwistStamped, QuaternionStamped
 from tf.transformations import quaternion_from_euler
+from datetime import datetime
 
 from libnmea_navsat_driver.checksum_utils import check_nmea_checksum
 import libnmea_navsat_driver.parser
@@ -51,8 +52,8 @@ class RosNMEADriver(object):
         self.nmea_pub = rospy.Publisher('GPS/NMEA', String, queue_size=1)
 
         self.valid_fix = False
-	self.use_RMC = rospy.get_param('~useRMC', False)
-	self.current_fix = GPSFix()
+        self.use_RMC = rospy.get_param('~useRMC', False)
+        self.current_fix = GPSFix()
         self.current_nmea = String()
 
         # epe = estimated position error
@@ -138,7 +139,7 @@ class RosNMEADriver(object):
             current_time = timestamp
         else:
             current_time = rospy.get_rostime()
-        
+
         self.current_fix.header.stamp = current_time
         self.current_fix.header.frame_id = frame_id
         self.current_fix.status.header.stamp = current_time
@@ -192,7 +193,8 @@ class RosNMEADriver(object):
                 2 * self.current_fix.hdop * self.alt_std_dev) ** 2  # FIXME
 
             if not math.isnan(data['utc_time']):
-                self.current_fix.time = data['utc_time']
+                dt_time = datetime.fromtimestamp(data['utc_time']);
+                self.current_fix.time = dt_time.hour*10000+dt_time.minute*100+dt_time.second;
                 self.last_valid_fix_time = rospy.Time.from_sec(
                     data['utc_time'])
 
@@ -202,8 +204,8 @@ class RosNMEADriver(object):
             # Only report VTG data when you've received a valid GGA fix as
             # well.
             if self.valid_fix:
-		self.current_fix.track = data['true_course']
-		self.current_fix.speed = data['speed']
+        		self.current_fix.track = data['true_course']
+        		self.current_fix.speed = data['speed']
 
         if 'RMC' in parsed_sentence:
             data = parsed_sentence['RMC']
@@ -237,8 +239,8 @@ class RosNMEADriver(object):
             # Publish velocity from RMC regardless, since GGA doesn't provide
             # it.
             if data['fix_valid']:
-		self.current_fix.track = data['true_course']
-		self.current_fix.speed = data['speed']
+        		self.current_fix.track = data['true_course']
+        		self.current_fix.speed = data['speed']
 
         if 'GST' in parsed_sentence:
             data = parsed_sentence['GST']
@@ -251,7 +253,7 @@ class RosNMEADriver(object):
         if 'HDT' in parsed_sentence:
             data = parsed_sentence['HDT']
             if data['heading']:
-		self.current_fix.dip = math.radians(data['heading'])
+                self.current_fix.dip = math.radians(data['heading'])
 #                current_heading = QuaternionStamped()
 #                current_heading.header.stamp = current_time
 #                current_heading.header.frame_id = frame_id
@@ -263,7 +265,7 @@ class RosNMEADriver(object):
 #                self.heading_pub.publish(current_heading)
 #        else:
 #            return False
-	self.fix_pub.publish(self.current_fix)
+        self.fix_pub.publish(self.current_fix)
         self.nmea_pub.publish(self.current_nmea)
 
     """Helper method for getting the frame_id with the correct TF prefix"""

@@ -10,6 +10,6 @@
 			<param name="port" value="$(arg usb_port)"/>
 		</node>
 	</group>
-	<node name="fix_relay" pkg="topic_tools" type="relay" args="/sailboat/GPS /fix"/>
+	<node name="fix_relay" pkg="topic_tools" type="relay" args="/sailboat/GPS/fix /fix"/>
 	<node name="logger" pkg="rostopic" type="rostopic" output="screen" args="echo /sailboat/sailboat_log"/>
 </launch>

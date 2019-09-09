@@ -14,8 +14,11 @@ namespace Sailboat{
 		virtual geometry_msgs::Twist control();
 
 	private:
+		int currentWaypoint;
 		int nbWaypoints;
 		glm::vec2* waypoints;
+    double initXRef;
+    double initYRef;
 
 		static double costFunction(const std::vector<double> &x, std::vector<double> &grad, void *option);
 		static double constraintFunction(unsigned n, const double *x, double *grad, void *data);

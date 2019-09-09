@@ -136,8 +136,9 @@ def ReadConfig(filepath):
                 problem = False
                 for line in file:
                     keyval = line.split("=")
+                    value = keyval[1].split("//")
                     try:
-                        res[keyval[0]]=keyval[1];
+                        res[keyval[0]]=value[0];
                     except:
                         problem = True
                 if problem:
@@ -159,23 +160,23 @@ def RelativeToTrueWind(v, heading, windDirection, windAcc):
         dx = s*math.cos(heading)-windA*math.cos(heading)
         dy = s*math.sin(heading)-windA*math.sin(heading)
         return math.atan2(dx,dy)
-    else
+    else:
         angle = heading+windDirection
         angle = (angle + np.pi) % (2 * np.pi) - np.pi
         return angle
 
-def TackingStrategy(distanceToLine, lineBearing, windNorth, heading, corridor, psi, ksi){
-    if(math.abs(distanceToLine) > corridor/2)
+def TackingStrategy(distanceToLine, lineBearing, windNorth, heading, corridor, psi, ksi):
+    if(math.abs(distanceToLine) > corridor/2):
         q = 1 if distanceToLine >= 0 else -1
 
-    if(math.cos(windNorth-heading)+math.cos(ksi) < 0 || (math.abs(distanceToLine) < corridor && (math.cos(windNorth-lineBearing)+math.cos(ksi) < 0)))
-        heading = math.pi + windNorth - q*ksi;
+    if(math.cos(windNorth-heading)+math.cos(ksi) < 0 or (math.abs(distanceToLine) < corridor and (math.cos(windNorth-lineBearing)+math.cos(ksi) < 0))):
+        heading = math.pi + windNorth - q*ksi
     return heading,q
 
 def StandardCommand(currentHeading, headaing, windNorth, max_sail, max_rudder):
     if(math.cos(currentHeading-heading)>=0):
         rudder=max_rudder*math.sin(currentHeading-heading)
-    else
+    else:
         rudder=max_rudder*math.copysign(1,sin(currentHeading-heading))
 
     sail = math.abs(max_sail*(math.cos(windNorth-heading)+1)/2.0)

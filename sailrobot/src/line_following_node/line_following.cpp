@@ -40,7 +40,13 @@ geometry_msgs::Twist LineFollowing::control(){
 
 	/// Calculate the distance to the next waypoint, if close, change to the next waypoint
 	float dist = Utility::GPSDist(current, waypoints[(currentWaypoint+1)%nbWaypoints]);
-	if(dist < 5){
+
+	float newline = Utility::GPSBearing(waypoints[(currentWaypoint+1)%nbWaypoints],waypoints[(currentWaypoint+2)%nbWaypoints]);
+
+	//Which side of the line ?
+	float newlineb = Utility::GPSBearing(waypoints[(currentWaypoint+1)%nbWaypoints],current);
+	float pastornot = sin(newlineb-newline)>0?0:1;
+	if(dist < 5 || pastornot){
 		publishLOG("PArrived at waypoint " + std::to_string(currentWaypoint));
 		if(waypoints.size() > nbWaypoints)
 			waypoints.erase(waypoints.begin());
@@ -56,10 +62,10 @@ geometry_msgs::Twist LineFollowing::control(){
 	float long1 = waypoints[currentWaypoint].y;
 	float long2 = waypoints[(currentWaypoint+1)%nbWaypoints].y;
 
-  	double diflat = lat2-lat1;
-  	double diflong = long2 - long1;
-  	double leng = (diflat*(current.x-lat1)+diflong*(current.y-long1))/(diflat*diflat+diflong*diflong);
-  	vec2 currline(lat1+diflat*leng,long1+diflong*leng);
+	double diflat = lat2-lat1;
+	double diflong = long2 - long1;
+	double leng = (diflat*(current.x-lat1)+diflong*(current.y-long1))/(diflat*diflat+diflong*diflong);
+	vec2 currline(lat1+diflat*leng,long1+diflong*leng);
 
 	double distToLine = Utility::GPSDist(currline,current);
 

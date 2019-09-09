@@ -16,6 +16,8 @@
 #include <math.h>
 #include <gps_common/GPSFix.h>
 
+#include <utilities.hpp>
+
 
 using namespace std;
 using namespace glm;
@@ -70,7 +72,7 @@ void f(){
 	else{
 		delta_s = -sign(sin(psi_ap))*cmd.angular.y;
 	}
-	double fr = p[4]*v*sin(cmd.angular.x);
+	double fr = p[4]*v*v*sin(cmd.angular.x);
 	double fs = p[3]*a_ap*sin(delta_s-psi_ap);
 	xdot[0] = v*cos(theta) + p[0]*awind*cos(windN.theta);
 	xdot[1] = v*sin(theta) + p[0]*awind*sin(windN.theta);
@@ -83,8 +85,8 @@ void f(){
 
 void act(){
 	double t1 = ros::Time::now().toSec();
-	double dt = t1 - t0;
-	//double dt = 0.1;
+	//double dt = t1 - t0;
+	double dt = 0.01;
 	x[0] = x[0] + dt*xdot[0];
 	x[1] = x[1] + dt*xdot[1];
 	x[2] = x[2] + dt*xdot[2];
@@ -125,12 +127,12 @@ void set_gps(ros::Publisher pub_gps, gps_common::GPSFix msgGps, double x[5]){
 
 void set_wind(ros::Publisher pub_wind, geometry_msgs::Pose2D msgWind){
 	double v = x[3];
-        vec2 w_ap;
-        float awind = sqrt(windN.x*windN.x+windN.y*windN.y);
-        w_ap[0] = awind*cos(windN.theta-x[2])-v;
-        w_ap[1] = awind*sin(windN.theta-x[2]);
+	vec2 w_ap;
+	float awind = sqrt(windN.x*windN.x+windN.y*windN.y);
+	w_ap[0] = awind*cos(windN.theta-x[2])-v;
+	w_ap[1] = awind*sin(windN.theta-x[2]);
 	double psi_ap = atan2(w_ap[1],w_ap[0]);
-        double a_ap = glm::length(w_ap);
+	double a_ap = glm::length(w_ap);
 
 	msgWind.theta = psi_ap;
 	msgWind.x = w_ap[0];
@@ -174,11 +176,10 @@ int main(int argc, char **argv)
 	ros::Publisher pub_buoy = nh.advertise<geometry_msgs::Vector3>("simu_send_buoy",0);
 	geometry_msgs::Vector3 msgBuoy;
 
-
-
 	t0 = ros::Time::now().toSec();
 	double wa = 2.0;
 	double wt = 0.0;
+	int r = 1;
 	nh.param<double>("posx", x[0],0);
 	nh.param<double>("xRefX", xRef[0],0);
 	nh.param<double>("posy", x[1],0);
@@ -186,6 +187,7 @@ int main(int argc, char **argv)
 	nh.param<double>("theta", x[2],0);
 	nh.param<double>("windNA", wa,2.0);
 	nh.param<double>("windNT", wt,0.0);
+	nh.param<int>("rate", r,1);
 	x[3] = 0.5;
 	x[4] = 0;
 	wind = geometry_msgs::Pose2D();
@@ -199,8 +201,10 @@ int main(int argc, char **argv)
 	ros::Rate loop_rate(100);
 	while (ros::ok()){
 		ros::spinOnce();
-		f();
-		act();
+		for(int i = 0 ; i < r; ++i){
+			f();
+			act();
+		}
 		set_gps(pubGps,msgGps,x);
 		set_imu(pub_imu, msgImu,x);
 		set_wind(pub_wind,msgWind);
@@ -208,7 +212,7 @@ int main(int argc, char **argv)
 		pub_windN.publish(windN);
 
 		msgImu_Dv.linear.x = cos(x[2])*x[3];
-		msgImu_Dv.linear.y = cos(x[3])*x[3];
+		msgImu_Dv.linear.y = sin(x[2])*x[3];
 		pub_imu_Dv.publish(msgImu_Dv);
 
 		loop_rate.sleep();

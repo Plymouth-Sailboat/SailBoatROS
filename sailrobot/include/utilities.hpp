@@ -72,7 +72,7 @@ class Utility{
 
 		static std::map<std::string,std::string> ReadConfig(std::string filepath);
 
-		static float RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAccx, float windAccy);
+		static float RelativeToTrueWind(glm::vec2 v, float heading, float windDirection, float windAccx, float windAccy, float* windNorthAcc = NULL);
 
 		/** Tacking Strategy
 		 * @{

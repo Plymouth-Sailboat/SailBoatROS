@@ -8,7 +8,7 @@
 		</node>
 		<node pkg="sailrobot_modules" name="gps" type="gps_usb" />
 	</group>
-	<node pkg="topic_tools" name="fix_relay" type="relay" args="/sailboat/GPS /fix"/>	
+	<node pkg="topic_tools" name="fix_relay" type="relay" args="/sailboat/GPS/fix /fix"/>	
 	<node pkg="rostopic" name="logger" type="rostopic" output="screen" args="echo /sailboat/sailboat_log"/>
 	<node pkg="sailrobot_modules" name="xbee" type="fleetSailboat.py" />
 </launch>

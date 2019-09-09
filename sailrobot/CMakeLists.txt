@@ -167,14 +167,17 @@ target_link_libraries(user_test ${catkin_LIBRARIES})
 add_executable(identification ${basic_source} src/identification_node/identification_node.cpp src/identification_node/identification.cpp)
 target_link_libraries(identification ${catkin_LIBRARIES} nlopt)
 
+add_executable(identification_calc ${basic_source} src/identification_node/identification_calc_node.cpp)
+target_link_libraries(identification_calc ${catkin_LIBRARIES} nlopt)
+
 add_executable(transform_broadcaster ${basic_source} src/transform_broadcaster_node/transform_broadcaster_node.cpp src/transform_broadcaster_node/transform_broadcaster.cpp)
 target_link_libraries(transform_broadcaster ${catkin_LIBRARIES})
 
 add_executable(relay ${basic_source} src/relay_node/relay_node.cpp src/relay_node/relay.cpp)
 target_link_libraries(relay ${catkin_LIBRARIES})
 
-add_executable(simuBoat src/simulation_node/simuBoat.cpp)
-add_executable(displayBoat src/simulation_node/displayBoat.cpp)
+add_executable(simuBoat ${basic_source} src/simulation_node/simuBoat.cpp)
+add_executable(displayBoat ${basic_source} src/simulation_node/displayBoat.cpp)
 target_link_libraries(simuBoat ${catkin_LIBRARIES})
 target_link_libraries(displayBoat ${catkin_LIBRARIES})
 

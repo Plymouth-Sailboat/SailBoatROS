@@ -19,6 +19,8 @@ namespace Sailboat{
 
 		private:
 			unsigned int step;
+			double initXRef;
+			double initYRef;
 			glm::vec2 initPos;
 			glm::vec2 goal1;
 			float initWindA;
@@ -30,6 +32,7 @@ namespace Sailboat{
 			int doSimu;
 
 			std::ofstream data;
+			std::ofstream dataState;
 			std::vector<std::array<double, 10>> state;
 			static double costFunction(const std::vector<double> &x, std::vector<double> &grad, void *option);
 	};

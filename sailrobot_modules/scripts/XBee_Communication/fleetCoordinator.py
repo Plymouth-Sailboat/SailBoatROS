@@ -112,13 +112,16 @@ def is_valid(line):
 
 
 def run():
-    expected_fleet_size = 1
+    expected_fleet_size = rospy.get_param('fleetSize', 1)
     receiving_freq = 10. #Set the speed of the transmission loops
+
+
 
 ###################################################################################################
 #    Look for XBee USB port, to avoid conflicts with other USB devices
 ###################################################################################################
     rospy.init_node('fleetCoordinator', anonymous=True)
+
     rospy.loginfo("Looking for XBee...")
 
     context = pyudev.Context()
@@ -161,6 +164,7 @@ def run():
     # To check we have all the boats connected
     connected = [] #list of connected boats IDs
 
+    rospy.loginfo("Expecting a fleet of "+str(expected_fleet_size)+" sailboats.")
     while not rospy.is_shutdown() and len(connected) < expected_fleet_size:
         #Read a connection message from a sailboat
         c = ser.read(1)

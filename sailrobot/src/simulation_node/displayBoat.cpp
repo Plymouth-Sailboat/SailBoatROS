@@ -16,6 +16,8 @@
 #include <geometry_msgs/Twist.h>
 #include <gps_common/GPSFix.h>
 
+#include <utilities.hpp>
+
 
 using namespace std;
 using namespace glm;
@@ -101,22 +103,22 @@ void modeCB(const std_msgs::UInt32 msgMode){
 }
 /***************************************************************************/
 
-void set_marker_boat(ros::Publisher vis_pub, visualization_msgs::Marker marker){
+void set_marker_boat(ros::Publisher vis_pub, visualization_msgs::Marker marker, float l){
 	marker.header.frame_id = boatId;
 	marker.header.stamp = ros::Time();
 	marker.ns = boatId;
 	marker.id = 0;
 	marker.type = visualization_msgs::Marker::MESH_RESOURCE;
 	marker.action = visualization_msgs::Marker::ADD;
-	marker.pose.position.x = 0;
-	marker.pose.position.y = -1.2;
-	marker.pose.position.z = -1;
+	marker.pose.position.x = -l/2.0;
+	marker.pose.position.y = -1.0+1/l*0.4;
+	marker.pose.position.z = -0.5;
 	tf::Quaternion q;
 	q.setRPY(M_PI/2, 0, M_PI/2);
 	tf::quaternionTFToMsg(q, marker.pose.orientation);
-	marker.scale.x = 0.001;
-	marker.scale.y = 0.001;
-	marker.scale.z = 0.001;
+	marker.scale.x = 0.0002*l;
+	marker.scale.y = 0.0002*l;
+	marker.scale.z = 0.0002*l;
 	switch(mode_sailboat){
 		case 0:
 			marker.color.a = 1.0; // Don't forget to set the alpha!
@@ -157,15 +159,15 @@ void set_marker_rudder(visualization_msgs::Marker marker, ros::Publisher vis_pub
 	marker.id = 0;
 	marker.type = visualization_msgs::Marker::MESH_RESOURCE;
 	marker.action = visualization_msgs::Marker::ADD;
-	marker.pose.position.x = 1;
-	marker.pose.position.y = 0.1;
-	marker.pose.position.z = -2;
+	marker.pose.position.x = 0.5;
+	marker.pose.position.y = 0.0;
+	marker.pose.position.z = -1;
 	tf::Quaternion q;
 	q.setRPY(M_PI/2, 0, -M_PI/2);
 	tf::quaternionTFToMsg(q, marker.pose.orientation);
-	marker.scale.x = 0.003;
-	marker.scale.y = 0.003;
-	marker.scale.z = 0.003;
+	marker.scale.x = 0.001;
+	marker.scale.y = 0.001;
+	marker.scale.z = 0.001;
 	marker.color.a = 1.0; // Don't forget to set the alpha!
 	marker.color.r = 1.0;
 	marker.color.g = 0;
@@ -176,7 +178,7 @@ void set_marker_rudder(visualization_msgs::Marker marker, ros::Publisher vis_pub
 }
 
 
-void set_marker_sail(visualization_msgs::Marker marker, ros::Publisher vis_pub)
+void set_marker_sail(visualization_msgs::Marker marker, ros::Publisher vis_pub, float l)
 {
 	marker.header.frame_id = sailId;
 	marker.header.stamp = ros::Time();
@@ -184,15 +186,15 @@ void set_marker_sail(visualization_msgs::Marker marker, ros::Publisher vis_pub)
 	marker.id = 0;
 	marker.type = visualization_msgs::Marker::MESH_RESOURCE;
 	marker.action = visualization_msgs::Marker::ADD;
-	marker.pose.position.x = 2.7;
+	marker.pose.position.x = 1.5+l*0.15;
 	marker.pose.position.y = 0;
 	marker.pose.position.z = 0;
 	tf::Quaternion q;
 	q.setRPY(M_PI/2, 0, -M_PI/2);
 	tf::quaternionTFToMsg(q, marker.pose.orientation);
-	marker.scale.x = 0.001;
-	marker.scale.y = 0.001;
-	marker.scale.z = 0.001;
+	marker.scale.x = 0.0002*l;
+	marker.scale.y = 0.0002*l;
+	marker.scale.z = 0.0002*l;
 	marker.color.a = 1.0; // Don't forget to set the alpha!
 	marker.color.r = 0;
 	marker.color.g = 0;
@@ -404,6 +406,15 @@ int main(int argc, char **argv)
 	transformStamped_line.header.frame_id = "map";
 
 
+	std::string configPath = "config/config.txt";
+	Utility::Instance().config = Utility::ReadConfig(configPath);
+	double p6 = stod(Utility::Instance().config["p6"]);
+	double p7 = stod(Utility::Instance().config["p7"]);
+	double p8 = stod(Utility::Instance().config["p8"]);
+	double boatl = stod(Utility::Instance().config["l"]);
+
+
+
 	ros::Rate loop_rate(25);
 	while (ros::ok()){
 		ros::spinOnce();
@@ -411,7 +422,7 @@ int main(int argc, char **argv)
 		tf::Quaternion q;
 
 		q.setRPY(eulerA.x,eulerA.y,eulerA.z);
-		set_marker_boat( vis_pub,marker);
+		set_marker_boat( vis_pub,marker,boatl);
 		transformStamped.header.stamp = ros::Time::now();
 		transformStamped.transform.translation.x = x[0];
 		transformStamped.transform.translation.y = x[1];
@@ -421,17 +432,17 @@ int main(int argc, char **argv)
 		q.setRPY(0, 0, cmd.angular.x+M_PI);
 		set_marker_rudder(marker_rudder, vis_pub_rudder);
 		transformStamped_rudder.header.stamp = ros::Time::now();
-		transformStamped_rudder.transform.translation.x = 0;
+		transformStamped_rudder.transform.translation.x = -p8;
 		transformStamped_rudder.transform.translation.y = 0;
 		tf::quaternionTFToMsg(q, transformStamped_rudder.transform.rotation);
 		br_rudder.sendTransform(transformStamped_rudder);
 
 		q.setRPY(0, 0, delta_s+M_PI);
-		set_marker_sail(marker_sail, vis_pub_sail);
+		set_marker_sail(marker_sail, vis_pub_sail, boatl);
 		transformStamped_sail.header.stamp = ros::Time::now();
-		transformStamped_sail.transform.translation.x = 3;
+		transformStamped_sail.transform.translation.x = p7;
 		transformStamped_sail.transform.translation.y = 0;
-		transformStamped_sail.transform.translation.z = 2;
+		transformStamped_sail.transform.translation.z = 0.5*boatl;
 		tf::quaternionTFToMsg(q, transformStamped_sail.transform.rotation);
 		br_sail.sendTransform(transformStamped_sail);
 

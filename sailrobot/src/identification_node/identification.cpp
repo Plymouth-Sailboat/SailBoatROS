@@ -75,6 +75,8 @@ double Identification::costFunction(const std::vector<double> &x, std::vector<do
 void Identification::setup(ros::NodeHandle* n){
 	float currentHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
 	initPos = vec2(gpsMsg.latitude, gpsMsg.longitude);
+	initXRef = gpsMsg.latitude;
+	initYRef = gpsMsg.longitude;
 
 	initWind = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y);
 	initWindA = sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y);
@@ -95,8 +97,10 @@ void Identification::setup(ros::NodeHandle* n){
 	//	step = 4;
 	//	std::cout << "Not doing Scenario" << std::endl;
 	//}else{
-	data.open(path+"/data/identification.txt");
-	data << "time,clock,step,dvx,dvy,dvz,ax,ay,az,avx,avy,avz,heading,twind,windacc,awind,cmdrudder,cmdsail,lat,long" << std::endl;
+	data.open(path+"/data/identification.csv");
+	data << "time,clock,step,dvx,dvy,dvz,ax,ay,az,avx,avy,avz,heading,twind,twinda,windacc,awind,cmdrudder,cmdsail,lat,long" << std::endl;
+	dataState.open(path+"/data/identification_state.csv");
+	dataState << "lat,long,heading,v,dtheta,windN,windA,windT,rudder,sail" << std::endl;
 	//}
 }
 
@@ -108,7 +112,8 @@ geometry_msgs::Twist Identification::control(){
 
 	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
 	float currentHeading = heading.z;
-	float windNorth = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y);
+	float windNorthA = 0.0;
+	float windNorth = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y, &windNorthA);
 
 	vec2 ruddersail;
 	double duration  = ros::Time::now().toSec() - start;
@@ -116,105 +121,98 @@ geometry_msgs::Twist Identification::control(){
 	float thetabar;
 
 	switch(step){
-		case 0:{
-			       /*float lat1 = initPos.x;
-				 float lat2 = goal1.x;
-				 float long1 = initPos.y;
-				 float long2 = goal1.y;
+		case 0:{ruddersail = Utility::StandardCommand(heading,initWind+(float)(M_PI/4.0), windNorth, (float)(M_PI/2.0));
 
-				 double diflat = lat2-lat1;
-				 double diflong = long2 - long1;
-				 double leng = (diflat*(current.x-lat1)+diflong*(current.y-long1))/(diflat*diflat+diflong*diflong);
-				 vec2 currline(lat1+diflat*leng,long1+diflong*leng);
-
-				 double distToLine = Utility::GPSDist(currline,current);
-
-				 float b = Utility::GPSBearing(initPos,current);
-
-				 float phi = Utility::GPSBearing(initPos,goal1);
-				 float e = sin(b-phi)>0?distToLine:-distToLine;
-				 thetabar = phi - 2*M_PI/3.0/M_PI*atan(e/10);
-				 */
-			       //ruddersail = Utility::StandardCommand(heading,thetabar, windNorth, M_PI/6.0);
-			       ruddersail = Utility::StandardCommand(heading,initWind+(float)(M_PI/4.0), windNorth, (float)(M_PI/4.0));
-
-			       if(cos(currentHeading - (initWind+M_PI/4.0)) > 0.7 && duration > 30){
-				       step++;
-				       start = ros::Time::now().toSec();
-			       }
-			       break;
-		       }
+			if(cos(currentHeading - (initWind+M_PI/4.0)) > 0.7 && duration > 30){
+				step++;
+				start = ros::Time::now().toSec();
+			}
+			break;
+		}
 		case 1:{
-			       ruddersail = Utility::StandardCommand(heading,initWind+(float)(M_PI/4.0)+0.01, windNorth, (float)(M_PI/2.0));
+			ruddersail = Utility::StandardCommand(heading,initWind+(float)(M_PI/2.0)+0.01, windNorth, (float)(M_PI/2.0));
+			//ruddersail = Utility::StandardCommand(heading,initWind+(float)(M_PI/4.0)+0.01, windNorth, (float)(M_PI/2.0));
 
-			       if(cos(currentHeading - (initWind+M_PI/4.0)) > 0.9 && duration > 10){
-				       step++;
-				       start = ros::Time::now().toSec();
-			       }
-			       break;
-		       }
+			if(cos(currentHeading - (initWind+M_PI/2.0)) > 0.7 && duration > 10){
+				step++;
+				start = ros::Time::now().toSec();
+			}
+			break;
+		}
 		case 2:{
-			       ruddersail.x = M_PI/4.0;
-			       ruddersail.y = 0.0;
+			ruddersail.x = M_PI/4.0;
+			ruddersail.y = 0.0;
 
-			       if(duration > 2){
-				       step++;
-				       start = ros::Time::now().toSec();
-			       }
-			       break;
-		       }
+			if(duration > 2){
+				step++;
+				start = ros::Time::now().toSec();
+			}
+			break;
+		}
 		case 3:{
-			       ruddersail.x = 0;
-			       ruddersail.y = 0;
+			ruddersail.x = 0;
+			ruddersail.y = 0;
 
-			       if(duration > 1){
-				       step++;
-				       start = ros::Time::now().toSec();
-			       }
-			       break;
-		       }
+			if(duration > 1){
+				step++;
+				start = ros::Time::now().toSec();
+			}
+			break;
+		}
 	}
 
 	if(step < 4){
 		data << std::to_string(ros::Time::now().toSec()) << "," <<
-			std::to_string(ros::Time::now().toSec() - start) << "," <<
-			std::to_string(step) << "," <<
-			std::to_string(velMsg.linear.x) << "," <<
-			std::to_string(velMsg.linear.y) << "," <<
-			std::to_string(velMsg.linear.z) << "," <<
-			std::to_string(imuMsg.linear_acceleration.x) << "," <<
-			std::to_string(imuMsg.linear_acceleration.y) << "," <<
-			std::to_string(imuMsg.linear_acceleration.z) << "," <<
-			std::to_string(imuMsg.angular_velocity.x) << "," <<
-			std::to_string(imuMsg.angular_velocity.y) << "," <<
-			std::to_string(imuMsg.angular_velocity.z) << "," <<
-			std::to_string(currentHeading) << "," <<
-			std::to_string(windNorth) << "," <<
-			std::to_string(sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y)) << "," <<
-			std::to_string(windMsg.theta) << "," <<
-			std::to_string(ruddersail.x) << "," <<
-			std::to_string(ruddersail.y) << "," <<
-			std::to_string(current.x) << "," <<
-			std::to_string(current.y) << std::endl;
+		std::to_string(ros::Time::now().toSec() - start) << "," <<
+		std::to_string(step) << "," <<
+		std::to_string(velMsg.linear.x) << "," <<
+		std::to_string(velMsg.linear.y) << "," <<
+		std::to_string(velMsg.linear.z) << "," <<
+		std::to_string(imuMsg.linear_acceleration.x) << "," <<
+		std::to_string(imuMsg.linear_acceleration.y) << "," <<
+		std::to_string(imuMsg.linear_acceleration.z) << "," <<
+		std::to_string(imuMsg.angular_velocity.x) << "," <<
+		std::to_string(imuMsg.angular_velocity.y) << "," <<
+		std::to_string(imuMsg.angular_velocity.z) << "," <<
+		std::to_string(currentHeading) << "," <<
+		std::to_string(windNorth) << "," <<
+		std::to_string(windNorthA) << "," <<
+		std::to_string(sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y)) << "," <<
+		std::to_string(windMsg.theta) << "," <<
+		std::to_string(ruddersail.x) << "," <<
+		std::to_string(ruddersail.y) << "," <<
+		std::to_string(gpsMsg.latitude) << "," <<
+		std::to_string(gpsMsg.longitude) << std::endl;
+
+
 
 		double vnorm = sqrt(velMsg.linear.x*velMsg.linear.x+velMsg.linear.y*velMsg.linear.y);
-		std::array<double,10> dataPushed{current.x-initPos.x,current.y-initPos.y,currentHeading,vnorm,imuMsg.angular_velocity.z,windNorth,sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y),windMsg.theta,ruddersail.x,ruddersail.y};
+		std::array<double,10> dataPushed{gpsMsg.latitude,gpsMsg.longitude,currentHeading,vnorm,imuMsg.angular_velocity.z,windNorth,sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y),windMsg.theta,ruddersail.x,ruddersail.y};
 		state.push_back(dataPushed);
+
+		for(int i = 0; i < 10; ++i)
+		dataState << std::to_string(dataPushed[i]) << ",";
+		dataState << std::endl;
+
 		cmd.angular.x = (double)ruddersail.x;
 		cmd.angular.y = (double)ruddersail.y;
 
 		std::string message = "";
 
-		publishLOG("step " + std::to_string(step) + " duration " + std::to_string(duration) + " heading-wind " + std::to_string(vnorm));
+		publishLOG("step " + std::to_string(step) + " duration " + std::to_string(duration) + " vnorm " + std::to_string(vnorm) + " head-wind " + std::to_string(cos(currentHeading - (initWind+M_PI/2.0))));
 	}
 
 
 	if(step == 4){
+		dataState << "0,0,0,0,0," << initV << "," << initTheta << ",0,0,0" << std::endl;
 		if(data.is_open())
-			data.close();
+		data.close();
+		if(dataState.is_open())
+		dataState.close();
+		exit(0);
 
 		std::string path = ros::package::getPath("sailrobot");
-		std::ifstream infile(path+"/data/identification.txt");
+		std::ifstream infile(path+"/data/identification.csv");
 		std::string line;
 
 		//Approximate parameters values
@@ -236,7 +234,7 @@ geometry_msgs::Twist Identification::control(){
 			for (double i; ss >> i;) {
 				datain.push_back(i);
 				if (ss.peek() == ',')
-					ss.ignore();
+				ss.ignore();
 			}
 
 			double aaw = datain[14];
@@ -244,12 +242,12 @@ geometry_msgs::Twist Identification::control(){
 			double angacc = 0;
 			double angvel = datain[12];
 			if(prevheading != 0)
-				angacc = (datain[12]-prevheading)*0.1;
+			angacc = (datain[12]-prevheading)*0.1;
 			prevheading = datain[12];
 
 			double vnorm = sqrt(datain[3]*datain[3]+datain[4]*datain[4]);
 			if(vnorm == 0)
-				vnorm = 0.01;
+			vnorm = 0.01;
 			//	double anorm = sqrt(datain[6]*datain[6]+datain[7]*datain[7]);
 			double anorm = datain[7];
 			double p10 = stod(Utility::Instance().config["p10"]);
@@ -259,20 +257,20 @@ geometry_msgs::Twist Identification::control(){
 
 			switch((int)datain[2]){
 				case 0://S2 p1
-					if(vnorm > maxv)
-						maxv = vnorm;
-					s1.push_back((aaw*sin(datain[17]-daw)*sin(datain[17])));
-					break;
+				if(vnorm > maxv)
+				maxv = vnorm;
+				s1.push_back((aaw*sin(datain[17]-daw)*sin(datain[17])));
+				break;
 				case 1:
-					s2.push_back(anorm/(vnorm*vnorm));
-					s3.push_back(2*(p10*angacc+p3*angvel*vnorm)/(vnorm*vnorm*p8));
-					break;
+				s2.push_back(anorm/(vnorm*vnorm));
+				s3.push_back(2*(p10*angacc+p3*angvel*vnorm)/(vnorm*vnorm*p8));
+				break;
 				case 2://S3 S1
-					s4.push_back(-angacc/(angvel*vnorm));
-					break;
+				s4.push_back(-angacc/(angvel*vnorm));
+				break;
 				case 3://S4 S5
-					s5.push_back(-anorm/(vnorm*vnorm)*p9);
-					break;
+				s5.push_back(-anorm/(vnorm*vnorm)*p9);
+				break;
 			}
 			atwv.push_back(aaw);
 			datain.clear();
@@ -282,7 +280,7 @@ geometry_msgs::Twist Identification::control(){
 		std::cout << "Starting Optimization" << std::endl;
 		publishLOG("Starting Optimization");
 		for(int i = 0; i < s1.size(); ++i)
-			s1[i] = maxv*maxv/s1[i];
+		s1[i] = maxv*maxv/s1[i];
 		float s1p = std::accumulate(std::begin(s1)+50, std::end(s1), 0.0) / (s1.size()-50.0);
 		s1p = s1p>0?s1p:0.1;
 		float s2p = std::accumulate(std::begin(s2), std::end(s2), 0.0) / s2.size();
@@ -342,7 +340,7 @@ geometry_msgs::Twist Identification::control(){
 			nlopt::result result = opt.optimize(x, minf);
 			std::cout << "found minimum at f(";
 			for(int i = 0; i < 7; ++i)
-				std::cout << x[i] << ",";
+			std::cout << x[i] << ",";
 			std::cout << ") = " << std::setprecision(10) << minf << std::endl;
 		}
 		catch(std::exception &e) {
