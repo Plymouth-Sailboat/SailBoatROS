@@ -23,8 +23,8 @@ void Controller::init(int argc, char **argv){
 	rudderSub = n->subscribe("/sailboat/rudder", 100, &Controller::rudderCallback, this);
 	rudder2Sub = n->subscribe("/sailboat/rudder2", 100, &Controller::rudder2Callback, this);
 	velSub = n->subscribe("/sailboat/IMU_Dv", 100, &Controller::velCallback, this);
-	xbeeSub = n->subscribe("xbee_send_mode", 100, &Controller::xbeeCallback, this);
-	xbeeCSub = n->subscribe("xbee_send_rudder_sail", 100, &Controller::xbeeRudSailCallback, this);
+	xbeeSub = n->subscribe("xbee/mode", 100, &Controller::xbeeCallback, this);
+	xbeeCSub = n->subscribe("xbee/sailboat_cmd", 100, &Controller::xbeeRudSailCallback, this);
 
 	odomMsg = n->advertise<nav_msgs::Odometry>("/sailboat/odom", 100);
 	pubCmd = n->advertise<geometry_msgs::Twist>("/sailboat/sailboat_cmd", 100);
