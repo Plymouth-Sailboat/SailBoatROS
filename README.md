@@ -59,7 +59,7 @@ catkin_make
 source devel/setup.bash
 ```
 
-**Note : ** You may have to run catkin_make multiple time. This is due mostly because the Raspberry Pi doesn't have enough RAM memory to build everything in one go. Look into adding some swap memory (even if it is not recommended for Raspberry Pi).
+**Note :** You may have to run catkin_make multiple time. This is due mostly because the Raspberry Pi doesn't have enough RAM memory to build everything in one go. Look into adding some swap memory (even if it is not recommended for Raspberry Pi).
 
 ### Usage
 
@@ -80,6 +80,7 @@ Or you can run the prebuilt launch config file which will launch a simulation an
 ```
 roslaunch sailrobot simuBoat.launch
 ```
+**Note :** This may crash if launched on the Raspberry Pi. Run simulations on a computer and not the Raspberry Pi.
 
 or you can launch the communication with the Arduino and the rest of the sensors :
 
@@ -152,7 +153,7 @@ pip install -r requirements.txt
 pip3 install -r requirements.txt
 ```
 
-**Note**:You will have an error at the end of the pip install,  this is normal.
+**Note :** You will have an error at the end of the pip install,  this is normal.
 
 **In summary execute the commands here :**
 
