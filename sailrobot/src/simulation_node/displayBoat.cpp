@@ -110,9 +110,9 @@ void set_marker_boat(ros::Publisher vis_pub, visualization_msgs::Marker marker, 
 	marker.id = 0;
 	marker.type = visualization_msgs::Marker::MESH_RESOURCE;
 	marker.action = visualization_msgs::Marker::ADD;
-	marker.pose.position.x = -l/2.0;
-	marker.pose.position.y = -1.0+1/l*0.4;
-	marker.pose.position.z = -0.5;
+	marker.pose.position.x = 0.0;
+	marker.pose.position.y = 0.0;
+	marker.pose.position.z = 3.0;
 	tf::Quaternion q;
 	q.setRPY(M_PI/2, 0, M_PI/2);
 	tf::quaternionTFToMsg(q, marker.pose.orientation);
@@ -159,9 +159,9 @@ void set_marker_rudder(visualization_msgs::Marker marker, ros::Publisher vis_pub
 	marker.id = 0;
 	marker.type = visualization_msgs::Marker::MESH_RESOURCE;
 	marker.action = visualization_msgs::Marker::ADD;
-	marker.pose.position.x = 0.5;
+	marker.pose.position.x = 0.0;
 	marker.pose.position.y = 0.0;
-	marker.pose.position.z = -1;
+	marker.pose.position.z = 0.0;
 	tf::Quaternion q;
 	q.setRPY(M_PI/2, 0, -M_PI/2);
 	tf::quaternionTFToMsg(q, marker.pose.orientation);
@@ -186,9 +186,9 @@ void set_marker_sail(visualization_msgs::Marker marker, ros::Publisher vis_pub, 
 	marker.id = 0;
 	marker.type = visualization_msgs::Marker::MESH_RESOURCE;
 	marker.action = visualization_msgs::Marker::ADD;
-	marker.pose.position.x = 1.5+l*0.15;
+	marker.pose.position.x = 1.0;
 	marker.pose.position.y = 0;
-	marker.pose.position.z = 0;
+	marker.pose.position.z = 1.5;
 	tf::Quaternion q;
 	q.setRPY(M_PI/2, 0, -M_PI/2);
 	tf::quaternionTFToMsg(q, marker.pose.orientation);
