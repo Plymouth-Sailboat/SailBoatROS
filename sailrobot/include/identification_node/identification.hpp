@@ -29,6 +29,8 @@ namespace Sailboat{
 			float initV;
 			double start;
 
+			std::vector<double> vnorm_list;
+
 			int doSimu;
 
 			std::ofstream data;

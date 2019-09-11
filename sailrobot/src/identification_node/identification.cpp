@@ -74,11 +74,11 @@ double Identification::costFunction(const std::vector<double> &x, std::vector<do
 
 void Identification::setup(ros::NodeHandle* n){
 	float currentHeading = (Utility::QuaternionToEuler(imuMsg.orientation)).z;
-	initPos = vec2(gpsMsg.latitude, gpsMsg.longitude);
+	initPos = dvec2(gpsMsg.latitude, gpsMsg.longitude);
 	initXRef = gpsMsg.latitude;
 	initYRef = gpsMsg.longitude;
 
-	initWind = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y);
+	initWind = Utility::RelativeToTrueWind(dvec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y);
 	initWindA = sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y);
 	double vnorm = sqrt(velMsg.linear.x*velMsg.linear.x+velMsg.linear.y*velMsg.linear.y);
 	initV = vnorm;
@@ -88,7 +88,7 @@ void Identification::setup(ros::NodeHandle* n){
 	float rearth = 6371000;
 	float latdist = 11132.92-559.82*cos(2*initPos.x*180.0/M_PI)+1.175*cos(4*initPos.x*180.0/M_PI)-0.0023*cos(6*initPos.x*180.0/M_PI);
 	float longdist = M_PI/180.0*6367449*cos(initPos.x*180.0/M_PI);
-	goal1 = vec2(initPos.x + distGPS/latdist*cos(initWind+M_PI/2.0),initPos.y + distGPS/longdist*sin(initWind+M_PI/2.0));
+	goal1 = dvec2(initPos.x + distGPS/latdist*cos(initWind+M_PI/2.0),initPos.y + distGPS/longdist*sin(initWind+M_PI/2.0));
 	start = ros::Time::now().toSec();
 
 	std::string path = ros::package::getPath("sailrobot");
@@ -108,22 +108,32 @@ geometry_msgs::Twist Identification::control(){
 
 	geometry_msgs::Twist cmd;
 
-	vec2 current(gpsMsg.latitude, gpsMsg.longitude);
+	dvec2 current(gpsMsg.latitude, gpsMsg.longitude);
 
 	vec3 heading = Utility::QuaternionToEuler(imuMsg.orientation);
 	float currentHeading = heading.z;
 	float windNorthA = 0.0;
-	float windNorth = Utility::RelativeToTrueWind(vec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y, &windNorthA);
-
-	vec2 ruddersail;
+	float windNorth = Utility::RelativeToTrueWind(dvec2(velMsg.linear.x,velMsg.linear.y),currentHeading,windMsg.theta, windMsg.x, windMsg.y, &windNorthA);
+	double vnorm = sqrt(velMsg.linear.x*velMsg.linear.x+velMsg.linear.y*velMsg.linear.y);
+	dvec2 ruddersail;
 	double duration  = ros::Time::now().toSec() - start;
 
 	float thetabar;
 
-	switch(step){
-		case 0:{ruddersail = Utility::StandardCommand(heading,initWind+(float)(M_PI/4.0), windNorth, (float)(M_PI/2.0));
 
-			if(cos(currentHeading - (initWind+M_PI/4.0)) > 0.7 && duration > 30){
+	switch(step){
+		case 0:{
+			vnorm_list.push_back(vnorm);
+			ruddersail = Utility::StandardCommand(heading,initWind+(float)(M_PI/4.0), windNorth, (float)(M_PI/2.0));
+			bool vnormStab = false;
+			if(vnorm_list.size() > 10){
+				float vnormacc = 0.0;
+				for(int i = vnorm_list.size()-1; i > vnorm_list.size()-11; i--){
+					vnormacc += vnorm_list[i] - vnorm_list[i-1];
+				}
+				vnormStab = abs(vnormacc/10.0) < 0.0001;
+			}
+			if(cos(currentHeading - (initWind+M_PI/4.0)) > 0.7 && (duration > 30 || (duration > 10 && vnormStab))){
 				step++;
 				start = ros::Time::now().toSec();
 			}
@@ -202,152 +212,11 @@ geometry_msgs::Twist Identification::control(){
 		publishLOG("step " + std::to_string(step) + " duration " + std::to_string(duration) + " vnorm " + std::to_string(vnorm) + " head-wind " + std::to_string(cos(currentHeading - (initWind+M_PI/2.0))));
 	}
 
-
-	if(step == 4){
-		dataState << "0,0,0,0,0," << initV << "," << initTheta << ",0,0,0" << std::endl;
-		if(data.is_open())
+	dataState << "0,0,0,0,0," << initV << "," << initTheta << ",0,0,0" << std::endl;
+	if(data.is_open())
 		data.close();
-		if(dataState.is_open())
+	if(dataState.is_open())
 		dataState.close();
-		exit(0);
-
-		std::string path = ros::package::getPath("sailrobot");
-		std::ifstream infile(path+"/data/identification.csv");
-		std::string line;
-
-		//Approximate parameters values
-		//std::vector<std::vector<double>> datavec;
-		std::vector<double> datain;
-		std::vector<double> s1;
-		std::vector<double> s2;
-		std::vector<double> s3;
-		std::vector<double> s4;
-		std::vector<double> s5;
-		std::vector<double> p1(1,0.3);
-		std::vector<double> atwv;
-		double maxv = 0;
-		double prevheading = 0;
-		std::getline(infile,line);
-		while(std::getline(infile,line)){
-			std::stringstream ss(line);
-
-			for (double i; ss >> i;) {
-				datain.push_back(i);
-				if (ss.peek() == ',')
-				ss.ignore();
-			}
-
-			double aaw = datain[14];
-			double daw = datain[15];
-			double angacc = 0;
-			double angvel = datain[12];
-			if(prevheading != 0)
-			angacc = (datain[12]-prevheading)*0.1;
-			prevheading = datain[12];
-
-			double vnorm = sqrt(datain[3]*datain[3]+datain[4]*datain[4]);
-			if(vnorm == 0)
-			vnorm = 0.01;
-			//	double anorm = sqrt(datain[6]*datain[6]+datain[7]*datain[7]);
-			double anorm = datain[7];
-			double p10 = stod(Utility::Instance().config["p10"]);
-			double p3 = stod(Utility::Instance().config["p3"]);
-			double p8 = stod(Utility::Instance().config["p8"]);
-			double p9 = stod(Utility::Instance().config["p9"]);
-
-			switch((int)datain[2]){
-				case 0://S2 p1
-				if(vnorm > maxv)
-				maxv = vnorm;
-				s1.push_back((aaw*sin(datain[17]-daw)*sin(datain[17])));
-				break;
-				case 1:
-				s2.push_back(anorm/(vnorm*vnorm));
-				s3.push_back(2*(p10*angacc+p3*angvel*vnorm)/(vnorm*vnorm*p8));
-				break;
-				case 2://S3 S1
-				s4.push_back(-angacc/(angvel*vnorm));
-				break;
-				case 3://S4 S5
-				s5.push_back(-anorm/(vnorm*vnorm)*p9);
-				break;
-			}
-			atwv.push_back(aaw);
-			datain.clear();
-		}
-		infile.close();
-
-		std::cout << "Starting Optimization" << std::endl;
-		publishLOG("Starting Optimization");
-		for(int i = 0; i < s1.size(); ++i)
-		s1[i] = maxv*maxv/s1[i];
-		float s1p = std::accumulate(std::begin(s1)+50, std::end(s1), 0.0) / (s1.size()-50.0);
-		s1p = s1p>0?s1p:0.1;
-		float s2p = std::accumulate(std::begin(s2), std::end(s2), 0.0) / s2.size();
-		s2p = s2p>0?s2p:0.1;
-		float s3p = std::accumulate(std::begin(s3)+5, std::end(s3), 0.0) / (s3.size()-5.0);
-		s3p = s3p>0?s3p:0.1;
-		float s4p = std::accumulate(std::begin(s4), std::begin(s4), 0.0) / s4.size();
-		s4p = s4p>0?s4p:0.1;
-		float s5p = std::accumulate(std::begin(s5), std::end(s5)-s5.size()/2.0, 0.0) / s5.size()*2.0;
-		s5p = s5p>0?s5p:0.1;
-		float p1p = std::accumulate(std::begin(p1), std::end(p1), 0.0) / p1.size();
-		float atw = std::accumulate(std::begin(atwv), std::end(atwv), 0.0) / atwv.size();
-		double p6 = stod(Utility::Instance().config["p6"]);
-		double p7 = stod(Utility::Instance().config["p7"]);
-		double p8 = stod(Utility::Instance().config["p8"]);
-		double p9 = stod(Utility::Instance().config["p9"]);
-		double p10 = stod(Utility::Instance().config["p10"]);
-		state.push_back(std::array<double,10>{p6,p7,p8,p9,atw,initV,initTheta,0,0,0});
-
-		s1.clear();
-		s2.clear();
-		s3.clear();
-		s4.clear();
-		s5.clear();
-		p1.clear();
-		double xp1 = p1p;
-		xp1=xp1<5?xp1:5;
-		double xp2 = s5p;
-		xp2=xp2<50?xp2:50;
-		double xp3 = s4p*p10;
-		xp3=xp3<15000?xp3:15000;
-		double xp4 = s1p*s5p;
-		xp4=xp4<15000?xp4:15000;
-		double xp5 = s3p;
-		xp5=xp5<15000?xp5:15000;
-		double xp11 = (p9*s2p+2*s5p)/s3p;
-		xp11=xp11<10?xp11:10;
-		std::vector<double> x{xp1,xp2,xp3,xp4,xp5,p10,xp11};
-		//std::vector<double> x{0.03,40,6000,200,1500,400,0.2};
-
-		//Regression step for parameters
-		nlopt::opt opt(nlopt::LN_COBYLA, 7);
-		opt.set_min_objective(costFunction, (void*)&state);
-
-		std::vector<double> lb(7,0.0000001);
-		opt.set_lower_bounds(lb);
-		std::vector<double> ub(7,15000.0);
-		ub[0] = 5;
-		ub[1] = 50;
-		ub[6] = 10;
-		opt.set_upper_bounds(ub);
-		opt.set_xtol_rel(1e-6);
-		publishLOG("Approximate Values : {" + std::to_string(xp1) + "," + std::to_string(xp2) + "," + std::to_string(xp3) + "," + std::to_string(xp4) + "," + std::to_string(xp5) + "," + std::to_string(p10) + "," + std::to_string(xp11) + "}" );
-
-		double minf;
-		try{
-			nlopt::result result = opt.optimize(x, minf);
-			std::cout << "found minimum at f(";
-			for(int i = 0; i < 7; ++i)
-			std::cout << x[i] << ",";
-			std::cout << ") = " << std::setprecision(10) << minf << std::endl;
-		}
-		catch(std::exception &e) {
-			std::cout << "nlopt failed: " << e.what() << std::endl;
-		}
-		state.clear();
-		exit(0);
-	}
+	exit(0);
 	return cmd;
 }

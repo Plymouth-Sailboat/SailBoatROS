@@ -105,7 +105,7 @@ double costFunction(const std::vector<double> &x, std::vector<double> &grad, voi
 
 int main(int argc, char **argv)
 {
-  nlopt::algorithm algo = nlopt::LN_NEWUOA_BOUND;
+  nlopt::algorithm algo = nlopt::LN_BOBYQA;
   if(argc > 1){
     if(!strcmp(argv[argc-1],"-h")){
 /*      std::cout << "\
@@ -154,19 +154,19 @@ NLOPT_LD_CCSAQ = 41,\n\
 NLOPT_GN_ESCH = 42,\n\
 NLOPT_GN_AGS = 43,\n\
 NLOPT_NUM_ALGORITHMS = 44\n" << std::endl;*/
-std::cout << "[0:default] LN_NEWUOA_BOUND,\n\
-[1] LN_BOBYQA,\n\
-[2] LN_PRAXIS,\n\
-[3] LN_NELDERMEAD,\n\
-[4] LN_COBYLA,\n" << std::endl;
+    std::cout << "[0:default] LN_BOBYQA,\n\
+    [1] LN_NEWUOA_BOUND,\n\
+    [2] LN_PRAXIS,\n\
+    [3] LN_NELDERMEAD,\n\
+    [4] LN_COBYLA,\n" << std::endl;
     exit(0);
     }else
       switch(std::stoi(argv[argc-1])){
         case 0:
-        algo = nlopt::LN_NEWUOA_BOUND;
+        algo = nlopt::LN_BOBYQA;
         break;
         case 1:
-        algo = nlopt::LN_BOBYQA;
+        algo = nlopt::LN_NEWUOA_BOUND;
         break;
         case 2:
         algo = nlopt::LN_PRAXIS;
