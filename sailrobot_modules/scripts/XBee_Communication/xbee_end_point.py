@@ -154,8 +154,8 @@ def run():
         if 'ID_VENDOR' in device and device['ID_VENDOR'] == 'FTDI':
             usbPort = device['DEVNAME']
 
-    #device = XBeeDevice(usbPort, 57600)
-    device = XBeeDevice("/dev/ttyUSB1", 57600)
+    device = XBeeDevice(usbPort, 57600)
+    #device = XBeeDevice("/dev/ttyUSB1", 57600)
     device.open()
     print("Current timeout: %d seconds" % device.get_sync_ops_timeout())
     device.set_sync_ops_timeout(0.1)
