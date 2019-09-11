@@ -178,7 +178,7 @@ NLOPT_NUM_ALGORITHMS = 44\n" << std::endl;*/
         algo = nlopt::LN_COBYLA;
         break;
         default:
-        algo = nlopt::LN_NEWUOA_BOUND;
+        algo = nlopt::LN_BOBYQA;
         break;
       }
   }

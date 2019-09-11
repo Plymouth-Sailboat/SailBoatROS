@@ -5,7 +5,6 @@
 #include <utilities.hpp>
 #include <ros/package.h>
 
-#include <nlopt.hpp>
 
 using namespace Sailboat;
 using namespace glm;
@@ -14,6 +13,38 @@ void MPC::setup(ros::NodeHandle* n){
 	std::string goalPath = "data/goalpoint.txt";
 	if (n->hasParam("goal"))
 		n->getParam("goal",goalPath);
+	if (n->hasParam("receding"))
+		n->getParam("receding",receding_n);
+	int algoN = 0;
+	if (n->hasParam("algo"))
+		n->getParam("algo",algoN);
+
+	switch(algoN){
+		case 0:
+		algo = nlopt::LN_BOBYQA;
+		std::cout << "Chose BOBYQA" << std::endl;
+		break;
+		case 1:
+		algo = nlopt::LN_NEWUOA_BOUND;
+		std::cout << "Chose NEWUOA_BOUND" << std::endl;
+		break;
+		case 2:
+		algo = nlopt::LN_PRAXIS;
+		std::cout << "Chose PRAXIS" << std::endl;
+		break;
+		case 3:
+		algo = nlopt::LN_NELDERMEAD;
+		std::cout << "Chose NELDERMEAD" << std::endl;
+		break;
+		case 4:
+		algo = nlopt::LN_COBYLA;
+		std::cout << "Chose COBYLA" << std::endl;
+		break;
+		default:
+		algo = nlopt::LN_BOBYQA;
+		std::cout << "Chose BOBYQA" << std::endl;
+		break;
+	}
 
 	waypoints.push_back(dvec2(gpsMsg.latitude, gpsMsg.longitude));
 	waypoints = Utility::AppendGPSCoordinates(goalPath, nbWaypoints, &waypoints);
@@ -27,6 +58,15 @@ void MPC::setup(ros::NodeHandle* n){
 
   std::string configPath = "config/config.txt";
   Utility::Instance().config = Utility::ReadConfig(configPath);
+
+	inputs_n = receding_n/step*2;
+	lb = std::vector<double>(inputs_n,-M_PI/4.0);
+	for(int i = 1; i < inputs_n; i+=2)
+		lb[i] = -M_PI/2.0;
+		//lb[i] = 0;
+	ub = std::vector<double>(inputs_n,M_PI/4.0);
+	for(int i = 1; i < inputs_n; i+=2)
+		ub[i] = M_PI/2.0;
 }
 
 double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad, void *option){
@@ -80,7 +120,7 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 			state[3] += (gs*sin(delta_s)-gr*pconfig[10]*sin(x[input_i])-pconfig[1]*v*v)/pconfig[8]*dt;
 			state[4] += (gs*(pconfig[5]-pconfig[6]*cos(delta_s))-gr*pconfig[7]*cos(x[input_i])-pconfig[2]*state[4]*v)/pconfig[9]*dt;
 		}
-		double* states = new double[5];
+		double states[5];
 		memcpy(states, state, 5*sizeof(double));
 		state_predict.push_back(states);
 	}
@@ -109,9 +149,9 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 
 	if(cos(dtw-(*it)[2])+cos(tacking_phi)<0.0){
 		if(abs(e) < r/2.0){
-			nogo = abs(cos(dtw-(*it)[2])+cos(tacking_phi))*8;
+			nogo = abs(cos(dtw-(*it)[2])+cos(tacking_phi))*100;
 		}else{
-			nogo = abs(cos(dtw-(*it)[2])+cos(tacking_phi))*2;
+			nogo = abs(cos(dtw-(*it)[2])+cos(tacking_phi))*20;
 		}
 	}
 	f += nogo*nogo;
@@ -167,10 +207,6 @@ geometry_msgs::Twist MPC::control(){
 			currentWaypoint %= nbWaypoints;
 		}
 	}
-
-	unsigned int receding_n = 10;
-	unsigned int step = 1;
-	unsigned int inputs_n = receding_n/step*2;
 
 	//int receding_n5 = receding_n*5+2;
 	int receding_n5 = 9;
@@ -235,15 +271,8 @@ geometry_msgs::Twist MPC::control(){
 	//nlopt::opt opt(nlopt::LN_BOBYQA, inputs_n);
 	//nlopt::opt opt(nlopt::LN_NEWUOA_BOUND, inputs_n);
 	//nlopt::opt opt(nlopt::LN_PRAXIS, inputs_n);
-	nlopt::opt opt(nlopt::LN_NELDERMEAD, inputs_n);
-
-	std::vector<double> lb(inputs_n,-M_PI/4.0);
-	for(int i = 1; i < inputs_n; i+=2)
-		lb[i] = -M_PI/2.0;
-		//lb[i] = 0;
-	std::vector<double> ub(inputs_n,M_PI/4.0);
-	for(int i = 1; i < inputs_n; i+=2)
-		ub[i] = M_PI/2.0;
+	//nlopt::opt opt(nlopt::LN_NELDERMEAD, inputs_n);
+	nlopt::opt opt(algo, inputs_n);
 
 	opt.set_lower_bounds(lb);
 	opt.set_upper_bounds(ub);
@@ -252,6 +281,8 @@ geometry_msgs::Twist MPC::control(){
 	//opt.add_inequality_constraint(myconstraint, &data[0], 1e-8);
 	//opt.add_inequality_constraint(myconstraint, &data[1], 1e-8);
 	opt.set_xtol_rel(1e-6);
+	//opt.set_maxeval(20000);
+	opt.set_maxtime(3);
 	std::vector<double> x(inputs_n,rudderAngle);
 	for(int i = 1; i < inputs_n; i+=2)
 		x[i] = sailAngle;
@@ -274,5 +305,7 @@ geometry_msgs::Twist MPC::control(){
 	publishMSG("MPC Controlling");
 	publishMarkerA(waypoints[currentWaypoint].x,waypoints[currentWaypoint].y);
 	publishMarkerB(waypoints[(currentWaypoint+1)%nbWaypoints].x,waypoints[(currentWaypoint+1)%nbWaypoints].y);
+
+	x.clear();
 	return cmd;
 }
