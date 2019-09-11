@@ -20,36 +20,46 @@ You can either install the image from the [latest release](https://github.com/Pl
 ### Prerequisites
 
 - [ROS Kinetic](http://wiki.ros.org/kinetic) OR [ROS Melodic](http://wiki.ros.org/melodic)
-- Raspberry Pi 3 connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface)
+- Raspberry Pi 3 (B or B+) connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface)
 - [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node)
 - [Rosserial-Arduino Node](http://wiki.ros.org/rosserial_arduino)
 
+**Note :** some nodes use Python3. For this to work with ROS, ROS needs to be installed using python3 dependencies. This is done by executing :
+```
+sudo apt install python3-pip python3-yaml
+pip3 install rospkg catkin_pkg
+```
+
 ### Installing
 
-Create your catkin workspace if you haven't already :
+Create your catkin workspace if you haven't already and clone the sources in there :
 
 ```
-mkdir -p catkin_ws/src
-cd catkin_ws
-catkin_make
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
+git clone https://github.com/plymouth-sailboat/SailBoatROS.git .
 ```
 
-Clone the project and catkin_make in the workspace. Source the catkin workspace to have access to the nodes. It is considered here that you are already in the catkin workspace (`cd catkin_ws/src`).
-
-Make sure you have all the [dependencies](https://github.com/Plymouth-Sailboat/SailBoatROS#dependencies) for the build to work.
-
-Since the folders contain different nodes (and not a catkin workspace), the project needs to be cloned inside the catkin src folder. Cloning a project in an unempty folder is not allowed. As such we need to tell github that the src folder is a git folder.
+Make sure you have all the [dependencies](https://github.com/Plymouth-Sailboat/SailBoatROS#dependencies) for the build to work. In summary execute the commands here :
 
 ```
-git init
-git remote add origin https://github.com/Plymouth-Sailboat/SailBoatROS.git
-git fetch
-git checkout master
-git pull
-cd ../
+cd ~/catkin_ws/
+rosdep update
+rosdep install --from-paths src --ignore-src --rosdistro melodic -y ##installing all the dependencies related to ROS
+sudo apt install libnlopt-dev python-numpy python-pygame #installing third-party dependencies
+pip install -r requirements.txt #installing python related dependencies
+pip3 install -r requirements.txt #installing python3 related dependencies
+```
+
+Catkin_make to build the packages in the workspace. Finally source the catkin workspace to have access to the nodes :
+
+```
+cd ~/catkin_ws/
 catkin_make
 source devel/setup.bash
 ```
+
+**Note : ** You may have to run catkin_make multiple time. This is due mostly because the Raspberry Pi doesn't have enough RAM memory to build everything in one go. Look into adding some swap memory (even if it is not recommended for Raspberry Pi).
 
 ### Usage
 
@@ -62,19 +72,19 @@ rosrun rosserial_python serial_node.py /dev/ttyACM0
 You can then launch any nodes of the sailboat e.g. :
 
 ```
-rosrun sailrobot potential_field_node
+rosrun sailrobot line_following_node
 ```
 
-Or you can run the prebuilt launch config file which will launch the communication with the arduino :
+Or you can run the prebuilt launch config file which will launch a simulation and visualization of the boat :
+
+```
+roslaunch sailrobot simuBoat.launch
+```
+
+or you can launch the communication with the Arduino and the rest of the sensors :
 
 ```
 roslaunch sailrobot start.launch
-```
-
-or if you know the port on which the arduino is connected :
-
-```
-roslaunch sailrobot start.launch usb_port:=<port>
 ```
 
 ### Dependencies
@@ -97,7 +107,13 @@ Some dependencies are needed for specific modules :
 We use cv_bridge to use openCV with ROS. Related to the node Obstacle_avoidance.
 We use serial to use the XBee module. Related to the package xbee_serial.
 
-To install them, execute, with [distro] being the ROS distro used (in this case __melodic__)
+To install them, you can run (when in the catkin workspace `catkin_ws/` :
+```
+rosdep update
+rosdep install --from-paths src --ignore-src --rosdistro melodic -y
+```
+This will install all the dependencies used by the package.  
+Or execute, with [distro] being the ROS distro used (in this case __melodic__) :
 ```
 sudo apt-get install ros-[distro]-gps-common
 sudo apt-get install ros-[distro]-visualization-msgs
@@ -116,14 +132,37 @@ Those are the ROS dependencies used :
 rospy roscpp std_msgs gps_common
 ```
 #### Python Dependencies
-For python controllers, the only dependencies used is [NumPy](http://www.numpy.org/), so you will need to add it to python dependencies. Don't forget to upgrade pip first :
+For python controllers, the only dependencies used is [NumPy](http://www.numpy.org/), so you will need to add it to python dependencies :
 ```
-pip install --upgrade pip
 pip install numpy
 ```
 Numpy installation might not work on the Raspberry Pi as expected. In that case, instead of running the above commands, run :  
 ```
 sudo apt-install python-numpy
+```
+
+There are other dependencies in the sailrobot_modules package (PyGame, Digi Xbee library, PyUDev). Pygame is better installed using apt rather than pip :
+```
+sudo apt install python-pygame
+```
+
+And now you can run in the catkin workspace (`catkin_ws/`)
+```
+pip install -r requirements.txt
+pip3 install -r requirements.txt
+```
+
+**Note**:You will have an error at the end of the pip install,  this is normal.
+
+**In summary execute the commands here :**
+
+```
+cd ~/catkin_ws/
+rosdep update
+rosdep install --from-paths src --ignore-src --rosdistro melodic -y ##installing all the dependencies related to ROS
+sudo apt install libnlopt-dev python-numpy python-pygame #installing third-party dependencies
+pip install -r requirements.txt #installing python related dependencies
+pip3 install -r requirements.txt #installing python3 related dependencies
 ```
 
 ## Authors
