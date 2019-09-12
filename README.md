@@ -130,7 +130,7 @@ Because we use the raspberry pi camera, you will need [Raspicam Node](https://gi
 Those are the ROS dependencies used :
 
 ```
-rospy roscpp std_msgs gps_common
+rospy roscpp std_msgs gps_common visualization-msgs
 ```
 #### Python Dependencies
 For python controllers, the only dependencies used is [NumPy](http://www.numpy.org/), so you will need to add it to python dependencies :
@@ -184,3 +184,6 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Look at the Wiki!
 If you want more information about the raspberry pi and the boat, please look at [the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki)
+
+## CI (Continuous Integration)
+This project uses Continuous Integration with [Travis CI](https://travis-ci.org/Plymouth-Sailboat/SailBoatROS).
