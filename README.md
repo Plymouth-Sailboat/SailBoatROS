@@ -130,7 +130,7 @@ Because we use the raspberry pi camera, you will need [Raspicam Node](https://gi
 Those are the ROS dependencies used :
 
 ```
-rospy roscpp std_msgs gps_common
+rospy roscpp std_msgs gps_common visualization-msgs
 ```
 #### Python Dependencies
 For python controllers, the only dependencies used is [NumPy](http://www.numpy.org/), so you will need to add it to python dependencies :
