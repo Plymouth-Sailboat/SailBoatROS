@@ -211,12 +211,13 @@ geometry_msgs::Twist Identification::control(){
 
 		publishLOG("step " + std::to_string(step) + " duration " + std::to_string(duration) + " vnorm " + std::to_string(vnorm) + " head-wind " + std::to_string(cos(currentHeading - (initWind+M_PI/2.0))));
 	}
-
-	dataState << "0,0,0,0,0," << initV << "," << initTheta << ",0,0,0" << std::endl;
-	if(data.is_open())
-		data.close();
-	if(dataState.is_open())
-		dataState.close();
-	exit(0);
+	if(step==4){
+		dataState << "0,0,0,0,0," << initV << "," << initTheta << ",0,0,0" << std::endl;
+		if(data.is_open())
+			data.close();
+		if(dataState.is_open())
+			dataState.close();
+		exit(0);
+	}
 	return cmd;
 }

@@ -2,6 +2,7 @@
 	<arg name="windNAarg" default="2" />
 	<arg name="windNTarg" default="0" />
 	<arg name="rate" default="3" />
+	<arg name="pestimated" default="False" />
 
 <node type="rviz" name="rviz" pkg="rviz" />
 <node pkg="sailrobot" type="simuBoat" name="simuBoat" output="screen">
@@ -10,6 +11,7 @@
 	<param name="windNT" value="$(arg windNTarg)" />
 	<param name="windNA" value="$(arg windNAarg)" />
 	<param name="rate" value="$(arg rate)" />
+	<param name="pestimated" value="$(arg pestimated)" />
 </node>
 <node pkg="sailrobot" type="displayBoat" name="displayBoat" />
 

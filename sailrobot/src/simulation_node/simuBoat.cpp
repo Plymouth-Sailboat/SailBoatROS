@@ -180,6 +180,7 @@ int main(int argc, char **argv)
 	double wa = 2.0;
 	double wt = 0.0;
 	int r = 1;
+	bool p_estimated = false;
 	nh.param<double>("posx", x[0],0);
 	nh.param<double>("xRefX", xRef[0],0);
 	nh.param<double>("posy", x[1],0);
@@ -188,6 +189,23 @@ int main(int argc, char **argv)
 	nh.param<double>("windNA", wa,2.0);
 	nh.param<double>("windNT", wt,0.0);
 	nh.param<int>("rate", r,1);
+	nh.param<bool>("pestimated", p_estimated,false);
+	
+	if(p_estimated){
+		  std::string configPath = "config/config.txt";
+		  Utility::Instance().config = Utility::ReadConfig(configPath);
+			p[0] = stod(Utility::Instance().config["p1"]);
+			p[1] = stod(Utility::Instance().config["p2est"]);
+			p[2] = stod(Utility::Instance().config["p3est"]);
+			p[3] = stod(Utility::Instance().config["p4est"]);
+			p[4] = stod(Utility::Instance().config["p5est"]);
+			p[5] = stod(Utility::Instance().config["p6"]);
+			p[6] = stod(Utility::Instance().config["p7"]);
+			p[7] = stod(Utility::Instance().config["p8"]);
+			p[8] = stod(Utility::Instance().config["p9"]);
+			p[9] = stod(Utility::Instance().config["p10est"]);
+			p[10] = stod(Utility::Instance().config["p11est"]);
+	}
 	x[3] = 0.5;
 	x[4] = 0;
 	wind = geometry_msgs::Pose2D();
