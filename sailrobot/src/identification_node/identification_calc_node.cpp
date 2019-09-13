@@ -361,7 +361,7 @@ NLOPT_NUM_ALGORITHMS = 44\n" << std::endl;*/
     Utility::Instance().config["est_p3"] = std::to_string(x[2]);
     Utility::Instance().config["est_p4"] = std::to_string(x[3]);
     Utility::Instance().config["est_p5"] = std::to_string(x[4]);
-    Utility::Instance().config["est_p10"] = std::to_string(x[6]);
+    Utility::Instance().config["est_p10"] = std::to_string(x[5]);
     Utility::Instance().config["est_p11"] = std::to_string(x[6]);
     Utility::Instance().config["vmax"] = std::to_string(maxv);
     Utility::SaveConfig("config/config.txt");
