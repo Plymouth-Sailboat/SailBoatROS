@@ -14,8 +14,7 @@ void AreaScanning::setup(ros::NodeHandle* n){
 	std::string path = ros::package::getPath("sailrobot");
 
 	std::string areaPath = "data/area_scanning.txt";
-	if(n->hasParam("area"))
-		n->getParam("area", areaPath);
+	n->param("area", areaPath, areaPath);
 
 	waypoints = Utility::ReadGPSCoordinates(areaPath, nbWaypoints);
 	if(waypoints == NULL){

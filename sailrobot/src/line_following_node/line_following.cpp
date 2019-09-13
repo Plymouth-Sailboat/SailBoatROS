@@ -11,8 +11,7 @@ using namespace glm;
 
 void LineFollowing::setup(ros::NodeHandle* n){
 	std::string waypointPath = "data/line_following.txt";
-	if(n->hasParam("waypoints"))
-		n->getParam("waypoints",waypointPath);
+	n->param("waypoints",waypointPath, waypointPath);
 	waypoints.push_back(dvec2(gpsMsg.latitude, gpsMsg.longitude));
 	waypoints = Utility::AppendGPSCoordinates(waypointPath, nbWaypoints, &waypoints);
 	if(nbWaypoints == 0){

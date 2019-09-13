@@ -11,13 +11,10 @@ using namespace glm;
 
 void MPC::setup(ros::NodeHandle* n){
 	std::string goalPath = "data/goalpoint.txt";
-	if (n->hasParam("goal"))
-		n->getParam("goal",goalPath);
-	if (n->hasParam("receding"))
-		n->getParam("receding",receding_n);
 	int algoN = 0;
-	if (n->hasParam("algo"))
-		n->getParam("algo",algoN);
+	n->param<std::string>("goal",goalPath,goalPath);
+	n->param<int>("receding", receding_n, 10);
+	n->param<int>("algo", algoN, 0);
 
 	switch(algoN){
 		case 0:
