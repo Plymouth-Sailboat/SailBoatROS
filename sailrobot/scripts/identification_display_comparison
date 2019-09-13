@@ -86,17 +86,17 @@ if __name__ == '__main__':
     states = [0,0,initTheta,initV,0]
     dt = 0.01
     p = [
-        float(utilities.config["p1est"]),
-        float(utilities.config["p2est"]),
-        float(utilities.config["p3est"]),
-        float(utilities.config["p4est"]),
-        float(utilities.config["p5est"]),
+        float(utilities.config["est_p1"]),
+        float(utilities.config["est_p2"]),
+        float(utilities.config["est_p3"]),
+        float(utilities.config["est_p4"]),
+        float(utilities.config["est_p5"]),
         float(utilities.config["p6"]),
         float(utilities.config["p7"]),
         float(utilities.config["p8"]),
         float(utilities.config["p9"]),
-        float(utilities.config["p10"]),
-        float(utilities.config["p11est"])
+        float(utilities.config["est_p10"]),
+        float(utilities.config["est_p11"])
     ]
     # p = [0.024, 34.902, 6959.404060, 179.640839, 1844.977051,float(utilities.config["p6"]), float(utilities.config["p7"]),float(utilities.config["p8"]),float(utilities.config["p9"]), 400.0, 0.17467]
 

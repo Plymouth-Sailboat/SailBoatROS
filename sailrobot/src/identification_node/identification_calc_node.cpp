@@ -356,12 +356,14 @@ NLOPT_NUM_ALGORITHMS = 44\n" << std::endl;*/
     for(int i = 0; i < 6; ++i)
       std::cout << x[i] << ",";
     std::cout << x[6] << ") = " << std::setprecision(10) << minf << std::endl;
-    Utility::Instance().config["p1est"] = std::to_string(x[0]);
-    Utility::Instance().config["p2est"] = std::to_string(x[1]);
-    Utility::Instance().config["p3est"] = std::to_string(x[2]);
-    Utility::Instance().config["p4est"] = std::to_string(x[3]);
-    Utility::Instance().config["p5est"] = std::to_string(x[4]);
-    Utility::Instance().config["p11est"] = std::to_string(x[6]);
+    Utility::Instance().config["est_p1"] = std::to_string(x[0]);
+    Utility::Instance().config["est_p2"] = std::to_string(x[1]);
+    Utility::Instance().config["est_p3"] = std::to_string(x[2]);
+    Utility::Instance().config["est_p4"] = std::to_string(x[3]);
+    Utility::Instance().config["est_p5"] = std::to_string(x[4]);
+    Utility::Instance().config["est_p10"] = std::to_string(x[6]);
+    Utility::Instance().config["est_p11"] = std::to_string(x[6]);
+    Utility::Instance().config["vmax"] = std::to_string(maxv);
     Utility::SaveConfig("config/config.txt");
   }
   catch(std::exception &e) {

@@ -126,34 +126,36 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
 	double r = 10.0;
 	double f = 0;
 	int it_i = 2;
+	double normx = abs(optionD[2] - optionD[7]);
+	double normy = abs(optionD[3] - optionD[8]);
 	for(std::vector<double*>::iterator it=state_predict.begin(); it != state_predict.end(); it++){
-	f += Q[0]*((*it)[0] - (optionD)[2])*((*it)[0] - (optionD)[2]);
-	f += Q[1]*((*it)[1] - (optionD)[3])*((*it)[1] - (optionD)[3]);
-	f += Q[2]*sin((*it)[2] - (optionD)[4])*sin((*it)[2] - (optionD)[4]);
-	f += Q[3]*((*it)[3] - (optionD)[5])*((*it)[3] - (optionD)[5]);
-	//f += Q[4]*((*it)[4] - (optionD)[6])*((*it)[4] - (optionD)[6]);
+		f += Q[0]*((*it)[0] - optionD[2])*((*it)[0] - optionD[2])/(normx*normx);
+		f += Q[1]*((*it)[1] - optionD[3])*((*it)[1] - optionD[3])/(normy*normy);
+		f += Q[2]*((*it)[2] - optionD[4])*((*it)[2] - optionD[4]);
+		f += Q[3]*((*it)[3] - optionD[5])*((*it)[3] - optionD[5])/(optionD[5]*optionD[5]);
+		//f += Q[4]*((*it)[4] - (optionD)[6])*((*it)[4] - (optionD)[6]);
 
-	//TackingStrategy
-	double nogo = 0.0;
-	double tacking_phi = M_PI/4.0;
-
-
-	dvec2 toWaypoints = dvec2(optionD[2] - optionD[7],optionD[3] - optionD[8]);
-	toWaypoints /= glm::length(toWaypoints);
-	dvec2 distWaypoints = dvec2(optionD[receding_n5] - optionD[7], optionD[receding_n5+1] - optionD[8]);
-	double e = toWaypoints.x*distWaypoints.y-toWaypoints.y*distWaypoints.x;
+		//TackingStrategy
+		double nogo = 0.0;
+		double tacking_phi = M_PI/4.0;
 
 
-	if(cos(dtw-(*it)[2])+cos(tacking_phi)<0.0){
-		if(abs(e) < r/2.0){
-			nogo = abs(cos(dtw-(*it)[2])+cos(tacking_phi))*100;
-		}else{
-			nogo = abs(cos(dtw-(*it)[2])+cos(tacking_phi))*20;
+		dvec2 toWaypoints = dvec2(optionD[2] - optionD[7],optionD[3] - optionD[8]);
+		toWaypoints /= glm::length(toWaypoints);
+		dvec2 distWaypoints = dvec2(optionD[receding_n5] - optionD[7], optionD[receding_n5+1] - optionD[8]);
+		double e = toWaypoints.x*distWaypoints.y-toWaypoints.y*distWaypoints.x;
+
+
+		if(cos(dtw-(*it)[2])+cos(tacking_phi)<0.0){
+			if(abs(e) < r/2.0){
+				nogo = abs(cos(dtw-(*it)[2])+cos(tacking_phi));
+			}else{
+				nogo = abs(cos(dtw-(*it)[2])+cos(tacking_phi))/2.0;
+			}
 		}
-	}
-	f += nogo*nogo;
+		f += nogo*nogo;
 
-	it_i += 5;
+		it_i += 5;
 	}
 
 
@@ -220,7 +222,7 @@ geometry_msgs::Twist MPC::control(){
 	optionData[2] = xpos; //x
 	optionData[3] = ypos; //y
 	optionData[4] = bearingBoat; //theta
-	optionData[5] = 2; //v
+	optionData[5] = stod(Utility::Instance().config["vmax"]); //v
 	optionData[6] = 0; //w
 
 	gpsdist = Utility::GPSDist(waypoints[currentWaypoint].x,waypoints[currentWaypoint].y, initXRef, initYRef);
@@ -248,17 +250,17 @@ geometry_msgs::Twist MPC::control(){
 	optionData[receding_n5+8] = windNorthA; //atw;
 	optionData[receding_n5+9] = windNorth; //dtw
 	double pconfig[11] = {
-		stod(Utility::Instance().config["p1est"]),
-		stod(Utility::Instance().config["p2est"]),
-		stod(Utility::Instance().config["p3est"]),
-		stod(Utility::Instance().config["p4est"]),
-		stod(Utility::Instance().config["p5est"]),
+		stod(Utility::Instance().config["est_p1"]),
+		stod(Utility::Instance().config["est_p2"]),
+		stod(Utility::Instance().config["est_p3"]),
+		stod(Utility::Instance().config["est_p4"]),
+		stod(Utility::Instance().config["est_p5"]),
 		stod(Utility::Instance().config["p6"]),
 		stod(Utility::Instance().config["p7"]),
 		stod(Utility::Instance().config["p8"]),
 		stod(Utility::Instance().config["p9"]),
 		stod(Utility::Instance().config["p10"]),
-		stod(Utility::Instance().config["p11est"])
+		stod(Utility::Instance().config["est_p11"])
 	};
 	memcpy(optionData+receding_n5+10,pconfig,11*sizeof(double)); //parameters
 	double Q[5] = {1.0,1.0,0.1,0.2,0.0};
