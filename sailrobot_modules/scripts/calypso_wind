@@ -1,0 +1,75 @@
+#! /usr/bin/env python
+
+import rospy
+from bluepy import btle
+
+from geometry_msgs.msg import Pose2D
+
+from numpy import pi
+import numpy as np
+
+import sys
+
+INFO_SERVICE = 0x180A
+INFO_MANUF_CHARAC_IN = 0x2A29
+INFO_MODEL_CHARAC_IN = 0x2A24
+INFO_FIRMW_CHARAC_IN = 0x2A26
+DATA_SERVICE = 0x180D
+DATA_DATA_CHARA_IN = 0x2A39
+DATA_STATU_CHARAC_IN = 0xA001
+DATA_DRATE_CHARAC_IN = 0xA002
+DATA_SENS_CHARAC_INOUT = 0xA003
+DATA_OFFS_CHARAC_INOUT = 0xA007
+DATA_CALIB_CHARAC_INOUT = 0xA008
+DATA_CORREC_CHARAC_INOUT = 0xA009
+DATA_FIRMWC_CHARAC_INOUT = 0xA00A
+
+class delegateNotify(btle.DefaultDelegate):
+    def __init__(self):
+        btle.DefaultDelegate.__init__(self)
+
+    def handleNotification(self, candle, data):
+        global wind
+        print("a notification arrived: %s" %data)
+
+if __name__ == "__main__":
+    global wind
+    rospy.init_node('CalypsoWind', anonymous=True)
+    pub = rospy.Publisher('/sailboat/wind', Pose2D, queue_size = 2)
+
+    rate = rospy.Rate(10)
+    wind = Pose2D(x = 0, y = 0, theta = 0)
+
+    if not rospy.has_param('~mac'):
+        sys.exit("Missing mac param")
+    mac_addr = str(rospy.get_param('~mac'))
+
+    dev = btle.Peripheral(mac_addr)
+    for ser in dev.services:
+        print str(ser)
+
+    dev.setDelegate(delegateNotify())
+    dataService = dev.getServiceByUUID(btle.UUID(DATA_SERVICE))
+    ch = dataSerivce.getCharacteristics()[0]
+    print(ch.valHandle)
+    dev.writeCharacteristic(ch.valHandle+1, "\x02\x00")
+
+    print('Turning on sensors')
+
+    sensors_ch = dataSerivce.getCharacteristics(DATA_SENS_CHARAC_INOUT)[0]
+    sensors_ch.write(bytes("\01"))
+
+    infoService = dev.getServiceByUUID(btle.UUID(INFO_SERVICE))
+    manuf_charac = infoService.getCharacteristics(INFO_MANUF_CHARAC_IN)[0]
+    print('Manufacturer : ' + str(manuf_charac.read()))
+    model_charac = infoService.getCharacteristics(INFO_MODEL_CHARAC_IN)[0]
+    print('Model : ' + str(model_charac.read()))
+
+    data_charac = dataService.getCharacteristics(DATA_DATA_CHARA_IN)[0]
+
+    while not rospy.is_shutdown():
+        if dev.waitForNotifications(1.0):
+            continue
+
+    print('Turning off sensors')
+    sensors_ch.write(bytes("\01"))
