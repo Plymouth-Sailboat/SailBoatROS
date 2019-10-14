@@ -4,6 +4,7 @@ import rospy
 from bluepy import btle
 
 from geometry_msgs.msg import Pose2D
+from std_msgs.msg import Int32
 
 from numpy import pi
 import numpy as np
@@ -32,25 +33,24 @@ class delegateNotify(btle.DefaultDelegate):
     roll = 0
     pitch = 0
     compass = 0
+    w_data = Pose2D()
     def __init__(self):
         btle.DefaultDelegate.__init__(self)
 
     def handleNotification(self, candle, data):
-        global wind
         #print("a notification arrived: %s" %data)
         datab = bytearray(data)
-        print(len(datab))
         if(len(datab) == 10):
-            w_speed, w_dir, self.battery, self.temp, self.roll, self.pitch, self.compass = struct.unpack('>HHBBBBH',datab)
+            w_speed, w_dir, self.battery, self.temp, self.roll, self.pitch, self.compass = struct.unpack('<HHBBBBH',datab)
             w_speed = w_speed/100.0
             w_dir = math.radians(w_dir)
             self.battery = self.battery*10.0
             self.temp = self.temp-100
             self.roll = self.roll - 90
             self.pitch = self.pitch - 90
-            wind.theta = w_dir
-            wind.x = w_speed*math.cos(w_dir)
-            wind.y = w_speed*math.sin(w_dir)
+            self.w_data.theta = w_dir
+            self.w_data.x = w_speed*math.cos(w_dir)
+            self.w_data.y = w_speed*math.sin(w_dir)
 
     def getBattery(self):
         return self.battery
@@ -67,30 +67,32 @@ class delegateNotify(btle.DefaultDelegate):
     def getCompass(self):
         return self.compass
 
+    def getWind(self):
+        return self.w_data
+
 if __name__ == "__main__":
-    global wind
     rospy.init_node('CalypsoWind', anonymous=True)
     pub = rospy.Publisher('/sailboat/wind', Pose2D, queue_size = 2)
+    pubBat = rospy.Publisher('/sailboat/windStatus', Int32, queue_size = 2)
 
-    rate = rospy.Rate(2)
-    wind = Pose2D(x = 0, y = 0, theta = 0)
+    rate = rospy.Rate(4)
 
     #if not rospy.has_param('~mac'):
     #    sys.exit("Missing mac param")
     mac_addr = str(rospy.get_param('~mac','E2:7C:BD:0A:22:B6'))
 
     dev = btle.Peripheral(mac_addr, "random")
-    for ser in dev.services:
-        print str(ser)
+    #for ser in dev.services:
+    #    print str(ser)
 
     dev.setDelegate(delegateNotify())
     dataService = dev.getServiceByUUID(btle.UUID(DATA_SERVICE))
     data_charac = dataService.getCharacteristics(DATA_DATA_CHARA_IN)[0]
 
-    print('Turning on sensors')
+    #print('Turning on sensors')
 
-    sensors_ch = dataService.getCharacteristics(DATA_SENS_CHARAC_INOUT)[0]
-    sensors_ch.write(bytes("\01"))
+    #sensors_ch = dataService.getCharacteristics(DATA_SENS_CHARAC_INOUT)[0]
+    #sensors_ch.write(bytes("\01"))
 
     infoService = dev.getServiceByUUID(btle.UUID(INFO_SERVICE))
     manuf_charac = infoService.getCharacteristics(INFO_MANUF_CHARAC_IN)[0]
@@ -98,20 +100,23 @@ if __name__ == "__main__":
     model_charac = infoService.getCharacteristics(INFO_MODEL_CHARAC_IN)[0]
     print('Model : ' + str(model_charac.read()))
 
-
+    print('Turning on notification')
     ch = dataService.getCharacteristics()[0]
-    print(ch.valHandle)
     dev.writeCharacteristic(ch.valHandle+1, "\x01\x00")
 
     while not rospy.is_shutdown():
-        if dev.waitForNotifications(0.5):
-            continue
-        if(dev.delegate.getBattery() != 0):
-            print('Battery left : ' + str(dev.delegate.getBattery()))
-        pub.publish(wind)
-        rate.sleep()
+        try:
+            dev.waitForNotifications(1.0)
+        except:
+            print("exception in wait notification")
 
+        if(dev.delegate.getBattery() != 0):
+            pubBat.publish(dev.delegate.getBattery())
+        pub.publish(dev.delegate.getWind())
+        #rate.sleep()
+
+    print('Turning off notification')
     dev.writeCharacteristic(ch.valHandle+1, "\x00\x00")
-    print('Turning off sensors')
-    sensors_ch.write(bytes("\00"))
+    #print('Turning off sensors')
+    #sensors_ch.write(bytes("\00"))
     dev.disconnect()
