@@ -9,18 +9,20 @@
 C++ and Python code for [Plymouth's Autonomous Sailboat](https://plymouth-sailboat.github.io/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribe to topics sent by the arduino and publish commands to it. It is made of classes in C++ and Python for easy integration.  
 For a full view of the package [go here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Sailrobot-Package).
 
-An SD Card image is available [here](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) containing a complete environment for the sailboat. You will need a minimum of 8Gb SD card and you can use [Etcher](https://etcher.io/) to write the image directly to your SD Card.
+An SD Card image is available [here](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) containing a complete environment for the sailboat. You will need a minimum of 16Gb SD card and you can use [Etcher](https://etcher.io/) to write the image directly to your SD Card.  
+Once your image is installed, you have to expand the memory, explained [here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Install-the-Image#expand-filesystem)
 
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. For a full tutorial for the Raspberry Pi installation follow [Preparing the Raspberry Pi](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Preparing-the-Raspberry-Pi) in the wiki.
 
-You can either install the image from the [latest release](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) directly to your SD card or you can follow the guide here or [on the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Preparing-the-Raspberry-Pi) to install from scratch.
+You can either install the image from the [latest release](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) directly to your SD card.  
+Or you can follow the guide here or [on the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Preparing-the-Raspberry-Pi) to install from scratch.
 
 ### Prerequisites
 
 - [ROS Kinetic](http://wiki.ros.org/kinetic) OR [ROS Melodic](http://wiki.ros.org/melodic)
-- Raspberry Pi 3 (B or B+) connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface)
+- Raspberry Pi 3 (B or B+) connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface). **Note: ROS Melodic can only be installed on the Raspberry Pi 3B+.**
 - [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node)
 - [Rosserial-Arduino Node](http://wiki.ros.org/rosserial_arduino)
 
@@ -61,12 +63,22 @@ source devel/setup.bash
 
 **Note :** You may have to run catkin_make multiple time. This is due mostly because the Raspberry Pi doesn't have enough RAM memory to build everything in one go. Look into adding some swap memory (even if it is not recommended for Raspberry Pi).
 
+If you have any trouble, look at the [FAQ](https://github.com/Plymouth-Sailboat/SailBoatROS#FAQ) at the end of this readme.
+
+### ROS_LIB
+The arduino needs an up to date library from ROS. To do so, after the installation above, run the following command :
+```
+rosrun rosserial_arduino make_libraries.py .
+```
+This will build a folder __ros_lib__ on the current directory. This folder needs to be put in the library folder of your Arduino and the arduino package needs to be compiled with it.  
+Simply replace the current __ros_lib__ in your Arduino library with this one and upload your Arduino project to the Arduino. The communication between the Arduino and the Raspberry Pi should work now.
+
 ### Usage
 
 To launch the communication with the Arduino you have to launch the [rosserial_python](http://wiki.ros.org/rosserial_python) node with the proper USB device, /dev/ttyACM0 in our case :
 
 ```
-rosrun rosserial_python serial_node.py /dev/ttyACM0
+rosrun rosserial_python serial_node.py /dev/ttyACM0 _baud:=115200
 ```
 
 You can then launch any nodes of the sailboat e.g. :
@@ -187,3 +199,21 @@ If you want more information about the raspberry pi and the boat, please look at
 
 ## CI (Continuous Integration)
 This project uses Continuous Integration with [Travis CI](https://travis-ci.org/Plymouth-Sailboat/SailBoatROS).
+
+## FAQ
+**Q)** I get the following error message when running the command `rosrun rosserial_python serial_node.py /dev/ttyACM0 _baud:=115200` :
+  *  `wrong checksum for topic id and msg` or an error of the sort `Unable to sync with device; possible link problem or link software version mismatch such as hydro rosserial_python with groovy Arduino`.  
+  **A)** This is due because the ros_lib on the Arduino side does not match your Raspberry Pi version of ROS. Follow the guide on [ros_lib](https://github.com/Plymouth-Sailboat/SailBoatROS#ROS_LIB)
+  
+  *  `ImportError: No module named msg` from rosserial.  
+  **A)** Your rosserial is broken or is not linked. First check that you have sourced your package and ros :
+  ```
+  source ~/catkin_ws/devel/setup.bash
+  source /opt/ros/[distro]/setup.bash
+  ```
+  If this does not solve your problem, try to install the package rosserial and retry to run the serial_node.py node :
+  ```
+  sudo apt update
+  sudo apt install rosserial rosserial_arduino
+  ```
+  
