@@ -12,7 +12,9 @@ For a full view of the package [go here](https://github.com/Plymouth-Sailboat/Sa
 ## Installing image and have a ready-to-use SD Card
 
 An SD Card image is available [here](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) containing a complete environment for the sailboat. You will need a minimum of 16Gb SD card and you can use [Etcher](https://etcher.io/) to write the image directly to your SD Card.  
-Once your image is installed, you have to expand the memory, explained [here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Install-the-Image#expand-filesystem)
+Once your image is installed, you have to expand the memory, explained [here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Install-the-Image#expand-filesystem).
+
+You can then follow the [Usage](https://github.com/Plymouth-Sailboat/SailBoatROS#Usage) part to get your boat running !
 
 ## Getting Started (without installing the image)
 
@@ -76,33 +78,6 @@ rosrun rosserial_arduino make_libraries.py .
 ```
 This will build a folder __ros_lib__ on the current directory. This folder needs to be put in the library folder of your Arduino and the arduino package needs to be compiled with it.  
 Simply replace the current __ros_lib__ in your Arduino library with this one and upload your Arduino project to the Arduino. The communication between the Arduino and the Raspberry Pi should work now.
-
-### Usage
-
-To launch the communication with the Arduino you have to launch the [rosserial_python](http://wiki.ros.org/rosserial_python) node with the proper USB device, /dev/ttyACM0 in our case :
-
-```
-rosrun rosserial_python serial_node.py /dev/ttyACM0 _baud:=115200
-```
-
-You can then launch any nodes of the sailboat e.g. :
-
-```
-rosrun sailrobot line_following_node
-```
-
-Or you can run the prebuilt launch config file which will launch a simulation and visualization of the boat :
-
-```
-roslaunch sailrobot simuBoat.launch
-```
-**Note :** This may crash if launched on the Raspberry Pi. Run simulations on a computer and not the Raspberry Pi.
-
-or you can launch the communication with the Arduino and the rest of the sensors :
-
-```
-roslaunch sailrobot start.launch
-```
 
 ### Dependencies
 
@@ -180,6 +155,32 @@ rosdep install --from-paths src --ignore-src --rosdistro melodic -y ##installing
 sudo apt install libnlopt-dev python-numpy python-pygame #installing third-party dependencies
 pip install -r requirements.txt #installing python related dependencies
 pip3 install -r requirements.txt #installing python3 related dependencies
+```
+### Usage
+
+To launch the communication with the Arduino you have to launch the [rosserial_python](http://wiki.ros.org/rosserial_python) node with the proper USB device, /dev/ttyACM0 in our case :
+
+```
+rosrun rosserial_python serial_node.py /dev/ttyACM0 _baud:=115200
+```
+
+You can then launch any nodes of the sailboat e.g. :
+
+```
+rosrun sailrobot line_following_node
+```
+
+Or you can run the prebuilt launch config file which will launch a simulation and visualization of the boat :
+
+```
+roslaunch sailrobot simuBoat.launch
+```
+**Note :** This may crash if launched on the Raspberry Pi. Run simulations on a computer and not the Raspberry Pi.
+
+or you can launch the communication with the Arduino and the rest of the sensors :
+
+```
+roslaunch sailrobot start.launch
 ```
 
 ## Authors
