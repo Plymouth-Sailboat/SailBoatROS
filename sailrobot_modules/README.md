@@ -19,3 +19,6 @@ This node decodes the NMEA data and publishes custom ROS AIS_messages from the s
 
 ## Calypso Nodes
 This node is to be used with ultrasonic wind sensors that use BLE (Bluetooth). It was made for Calypso Instrument ultrasonic wind sensor, but should be compatible with any ultrasonic wind sensors using BLE.
+
+## XBee_Communication Nodes
+These nodes are to be used to control the boat using XBees.
