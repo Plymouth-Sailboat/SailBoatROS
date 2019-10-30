@@ -24,6 +24,7 @@ For the tutorial for the Raspberry Pi 3B+, follow the README below.
 
 ### Prerequisites
 
+- [Ubuntu Mate for Raspberry Pi 3B+](https://ubuntu-mate.org/raspberry-pi/)
 - [ROS Kinetic](http://wiki.ros.org/kinetic) OR [ROS Melodic](http://wiki.ros.org/melodic)
 - Raspberry Pi 3 (B or B+) connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface). **Note: ROS Melodic can only be installed on the Raspberry Pi 3B+.**
 - [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node)
