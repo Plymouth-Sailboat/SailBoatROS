@@ -9,15 +9,18 @@
 C++ and Python code for [Plymouth's Autonomous Sailboat](https://plymouth-sailboat.github.io/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribe to topics sent by the arduino and publish commands to it. It is made of classes in C++ and Python for easy integration.  
 For a full view of the package [go here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Sailrobot-Package).
 
+## Installing image and have a ready-to-use SD Card
+
 An SD Card image is available [here](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) containing a complete environment for the sailboat. You will need a minimum of 16Gb SD card and you can use [Etcher](https://etcher.io/) to write the image directly to your SD Card.  
 Once your image is installed, you have to expand the memory, explained [here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Install-the-Image#expand-filesystem)
 
-## Getting Started
+## Getting Started (without installing the image)
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. For a full tutorial for the Raspberry Pi installation follow [Preparing the Raspberry Pi](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Preparing-the-Raspberry-Pi) in the wiki.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
-You can either install the image from the [latest release](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) directly to your SD card.  
-Or you can follow the guide here or [on the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Preparing-the-Raspberry-Pi) to install from scratch.
+For a full tutorial for the Raspberry Pi 3B installation (ROS Kinetic version) follow [Preparing the Raspberry Pi](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Preparing-the-Raspberry-Pi) in the wiki.
+
+For the tutorial for the Raspberry Pi 3B+, follow the README below.
 
 ### Prerequisites
 
