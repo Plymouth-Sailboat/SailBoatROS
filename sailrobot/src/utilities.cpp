@@ -121,6 +121,7 @@ dvec2* Utility::ReadGPSCoordinates(std::string filepath, int& size){
 	std::string path = ros::package::getPath("sailrobot");
 	if(filepath[0] != '/')
 		filepath = path + "/" + filepath;
+	std::cout << "Reading GPS coordinates from the file " << filepath << std::endl;
 	std::fstream file(filepath);
 	if(!file){
 		std::cerr << "GPS Reading : Couldn't open file" << std::endl;
@@ -153,6 +154,7 @@ dvec2* Utility::AppendGPSCoordinates(std::string filepath, int& size, glm::dvec2
 	std::string path = ros::package::getPath("sailrobot");
 	if(filepath[0] != '/')
 		filepath = path + "/" + filepath;
+	std::cout << "Reading GPS coordinates from the file " << filepath << std::endl;
 	std::fstream file(filepath);
 	if(!file){
 		std::cerr << "GPS Reading : Couldn't open file" << std::endl;
@@ -185,6 +187,7 @@ std::vector<dvec2> Utility::AppendGPSCoordinates(std::string filepath, int& size
 	std::string path = ros::package::getPath("sailrobot");
 	if(filepath[0] != '/')
 		filepath = path + "/" + filepath;
+	std::cout << "Reading GPS coordinates from the file " << filepath << std::endl;
 	std::fstream file(filepath);
 	if(!file){
 		std::cerr << "GPS Reading : Couldn't open file" << std::endl;
@@ -217,6 +220,7 @@ std::map<std::string,std::string> Utility::ReadConfig(std::string filepath){
 	std::string path = ros::package::getPath("sailrobot");
 	if(filepath[0] != '/')
 		filepath = path + "/" + filepath;
+	std::cout << "Reading boat configuration from the file " << filepath << std::endl;
 	std::fstream file(filepath);
 	if(!file){
 		std::cerr << "Config Reading : Couldn't open file" << std::endl;
