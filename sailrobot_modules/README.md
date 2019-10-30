@@ -16,3 +16,6 @@ This node parses the NMEA data
 
 ### ais_decode
 This node decodes the NMEA data and publishes custom ROS AIS_messages from the sailrobot_custom_msg
+
+## Calypso Nodes
+This node is to be used with ultrasonic wind sensors that use BLE (Bluetooth). It was made for Calypso Instrument ultrasonic wind sensor, but should be compatible with any ultrasonic wind sensors using BLE.
