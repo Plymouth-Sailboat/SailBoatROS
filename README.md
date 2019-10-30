@@ -225,6 +225,6 @@ This project uses Continuous Integration with [Travis CI](https://travis-ci.org/
   If this does not solve your problem, try to install the package rosserial and retry to run the serial_node.py node :
   ```
   sudo apt update
-  sudo apt install rosserial rosserial_arduino
+  sudo apt install ros-melodic-rosserial ros-melodic-rosserial-arduino
   ```
   
