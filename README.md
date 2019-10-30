@@ -207,7 +207,7 @@ This project uses Continuous Integration with [Travis CI](https://travis-ci.org/
 
 ## FAQ
 **Q)** I get the following error message when running the command `rosrun rosserial_python serial_node.py /dev/ttyACM0 _baud:=115200` :
-  *  `wrong checksum for topic id and msg` once in the beginning
+  *  `wrong checksum for topic id and msg` once in the beginning.  
   **A)** This shouldn't affect the communication. Check that you have the topics and that they work, for example using the command :
   ```
   rostopic list
