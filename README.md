@@ -207,8 +207,14 @@ This project uses Continuous Integration with [Travis CI](https://travis-ci.org/
 
 ## FAQ
 **Q)** I get the following error message when running the command `rosrun rosserial_python serial_node.py /dev/ttyACM0 _baud:=115200` :
-  *  `wrong checksum for topic id and msg` or an error of the sort `Unable to sync with device; possible link problem or link software version mismatch such as hydro rosserial_python with groovy Arduino`.  
-  **A)** This is due because the ros_lib on the Arduino side does not match your Raspberry Pi version of ROS. Follow the guide on [ros_lib](https://github.com/Plymouth-Sailboat/SailBoatROS#ROS_LIB)
+  *  `wrong checksum for topic id and msg` once in the beginning
+  **A)** This shouldn't affect the communication. Check that you have the topics and that they work, for example using the command :
+  ```
+  rostopic list
+  rostopic echo /wind
+  ```
+  *  An error of the sort `Unable to sync with device; possible link problem or link software version mismatch such as hydro rosserial_python with groovy Arduino`.  
+  **A)** This is due because the ros_lib on the Arduino side does not match your Raspberry Pi version of ROS. Follow the guide on [ros_lib](https://github.com/Plymouth-Sailboat/SailBoatROS#ROS_LIB). Another reason might be that the Arduino is stuck or slow. In this case try to change the configuration of the hardware side (in [SailBoatArduinoInterface//AutonomousSailboat/libraries/Sailboat/config-Sailboat.h](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface/blob/master/AutonomousSailboat/libraries/Sailboat/config-Sailboat.h)).
   
   *  `ImportError: No module named msg` from rosserial.  
   **A)** Your rosserial is broken or is not linked. First check that you have sourced your package and ros :
