@@ -211,7 +211,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 If you want more information about the raspberry pi and the boat, please look at [the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki)
 
 ## CI (Continuous Integration)
-This project uses Continuous Integration with [Travis CI](https://travis-ci.org/Plymouth-Sailboat/SailBoatROS).
+This project uses Continuous Integration with [Travis CI](https://travis-ci.com/Plymouth-Sailboat/SailBoatROS).
 
 ## FAQ
 **Q)** I get the following error message when running the command `rosrun rosserial_python serial_node.py /dev/ttyACM0 _baud:=115200` :
