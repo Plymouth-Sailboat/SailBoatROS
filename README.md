@@ -2,7 +2,7 @@
 ![C++ Wrapper](https://img.shields.io/badge/C%2B%2B-100%25-green.svg)
 ![Python Wrapper](https://img.shields.io/badge/Python-100%25-green.svg)
 [![Current version of release](https://img.shields.io/github/release/Plymouth-Sailboat/SailBoatROS/all.svg)](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest)
-[![Build Status](https://travis-ci.org/Plymouth-Sailboat/SailBoatROS.svg?branch=master)](https://travis-ci.org/Plymouth-Sailboat/SailBoatROS)
+[![Build Status](https://travis-ci.com/Plymouth-Sailboat/SailBoatROS.svg?branch=master)](https://travis-ci.com/Plymouth-Sailboat/SailBoatROS)
 
 # SailBoatROS
 
