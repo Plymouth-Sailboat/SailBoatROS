@@ -9,7 +9,7 @@
 C++ and Python code for [Plymouth's Autonomous Sailboat](https://plymouth-sailboat.github.io/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribe to topics sent by the arduino and publish commands to it. It is made of classes in C++ and Python for easy integration.  
 For a full view of the package [go here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Sailrobot-Package).
 
-## Installing image and have a ready-to-use SD Card
+## Install image and have a ready-to-use SD Card
 
 An SD Card image is available [here](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) containing a complete environment for the sailboat. You will need a minimum of 16Gb SD card and you can use [Etcher](https://etcher.io/) to write the image directly to your SD Card.  
 Once your image is installed, you have to expand the memory, explained [here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Install-the-Image#expand-filesystem).
