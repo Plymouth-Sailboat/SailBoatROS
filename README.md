@@ -140,7 +140,7 @@ pip install numpy
 ```
 Numpy installation might not work on the Raspberry Pi as expected. In that case, instead of running the above commands, run :  
 ```
-sudo apt-install python-numpy
+sudo apt install python-numpy
 ```
 
 There are other dependencies in the sailrobot_modules package (PyGame, Digi Xbee library, PyUDev). Pygame is better installed using apt rather than pip :
