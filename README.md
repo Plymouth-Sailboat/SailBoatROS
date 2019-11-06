@@ -13,7 +13,7 @@ For a full view of the package [go here](https://github.com/Plymouth-Sailboat/Sa
 
 ## Install image and have a ready-to-use SD Card
 
-An SD Card image is available [here](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) containing a complete environment for the sailboat. You will need a minimum of 16Gb SD card and you can use [Etcher](https://etcher.io/) to write the image directly to your SD Card.  
+An SD Card image is available [on the latest release here](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) containing a complete environment for the sailboat with both the Raspberry Pi 3 (Kinetic version) or the Raspberry Pi 3+ (Melodic version). You will need a minimum of 16Gb SD card and you can use [Etcher](https://etcher.io/) to write the image directly to your SD Card.  
 Once your image is installed, you have to expand the memory, explained [here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Install-the-Image#expand-filesystem).
 
 Update everything to be up-to-date :  
