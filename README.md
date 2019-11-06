@@ -24,7 +24,8 @@ cd ../
 catkin_make
 ```
 
-You can then follow the [Usage](https://github.com/Plymouth-Sailboat/SailBoatROS#Usage) part to get your boat running !
+You can then follow the [Usage](https://github.com/Plymouth-Sailboat/SailBoatROS#Usage) part to get your boat running !  
+Check the [FAQ](https://github.com/Plymouth-Sailboat/SailBoatROS#faq) if you have any problems.
 
 ## Getting Started (without installing the image)
 
