@@ -6,7 +6,7 @@
 
 # SailBoatROS
 
-![boatgif](https://github.com/Plymouth-Sailboat/plymouth-sailboat.github.io/blob/master/img/misc/boatgif.gif?raw=true)
+![boatgif](https://github.com/Plymouth-Sailboat/plymouth-sailboat.github.io/blob/master/img/misc/boatgif2.gif?raw=true)
 
 C++ and Python code for [Plymouth's Autonomous Sailboat](https://plymouth-sailboat.github.io/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribe to topics sent by the arduino and publish commands to it. It is made of classes in C++ and Python for easy integration.  
 For a full view of the package [go here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Sailrobot-Package).
