@@ -35,7 +35,7 @@ namespace Sailboat{
 
 			std::ofstream data;
 			std::ofstream dataState;
-			std::vector<std::array<double, 10>> state;
+			std::vector<std::array<double, 12>> state;
 			static double costFunction(const std::vector<double> &x, std::vector<double> &grad, void *option);
 	};
 }

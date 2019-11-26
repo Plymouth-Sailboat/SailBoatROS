@@ -8,6 +8,7 @@ import rospy
 import numpy as np
 from math import pi
 import math
+import sys
 
 import rospkg
 import csv
@@ -17,6 +18,11 @@ if __name__ == '__main__':
     rospack = rospkg.RosPack()
     utilities.ReadConfig("config/config.txt")
     ident_file = rospack.get_path('sailrobot')+ '/data/identification_state.csv'
+    
+    simu_param = True
+    if(len(sys.argv) > 1):
+        simu_param = False
+
     xpos = [];
     ypos = [];
     rudder = [];
@@ -84,7 +90,7 @@ if __name__ == '__main__':
     xpossimu = []
     ypossimu = []
     states = [0,0,initTheta,initV,0]
-    dt = 0.01
+    dt = 0.001
     p = [
         float(utilities.config["est_p1"]),
         float(utilities.config["est_p2"]),
@@ -99,28 +105,26 @@ if __name__ == '__main__':
         float(utilities.config["est_p11"])
     ]
     # p = [0.024, 34.902, 6959.404060, 179.640839, 1844.977051,float(utilities.config["p6"]), float(utilities.config["p7"]),float(utilities.config["p8"]),float(utilities.config["p9"]), 400.0, 0.17467]
+    if(simu_param):
+        for i in range(len(xpos)):
+            sigma = math.cos(daw[i])+math.cos(sail[i]);
+            delta_s = 0;
+            if (sigma<0):
+                delta_s = pi + daw[0];
+            else:
+                delta_s = -np.sign(math.sin(daw[i]))*sail[i];
 
-
-    for i in range(len(xpos)):
-        sigma = math.cos(daw[i])+math.cos(sail[i]);
-        delta_s = 0;
-        if (sigma<0):
-            delta_s = pi + daw;
-        else:
-            delta_s = -np.sign(math.sin(daw[i]))*sail[i];
-
-        for j in range(10):
-            v = states[3];
-            gs = p[3]*aaw[i]*math.sin(delta_s-daw[i]);
-            gr = p[4]*v*v*math.sin(rudder[i]);
-
-            states[0] += (v*math.cos(states[2])+atw[i]*p[0]*math.cos(dtw[i]))*dt;
-            states[1] += (v*math.sin(states[2])+atw[i]*p[0]*math.sin(dtw[i]))*dt;
-            states[2] += states[4]*dt;
-            states[3] += (gs*math.sin(delta_s)-gr*p[10]*math.sin(rudder[i])-p[1]*v*v)/p[8]*dt;
-            states[4] += (gs*(p[5]-p[6]*math.cos(delta_s))-gr*p[7]*math.cos(rudder[i])-p[2]*states[4]*v)/p[9]*dt;
-        xpossimu.append(states[0])
-        ypossimu.append(states[1])
+            for j in range(100):
+                v = states[3];
+                gs = p[3]*aaw[i]*math.sin(delta_s-daw[i]);
+                gr = p[4]*v*v*math.sin(rudder[i]);
+                states[0] += (v*math.cos(states[2])+atw[i]*p[0]*math.cos(dtw[i]))*dt;
+                states[1] += (v*math.sin(states[2])+atw[i]*p[0]*math.sin(dtw[i]))*dt;
+                states[2] += states[4]*dt;
+                states[3] += (gs*math.sin(delta_s)-gr*p[10]*math.sin(rudder[i])-p[1]*v*v)/p[8]*dt;
+                states[4] += (gs*(p[5]-p[6]*math.cos(delta_s))-gr*p[7]*math.cos(rudder[i])-p[2]*states[4]*v)/p[9]*dt;
+            xpossimu.append(states[0])
+            ypossimu.append(states[1])
 
     plt.plot(xpos, ypos, 'r*', xpossimu, ypossimu, 'g--')
     plt.show()

@@ -27,7 +27,7 @@ double costFunction(const std::vector<double> &x, std::vector<double> &grad, voi
   double initXRef = state[0][0];
   double initYRef = state[0][1];
   //double dtw = 0.0;
-  double dt = 0.01;
+  double dt = 0.001;
   //Reference State gps.x gps.y heading v w dtw aaw daw rud sail
   //TODO
 
@@ -48,7 +48,7 @@ double costFunction(const std::vector<double> &x, std::vector<double> &grad, voi
       delta_s = -sign(sin(daw))*state[i][9];
     }
 
-    for(int j = 0; j < 10; ++j){
+    for(int j = 0; j < 100; ++j){
       double v = states[3];
       double gs = x[3]*aaw*sin(delta_s-daw);
       double gr = x[4]*v*v*sin(state[i][8]);
@@ -87,9 +87,9 @@ double costFunction(const std::vector<double> &x, std::vector<double> &grad, voi
 
     f += 1*(xpos - xpos2)*(xpos - xpos2);
     f += 1*(ypos - ypos2)*(ypos - ypos2);
-    f += 1*(sin((*it)[2] - predicted[it_i][2])*sin((*it)[2] - predicted[it_i][2]));
-    f += 1*((*it)[3] - predicted[it_i][3])*((*it)[3] - predicted[it_i][3]);
-    f += 0.2*((*it)[4] - predicted[it_i][4])*((*it)[4] - predicted[it_i][4]);
+    f += 0.0*(sin((*it)[2] - predicted[it_i][2])*sin((*it)[2] - predicted[it_i][2]));
+    f += 0.0*((*it)[3] - predicted[it_i][3])*((*it)[3] - predicted[it_i][3]);
+    f += 0.0*((*it)[4] - predicted[it_i][4])*((*it)[4] - predicted[it_i][4]);
     //std::cout << (*it)[2]<< "," << predicted[it_i][2] << " " <<ypos << "," <<  predicted[it_i][1] << std::endl;
     //std::cout << "x: " << xpos << " " << xpos2 << std::endl;
     //std::cout << "y: " << ypos << " " << ypos2 << std::endl;
