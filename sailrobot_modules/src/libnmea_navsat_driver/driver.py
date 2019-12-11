@@ -65,9 +65,9 @@ class RosNMEADriver(object):
         self.default_epe_quality9 = rospy.get_param('~epe_quality9', 3.0)
         self.using_receiver_epe = False
 
-        self.lon_std_dev = float("nan")
-        self.lat_std_dev = float("nan")
-        self.alt_std_dev = float("nan")
+        self.lon_std_dev = 0.0
+        self.lat_std_dev = 0.0
+        self.alt_std_dev = 0.0
 
         """Format for this dictionary is the fix type from a GGA message as the key, with
         each entry containing a tuple consisting of a default estimated
@@ -185,7 +185,12 @@ class RosNMEADriver(object):
                 self.lat_std_dev = default_epe
             if not self.using_receiver_epe or math.isnan(self.alt_std_dev):
                 self.alt_std_dev = default_epe * 2
-
+            if math.isnan(self.current_fix.latitude):
+                self.current_fix.latitude = 0.0
+            if math.isnan(self.current_fix.longitude):
+                self.current_fix.longitude = 0.0
+            if math.isnan(self.current_fix.altitude):
+                self.current_fix.altitude = 0.0
             self.current_fix.hdop = data['hdop']
             self.current_fix.position_covariance[0] = (self.current_fix.hdop * self.lon_std_dev) ** 2
             self.current_fix.position_covariance[4] = (self.current_fix.hdop * self.lat_std_dev) ** 2
@@ -227,7 +232,7 @@ class RosNMEADriver(object):
                     longitude = -longitude
                 self.current_fix.longitude = longitude
 
-                self.current_fix.altitude = float('NaN')
+                self.current_fix.altitude = 0.0
                 self.current_fix.position_covariance_type = \
                     GPSFix.COVARIANCE_TYPE_UNKNOWN
 
