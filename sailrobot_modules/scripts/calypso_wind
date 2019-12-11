@@ -43,7 +43,7 @@ class delegateNotify(btle.DefaultDelegate):
         if(len(datab) == 10):
             w_speed, w_dir, self.battery, self.temp, self.roll, self.pitch, self.compass = struct.unpack('<HHBBBBH',datab)
             w_speed = w_speed/100.0
-            w_dir = math.radians(w_dir)
+            w_dir = math.radians((180-w_dir)%360)
             self.battery = self.battery*10.0
             self.temp = self.temp-100
             self.roll = self.roll - 90

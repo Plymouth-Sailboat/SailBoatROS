@@ -98,9 +98,9 @@ void Identification::setup(ros::NodeHandle* n){
 	//	std::cout << "Not doing Scenario" << std::endl;
 	//}else{
 	data.open(path+"/data/identification.csv");
-	data << "time,clock,step,dvx,dvy,dvz,ax,ay,az,avx,avy,avz,heading,twind,twinda,windacc,awind,cmdrudder,cmdsail,lat,long" << std::endl;
+	data << "time,clock,step,dvx,dvy,dvz,ax,ay,az,avx,avy,avz,heading,twind,twinda,windacc,awind,cmdrudder,cmdsail,lat,long,vgps,thetagps" << std::endl;
 	dataState.open(path+"/data/identification_state.csv");
-	dataState << "lat,long,heading,v,dtheta,windN,windA,windT,rudder,sail" << std::endl;
+	dataState << "lat,long,heading,v,vgps,thetagps,dtheta,windN,windA,windT,rudder,sail" << std::endl;
 	//}
 }
 
@@ -192,15 +192,17 @@ geometry_msgs::Twist Identification::control(){
 		std::to_string(ruddersail.x) << "," <<
 		std::to_string(ruddersail.y) << "," <<
 		std::to_string(gpsMsg.latitude) << "," <<
-		std::to_string(gpsMsg.longitude) << std::endl;
+		std::to_string(gpsMsg.longitude) << "," <<
+		std::to_string(gpsMsg.speed) << "," <<
+		std::to_string(gpsMsg.track) << std::endl;
 
 
 
 		double vnorm = sqrt(velMsg.linear.x*velMsg.linear.x+velMsg.linear.y*velMsg.linear.y);
-		std::array<double,10> dataPushed{gpsMsg.latitude,gpsMsg.longitude,currentHeading,vnorm,imuMsg.angular_velocity.z,windNorth,sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y),windMsg.theta,ruddersail.x,ruddersail.y};
+		std::array<double,12> dataPushed{gpsMsg.latitude,gpsMsg.longitude,currentHeading,vnorm,gpsMsg.speed, gpsMsg.track,imuMsg.angular_velocity.z,windNorth,sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y),windMsg.theta,ruddersail.x,ruddersail.y};
 		state.push_back(dataPushed);
 
-		for(int i = 0; i < 10; ++i)
+		for(int i = 0; i < 12; ++i)
 		dataState << std::to_string(dataPushed[i]) << ",";
 		dataState << std::endl;
 
@@ -212,7 +214,7 @@ geometry_msgs::Twist Identification::control(){
 		publishLOG("step " + std::to_string(step) + " duration " + std::to_string(duration) + " vnorm " + std::to_string(vnorm) + " head-wind " + std::to_string(cos(currentHeading - (initWind+M_PI/2.0))));
 	}
 	if(step==4){
-		dataState << "0,0,0,0,0," << initV << "," << initTheta << ",0,0,0" << std::endl;
+		dataState << "0,0,0,0,0," << initV << ",0,0," << initTheta << ",0,0,0" << std::endl;
 		if(data.is_open())
 			data.close();
 		if(dataState.is_open())

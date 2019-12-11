@@ -185,12 +185,14 @@ class RosNMEADriver(object):
                 self.lat_std_dev = default_epe
             if not self.using_receiver_epe or math.isnan(self.alt_std_dev):
                 self.alt_std_dev = default_epe * 2
-            if math.isnan(self.current_fix.latitude):
-                self.current_fix.latitude = 0.0
+            
             if math.isnan(self.current_fix.longitude):
                 self.current_fix.longitude = 0.0
+            if math.isnan(self.current_fix.latitude):
+                self.current_fix.latitude = 0.0
             if math.isnan(self.current_fix.altitude):
                 self.current_fix.altitude = 0.0
+
             self.current_fix.hdop = data['hdop']
             self.current_fix.position_covariance[0] = (self.current_fix.hdop * self.lon_std_dev) ** 2
             self.current_fix.position_covariance[4] = (self.current_fix.hdop * self.lat_std_dev) ** 2
