@@ -106,7 +106,7 @@ double MPC::costFunction(const std::vector<double> &x, std::vector<double> &grad
       delta_s = -sign(sin(daw))*x[input_i+1];
     }*/
 		double delta_s = x[input_i+1];
-		for(int j = 0; j < 1; ++j){
+		for(int j = 0; j < 10; ++j){
 			double v = state[3];
 			double gs = pconfig[3]*aaw*sin(delta_s-daw);
 			double gr = pconfig[4]*v*v*sin(x[input_i]);
@@ -244,7 +244,7 @@ geometry_msgs::Twist MPC::control(){
 	optionData[receding_n5+4] = imuMsg.angular_velocity.z; //w
 
 	//Data for MPC
-	optionData[receding_n5+5] = 0.01; //dt
+	optionData[receding_n5+5] = 0.001; //dt
 	optionData[receding_n5+6] = sqrt(windMsg.x*windMsg.x+windMsg.y*windMsg.y); //aaw
 	optionData[receding_n5+7] = windMsg.theta; //daw
 	optionData[receding_n5+8] = windNorthA; //atw;
@@ -279,7 +279,7 @@ geometry_msgs::Twist MPC::control(){
 	//my_constraint_data data[2] = { {2,0}, {-1,1} };
 	//opt.add_inequality_constraint(myconstraint, &data[0], 1e-8);
 	//opt.add_inequality_constraint(myconstraint, &data[1], 1e-8);
-	opt.set_xtol_rel(1e-6);
+	opt.set_xtol_rel(1e-5);
 	//opt.set_maxeval(20000);
 	opt.set_maxtime(3);
 	std::vector<double> x(inputs_n,rudderAngle);

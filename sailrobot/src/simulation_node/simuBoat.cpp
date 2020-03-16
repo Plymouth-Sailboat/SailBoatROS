@@ -86,12 +86,14 @@ void f(){
 void act(){
 	double t1 = ros::Time::now().toSec();
 	//double dt = t1 - t0;
-	double dt = 0.01;
-	x[0] = x[0] + dt*xdot[0];
-	x[1] = x[1] + dt*xdot[1];
-	x[2] = x[2] + dt*xdot[2];
-	x[3] = x[3] + dt*xdot[3];
-	x[4] = x[4] + dt*xdot[4];
+	double dt = 0.001;
+	for(int i = 0; i<10;i++){
+		x[0] = x[0] + dt*xdot[0];
+		x[1] = x[1] + dt*xdot[1];
+		x[2] = x[2] + dt*xdot[2];
+		x[3] = x[3] + dt*xdot[3];
+		x[4] = x[4] + dt*xdot[4];
+	}
 	t0 = t1;
 }
 
