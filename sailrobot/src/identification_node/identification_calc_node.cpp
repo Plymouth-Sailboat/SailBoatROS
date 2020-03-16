@@ -27,7 +27,7 @@ double costFunction(const std::vector<double> &x, std::vector<double> &grad, voi
 	double initXRef = state[0][0];
 	double initYRef = state[0][1];
 	double initTheta = state[0][2];
-	double initV = state[0][5];
+	double initV = state[0][3];
 	//double dtw = 0.0;
 	double dt = 0.001;
 	//Reference State gps.x gps.y heading v w dtw aaw daw rud sail
@@ -35,32 +35,36 @@ double costFunction(const std::vector<double> &x, std::vector<double> &grad, voi
 
 	//Simulate State
 	std::vector<std::array<double,5>> predicted;
-	std::array<double,5> states{0,0,initTheta,initV,0};
+	double states[5] ={0,0,initTheta,initV,0};
 	std::array<double,5> statesData{0,0,0,0,0};
+	const double p[11] = {x[0], x[1],x[2],x[3],x[4],p6,p7,p8,p9,x[5],x[6]};
+	
 	for(int i = 0; i< state.size()-1; ++i){
-		double daw = state[i][7];
-		//double dtw = state[i][5];
-		double aaw = state[i][6];
-		double sigma = cos(daw)+cos(state[i][9]);
+		double daw = state[i][9];
+		//double dtw = state[i][7];
+		double aaw = state[i][8];
+		/*double sigma = cos(daw)+cos(state[i][9]);
 		double delta_s = 0;
 		if (sigma<0){
 			delta_s = M_PI + daw;
 		}
 		else{
 			delta_s = -sign(sin(daw))*state[i][9];
-		}
+		}*/
 
 		for(int j = 0; j < 100; ++j){
-			double v = states[3];
+			/*double v = states[3];
 			double gs = x[3]*aaw*sin(delta_s-daw);
 			double gr = x[4]*v*v*sin(state[i][8]);
 
-			states[0] += -(v*sin(states[2])+atw*x[0]*sin(dtw))*dt;
-			states[1] += (v*cos(states[2])+atw*x[0]*cos(dtw))*dt;
+			states[0] += (v*cos(states[2])+atw*x[0]*cos(dtw))*dt;
+			states[1] += (v*sin(states[2])+atw*x[0]*sin(dtw))*dt;
 			states[2] += states[4]*dt;
 			states[3] += (gs*sin(delta_s)-gr*x[6]*sin(state[i][8])-x[1]*v*v)/p9*dt;
 			states[4] += (gs*(p6-p7*cos(delta_s))-gr*p8*cos(state[i][8])-x[2]*states[4]*v)/x[5]*dt;
-			//states[2]=mod(states[2],2*M_PI);
+			*///states[2]=mod(states[2],2*M_PI);
+		
+			Utility::simulateBoat(p, aaw, daw, atw, dtw, state[i][8], state[i][9], states, states, dt, true);
 		}
 
 		//double latpi = states[0]/(111132.92)*M_PI/180.0;
@@ -91,9 +95,10 @@ double costFunction(const std::vector<double> &x, std::vector<double> &grad, voi
 		double ypos2 = predicted[it_i][1];
 		f += 1*(xpos - xpos2)*(xpos - xpos2);
 		f += 1*(ypos - ypos2)*(ypos - ypos2);
-		f += 0.5*(sin((*it)[2] - predicted[it_i][2])*sin((*it)[2] - predicted[it_i][2]));
-		f += 0.5*((*it)[3] - predicted[it_i][3])*((*it)[3] - predicted[it_i][3]);
-		f += 0.0*((*it)[4] - predicted[it_i][4])*((*it)[4] - predicted[it_i][4]);
+		f += 0*(sin((*it)[2] - predicted[it_i][2])*sin((*it)[2] - predicted[it_i][2]));
+		f += 0*((*it)[3] - predicted[it_i][3])*((*it)[3] - predicted[it_i][3]);
+		f += 0*((*it)[6] - predicted[it_i][4])*((*it)[6] - predicted[it_i][4]);
+		
 		//std::cout << (*it)[2]<< "," << predicted[it_i][2] << " " <<ypos << "," <<  predicted[it_i][1] << std::endl;
 		//std::cout << "x: " << xpos << " " << xpos2 << std::endl;
 		//double ypos = ((*it)[1]);
@@ -350,7 +355,7 @@ int main(int argc, char **argv)
 	ub[1] = 50;
 	ub[6] = 10;
 	opt.set_upper_bounds(ub);
-	opt.set_xtol_rel(1e-8);
+	opt.set_xtol_rel(1e-10);
 	std::cout << "Approximate Values : {" + std::to_string(xp1) + "," + std::to_string(xp2) + "," + std::to_string(xp3) + "," + std::to_string(xp4) + "," + std::to_string(xp5) + "," + std::to_string(p10) + "," + std::to_string(xp11) + "}"  << std::endl;
 
 	std::cout << "Starting Optimization" << std::endl;

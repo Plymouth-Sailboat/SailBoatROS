@@ -313,3 +313,25 @@ glm::dvec2 Utility::StandardCommand(glm::dvec3 currentHeading, float heading, fl
 	rudsail.y = max_sail*(cos(windNorth-heading)+1)/2.0;
 	return rudsail;
 }
+
+void Utility::simulateBoat(const double* p, double aaw, double daw, double atw, double dtw, double rudder, double sail, const double* state, double* outstate, double dt, bool control){
+	double theta = state[2];
+        double v = state[3];
+        double w = state[4];
+        if(control){
+		double sigma = cos(daw)+cos(sail);
+        	if (sigma<0){
+                	sail = M_PI + daw;
+        	}
+        	else{
+                	sail = -sign(sin(daw))*sail;
+        	}
+	}
+        double fr = p[4]*v*v*sin(rudder);
+        double fs = p[3]*aaw*sin(sail-daw);
+        outstate[0] = state[0] + (v*cos(theta) + p[0]*atw*cos(dtw))*dt;
+        outstate[1] = state[1] + (v*sin(theta) + p[0]*atw*sin(dtw))*dt;
+        outstate[2] = theta + w*dt;
+        outstate[3] = v + ((fs*sin(sail) - fr*sin(rudder)*p[10] - p[1]*v*v)/p[8])*dt;
+        outstate[4] = state[4] + ((fs*(p[5]-p[6]*cos(sail))- p[7]*fr*cos(rudder)-p[2]*w*v)/p[9])*dt;
+}

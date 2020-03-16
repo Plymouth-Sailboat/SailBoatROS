@@ -86,6 +86,8 @@ class Utility{
 		 * @{
 		 */
 		static glm::dvec2 StandardCommand(glm::dvec3 currentHeading, float heading, float windNorth, float max_sail = M_PI/2.0, float max_rudder = M_PI/4.0);
+
+		static void simulateBoat(const double* p, double aaw, double daw, double atw, double dtw, double rudder, double sail, const double* state, double* outstate, double dt, bool control);
 		/** @} */
 
 		std::map<std::string,std::string> config;
