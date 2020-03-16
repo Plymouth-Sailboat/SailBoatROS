@@ -21,11 +21,13 @@ double costFunction(const std::vector<double> &x, std::vector<double> &grad, voi
 	double p8 = state.back()[2];
 	double p9 = state.back()[3];
 	double atw = state.back()[4];
-	double initV = state.back()[5];
-	double initTheta = state.back()[6];
+	//double initV = state.back()[5];
+	//double initTheta = state.back()[6];
 	double dtw = state.back()[7];
 	double initXRef = state[0][0];
 	double initYRef = state[0][1];
+	double initTheta = state[0][2];
+	double initV = state[0][5];
 	//double dtw = 0.0;
 	double dt = 0.001;
 	//Reference State gps.x gps.y heading v w dtw aaw daw rud sail
@@ -53,8 +55,8 @@ double costFunction(const std::vector<double> &x, std::vector<double> &grad, voi
 			double gs = x[3]*aaw*sin(delta_s-daw);
 			double gr = x[4]*v*v*sin(state[i][8]);
 
-			states[0] += (v*cos(states[2])+atw*x[0]*cos(dtw))*dt;
-			states[1] += (v*sin(states[2])+atw*x[0]*sin(dtw))*dt;
+			states[0] += -(v*sin(states[2])+atw*x[0]*sin(dtw))*dt;
+			states[1] += (v*cos(states[2])+atw*x[0]*cos(dtw))*dt;
 			states[2] += states[4]*dt;
 			states[3] += (gs*sin(delta_s)-gr*x[6]*sin(state[i][8])-x[1]*v*v)/p9*dt;
 			states[4] += (gs*(p6-p7*cos(delta_s))-gr*p8*cos(state[i][8])-x[2]*states[4]*v)/x[5]*dt;
@@ -89,8 +91,8 @@ double costFunction(const std::vector<double> &x, std::vector<double> &grad, voi
 		double ypos2 = predicted[it_i][1];
 		f += 1*(xpos - xpos2)*(xpos - xpos2);
 		f += 1*(ypos - ypos2)*(ypos - ypos2);
-		f += 1.0*(sin((*it)[2] - predicted[it_i][2])*sin((*it)[2] - predicted[it_i][2]));
-		f += 1.0*((*it)[3] - predicted[it_i][3])*((*it)[3] - predicted[it_i][3]);
+		f += 0.5*(sin((*it)[2] - predicted[it_i][2])*sin((*it)[2] - predicted[it_i][2]));
+		f += 0.5*((*it)[3] - predicted[it_i][3])*((*it)[3] - predicted[it_i][3]);
 		f += 0.0*((*it)[4] - predicted[it_i][4])*((*it)[4] - predicted[it_i][4]);
 		//std::cout << (*it)[2]<< "," << predicted[it_i][2] << " " <<ypos << "," <<  predicted[it_i][1] << std::endl;
 		//std::cout << "x: " << xpos << " " << xpos2 << std::endl;
@@ -287,13 +289,14 @@ int main(int argc, char **argv)
 	}
 
 
-	for(int i = 0; i < s1.size(); ++i)
+	for(int i = 0; i < s1.size(); ++i){
 		s1[i] = maxv*maxv/s1[i];
-	float s1p = std::accumulate(s1.begin()+50, s1.end(), 0.0) / (s1.size()-50.0);
+	}
+	float s1p = std::accumulate(s1.begin(), s1.end(), 0.0) / (s1.size());
 	s1p = s1p>0?s1p:0.01;
 	float s2p = std::accumulate(s2.begin(), s2.end(), 0.0) / s2.size();
 	s2p = s2p>0?s2p:0.01;
-	float s3p = std::accumulate(s3.begin()+s3.size()/2.0, s3.end(), 0.0) / s3.size()*2.0;
+	float s3p = std::accumulate(s3.begin(), s3.end()-s3.size()/2.0, 0.0) / s3.size()*2.0;
 	s3p = s3p>0?s3p:0.01;
 	float s4p = std::accumulate(s4.begin()+s4.size()/2.0, s4.end(), 0.0) / s4.size()*2.0;
 	s4p = s4p>0?s4p:0.01;
