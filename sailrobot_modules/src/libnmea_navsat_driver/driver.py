@@ -185,6 +185,7 @@ class RosNMEADriver(object):
                 self.lat_std_dev = default_epe
             if not self.using_receiver_epe or math.isnan(self.alt_std_dev):
                 self.alt_std_dev = default_epe * 2
+            
             if math.isnan(self.current_fix.longitude):
                 self.current_fix.longitude = 0.0
             if math.isnan(self.current_fix.latitude):
